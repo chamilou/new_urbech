@@ -25,6 +25,7 @@ backend/.coverage
 backend/htmlcov/
 backend/.pytest_cache/
 backend/.mypy_cache/
+myshopVenv/
 
 # ===== Database =====
 *.db
