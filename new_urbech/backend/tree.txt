@@ -1,0 +1,150 @@
+.
+├── app
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-313.pyc
+│   │   └── main.cpython-313.pyc
+│   ├── api
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── auth.cpython-313.pyc
+│   │   │   ├── cart.cpython-313.pyc
+│   │   │   ├── categories.cpython-313.pyc
+│   │   │   ├── endpoints.cpython-313.pyc
+│   │   │   ├── orders.cpython-313.pyc
+│   │   │   ├── products.cpython-313.pyc
+│   │   │   ├── stats.cpython-313.pyc
+│   │   │   └── users.cpython-313.pyc
+│   │   ├── auth.py
+│   │   ├── cart.py
+│   │   ├── categories.py
+│   │   ├── endpoints.py
+│   │   ├── orders.py
+│   │   ├── products.py
+│   │   ├── stats.py
+│   │   └── users.py
+│   ├── db
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   └── session.cpython-313.pyc
+│   │   └── session.py
+│   ├── main.py
+│   ├── schemas
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── auth.cpython-313.pyc
+│   │   │   ├── cart.cpython-313.pyc
+│   │   │   ├── order.cpython-313.pyc
+│   │   │   ├── product.cpython-313.pyc
+│   │   │   └── user.cpython-313.pyc
+│   │   ├── auth.py
+│   │   ├── cart.py
+│   │   ├── order.py
+│   │   ├── product.py
+│   │   └── user.py
+│   └── utils
+│       ├── __init__.py
+│       ├── __pycache__
+│       │   ├── __init__.cpython-313.pyc
+│       │   └── auth.cpython-313.pyc
+│       └── auth.py
+├── docker-compose.yml
+├── prisma
+│   └── schema.prisma
+├── requirement.txt
+└── tree.txt
+
+12 directories, 46 files
+.
+├── app
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-313.pyc
+│   │   └── main.cpython-313.pyc
+│   ├── api
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── auth.cpython-313.pyc
+│   │   │   ├── cart.cpython-313.pyc
+│   │   │   ├── categories.cpython-313.pyc
+│   │   │   ├── endpoints.cpython-313.pyc
+│   │   │   ├── orders.cpython-313.pyc
+│   │   │   ├── products.cpython-313.pyc
+│   │   │   ├── stats.cpython-313.pyc
+│   │   │   ├── uploads.cpython-313.pyc
+│   │   │   └── users.cpython-313.pyc
+│   │   ├── auth.py
+│   │   ├── cart.py
+│   │   ├── categories.py
+│   │   ├── endpoints.py
+│   │   ├── orders.py
+│   │   ├── products.py
+│   │   ├── stats.py
+│   │   ├── uploads.py
+│   │   └── users.py
+│   ├── core
+│   │   ├── __pycache__
+│   │   │   └── config.cpython-313.pyc
+│   │   └── config.py
+│   ├── db
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   └── session.cpython-313.pyc
+│   │   └── session.py
+│   ├── main.py
+│   ├── media
+│   │   ├── product_pictures
+│   │   │   ├── 01ab487b-0a89-420b-9d5e-267245f1bbba.png
+│   │   │   ├── 0861e66c-05c2-4603-a8ce-b8535e69ac08.png
+│   │   │   ├── 0961e9b3-21a9-49e5-8836-9ba59e9d83d7.jpg
+│   │   │   ├── 30bce107-69d0-4a6a-a1f7-91cc1209abc8.png
+│   │   │   ├── 31897cde-b47a-4a65-8052-e7ca140b64f4.png
+│   │   │   ├── 37f6dbef-15dd-45e6-9b71-5d96044bb95a.png
+│   │   │   ├── 3a1fe775-d8d3-48d2-b7c6-e0758b1d4b38.jpg
+│   │   │   ├── 646cdc46-5748-4ccd-a194-dc2c75806a39.jpg
+│   │   │   ├── 65500a4e-11fc-4380-b1ef-d0a6349e89d7.jpg
+│   │   │   ├── 896f10a2-079b-4331-8db4-337b2aae722b.png
+│   │   │   ├── a450fc98-6263-4d46-9c5f-575c62f2063f.jpg
+│   │   │   ├── a5e37d84-bae9-47b2-9dee-83d49c19b7d9.png
+│   │   │   └── f526bf4d-faaf-4fc5-be42-67961342769c.png
+│   │   └── user_avatars
+│   ├── schemas
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-313.pyc
+│   │   │   ├── auth.cpython-313.pyc
+│   │   │   ├── cart.cpython-313.pyc
+│   │   │   ├── order.cpython-313.pyc
+│   │   │   ├── product.cpython-313.pyc
+│   │   │   └── user.cpython-313.pyc
+│   │   ├── auth.py
+│   │   ├── cart.py
+│   │   ├── order.py
+│   │   ├── product.py
+│   │   └── user.py
+│   └── utils
+│       ├── __init__.py
+│       ├── __pycache__
+│       │   ├── __init__.cpython-313.pyc
+│       │   └── auth.cpython-313.pyc
+│       └── auth.py
+├── docker-compose.yml
+├── media
+│   ├── products
+│   └── users
+├── prisma
+│   ├── copyofOldPrisma.txt
+│   ├── migrations
+│   │   ├── 20251106181938_init_extended_models
+│   │   │   └── migration.sql
+│   │   └── migration_lock.toml
+│   └── schema.prisma
+├── requirement.txt
+└── tree.txt
+
+22 directories, 66 files

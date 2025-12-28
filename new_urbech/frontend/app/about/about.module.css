@@ -1,0 +1,399 @@
+/* about.module.css */
+
+.container {
+  min-height: 100vh;
+  background: #ffffff;
+  padding-top: 80px; /* Consistent with home page header spacing */
+}
+
+/* Hero Section - Consistent with home page styling */
+.hero {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: white;
+  padding: 4rem 2rem;
+  text-align: center;
+  margin-bottom: 60px; /* Consistent section spacing */
+}
+
+.heroContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  font-size: 2.5rem; /* Consistent with home page h1 size */
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #fff, #f8fafc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heroSubtitle {
+  font-size: 1.1rem; /* Consistent with home page text sizes */
+  opacity: 0.95;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+  font-weight: 300;
+}
+
+/* Main Content - Aligned with home page container */
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+}
+
+/* Sections - Consistent spacing and typography */
+.section {
+  margin-bottom: 60px; /* Same as home page productsSection */
+  padding: 0 20px; /* Consistent horizontal padding */
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.sectionTitle {
+  font-size: 2rem; /* Consistent with home page section headers */
+  font-weight: 700;
+  color: #333; /* Same as home page section headers */
+  margin-bottom: 30px;
+  text-align: center;
+  position: relative;
+}
+
+.sectionTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-radius: 2px;
+}
+
+.sectionText {
+  font-size: 1rem; /* Consistent with home page body text */
+  line-height: 1.7;
+  color: #666; /* Same as home page secondary text */
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.sectionText:last-child {
+  margin-bottom: 0;
+}
+
+/* Values Grid - Consistent with products grid spacing */
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Same min-width as products */
+  gap: 24px; /* Same gap as products grid */
+  margin-top: 30px; /* Same as section header margin */
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.valueCard {
+  background: #f8f9fa; /* Consistent with home page empty state background */
+  padding: 2rem;
+  border-radius: 12px; /* Consistent border radius */
+  text-align: center;
+  border: 1px solid #e9ecef; /* Same as home page empty state */
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.valueCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+
+.valueCard:hover {
+  transform: translateY(-2px); /* Subtle hover like home page */
+  box-shadow: 0 8px 25px rgba(79, 70, 229, 0.1);
+  background: #ffffff;
+}
+
+.valueIcon {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+}
+
+.valueTitle {
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: #333; /* Consistent with home page headings */
+  margin-bottom: 1rem;
+}
+
+.valueText {
+  color: #666; /* Consistent with home page body text */
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* Features List - Consistent styling */
+.featuresList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.125rem 1.5rem;
+  background: #f8f9fa; /* Consistent background */
+  border-radius: 10px;
+  border-left: 4px solid #4f46e5;
+  transition: all 0.2s ease;
+}
+
+.feature:hover {
+  background: #f1f5f9;
+  transform: translateX(5px);
+}
+
+.featureBullet {
+  color: #4f46e5;
+  font-weight: 600;
+  font-size: 1.1rem;
+  min-width: 20px;
+}
+
+/* CTA Section - Consistent with home page styling */
+.ctaSection {
+  background: #f8f9fa; /* Same as home page empty state */
+  padding: 4rem 2rem;
+  border-radius: 12px; /* Consistent border radius */
+  text-align: center;
+  margin-top: 60px; /* Consistent section spacing */
+  border: 1px solid #e9ecef; /* Same border as home page components */
+}
+
+.ctaContent {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.ctaTitle {
+  font-size: 2rem; /* Consistent with section headers */
+  font-weight: 700;
+  color: #333; /* Same as home page headings */
+  margin-bottom: 1rem;
+}
+
+.ctaText {
+  font-size: 1.1rem;
+  color: #666; /* Consistent secondary text */
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+
+.ctaButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.ctaButtonPrimary {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  padding: 1rem 2.5rem;
+  border-radius: 8px; /* Consistent button radius */
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+.ctaButtonPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+  background: linear-gradient(135deg, #4338ca, #6d28d9);
+}
+
+.ctaButtonSecondary {
+  background: white;
+  color: #4f46e5;
+  padding: 1rem 2.5rem;
+  border-radius: 8px; /* Consistent button radius */
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: 2px solid #4f46e5;
+  font-size: 1rem;
+}
+
+.ctaButtonSecondary:hover {
+  background: #4f46e5;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(79, 70, 229, 0.2);
+}
+
+/* Performance Optimizations */
+.valuesGrid,
+.featuresList,
+.ctaButtons {
+  will-change: transform;
+}
+
+.valueCard,
+.feature,
+.ctaButtonPrimary,
+.ctaButtonSecondary {
+  backface-visibility: hidden;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .valueCard,
+  .feature,
+  .ctaButtonPrimary,
+  .ctaButtonSecondary {
+    transition: none;
+  }
+  
+  .valueCard:hover,
+  .feature:hover {
+    transform: none;
+  }
+}
+
+/* Responsive Design - Consistent with home page breakpoints */
+@media (max-width: 768px) {
+  .container {
+    padding-top: 70px;
+  }
+  
+  .hero {
+    padding: 3rem 1.5rem;
+    margin-bottom: 40px;
+  }
+  
+  .heroTitle {
+    font-size: 2rem;
+  }
+  
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+  
+  .content {
+    padding: 0 1.5rem 3rem;
+  }
+  
+  .section {
+    padding: 0 16px;
+    margin-bottom: 40px;
+  }
+  
+  .sectionTitle {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .valuesGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .valueCard {
+    padding: 1.5rem;
+  }
+  
+  .ctaSection {
+    padding: 3rem 1.5rem;
+    margin-top: 40px;
+  }
+  
+  .ctaTitle {
+    font-size: 1.5rem;
+  }
+  
+  .ctaButtons {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.875rem;
+  }
+  
+  .ctaButtonPrimary,
+  .ctaButtonSecondary {
+    width: 100%;
+    max-width: 280px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroTitle {
+    font-size: 1.75rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.25rem;
+  }
+  
+  .content {
+    padding: 0 1rem 2rem;
+  }
+  
+  .feature {
+    padding: 1rem 1.25rem;
+  }
+  
+  .heroSubtitle,
+  .sectionText,
+  .valueText,
+  .ctaText {
+    font-size: 0.9rem;
+  }
+  
+  .valuesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Utility Classes - Consistent with home page */
+.textCenter {
+  text-align: center;
+}
+
+.mb4 {
+  margin-bottom: 2rem;
+}
+
+.mt4 {
+  margin-top: 2rem;
+}
+
+.p4 {
+  padding: 2rem;
+}

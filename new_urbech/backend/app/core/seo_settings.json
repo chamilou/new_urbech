@@ -1,0 +1,11 @@
+{
+  "excludes": {
+    "admin": true,
+    "cart": true,
+    "profile": true,
+    "shipping": true,
+    "login": true,
+    "register": true,
+    "orders": true
+  }
+}

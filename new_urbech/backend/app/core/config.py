@@ -1,0 +1,19 @@
+# app/core/config.py
+import os
+from pathlib import Path
+
+# Base directory of the project
+BASE_DIR = Path(__file__).parent.parent
+
+# Media directories
+MEDIA_ROOT = BASE_DIR / "media"
+PRODUCT_DIR = MEDIA_ROOT / "products"
+USER_DIR = MEDIA_ROOT / "users"  # If you need this later
+
+# Create directories if they don't exist
+MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+PRODUCT_DIR.mkdir(parents=True, exist_ok=True)
+USER_DIR.mkdir(parents=True, exist_ok=True)
+
+# CORS settings
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://0.0.0.0:3000").split(",")

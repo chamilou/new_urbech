@@ -1,0 +1,51 @@
+.modalOverlay {
+ position: fixed;
+  inset: 0;
+  z-index: 9999; /* must be higher than ProductForm overlay */
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal {
+  background: #fff; width: 100%; max-width: 520px;
+  border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  position: relative;
+  z-index: 10000;
+}
+.form { display: grid; gap: 16px; }
+.formGroup { display: grid; gap: 6px; }
+.inlineRow { display: flex; gap: 8px; align-items: center; }
+.checkbox { display: flex; gap: 6px; align-items: center; }
+.formActions { display: flex; gap: 8px; justify-content: flex-end; }
+.cancelBtn, .saveBtn { padding: 10px 14px; border: 0; border-radius: 8px; cursor: pointer; }
+.cancelBtn { background: #eee; }
+.saveBtn { background: #111; color: #fff; }
+.error { color: #b00020; }
+.helpText { color: #666; font-size: 12px; }
+.infoRow { display: flex; gap: 10px; align-items: center; }
+.slugHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.regenerateSlugBtn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.regenerateSlugBtn:hover:not(:disabled) {
+  background: #5a6268;
+}
+
+.regenerateSlugBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
