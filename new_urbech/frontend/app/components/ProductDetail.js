@@ -8,10 +8,10 @@ import { useCart } from '../context/CartContext';
 export default function ProductDetail({ product, onClose }) {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const  showToast  = useToast();
+  const showToast = useToast();
   const { addToCart } = useCart();
 
-  // Fixed image URL handling
+  // Обработка URL изображений
   const getImageUrl = (imagePath) => {
     if (!imagePath) return '/placeholder-image.jpg';
     
@@ -30,7 +30,7 @@ export default function ProductDetail({ product, onClose }) {
     return imagePath;
   };
 
-  // Fixed images array logic
+  // Формирование массива изображений
   const getImagesArray = () => {
     const images = [];
     
@@ -65,11 +65,9 @@ export default function ProductDetail({ product, onClose }) {
   };
 
   const handleAddToCart = () => {
-    // FIXED: Ensure product has product_id field
     const cartProduct = {
-      // Use product.product_id OR product.id as fallback
       product_id: product.product_id || product.id,
-      id: product.id || product.product_id, // Keep id for compatibility
+      id: product.id || product.product_id,
       name: product.name,
       price: product.price,
       mainImageUrl: product.mainImageUrl,
@@ -80,7 +78,7 @@ export default function ProductDetail({ product, onClose }) {
       stock: product.stock || 0
     };
 
-    console.log("Adding to cart:", {
+    console.log("Добавление в корзину:", {
       cartProduct,
       quantity,
       hasProductId: !!cartProduct.product_id
@@ -90,7 +88,7 @@ export default function ProductDetail({ product, onClose }) {
       addToCart(cartProduct, quantity);
       showToast(`${product.name} добавлен в корзину 🛒`, 'success');
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      console.error('Ошибка добавления в корзину:', error);
       showToast('Ошибка при добавлении в корзину', 'error');
     }
   };

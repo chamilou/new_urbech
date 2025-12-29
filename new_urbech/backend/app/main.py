@@ -7,6 +7,9 @@ from app.db.session import prisma
 # Import from config instead of defining here
 from app.core.config import MEDIA_ROOT, ALLOWED_ORIGINS
 from app.api.endpoints import api_router
+from fastapi.middleware.cors import CORSMiddleware
+
+
 # Import routers
 
 

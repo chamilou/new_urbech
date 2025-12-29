@@ -16,7 +16,7 @@ export default function Header() {
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
-  const [cartCount, setCartCount] = useState(0); // Add cart count state
+  const [cartCount, setCartCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
   const mobileMenuRef = useRef(null);
@@ -84,6 +84,8 @@ export default function Header() {
   // Use context user or localStorage fallback
   const displayUser = user || localUser;
   const displayIsAuthenticated = isAuthenticated || !!localUser;
+  const isAdmin = displayUser?.role === 'ADMIN';
+
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -105,14 +107,11 @@ export default function Header() {
     const query = searchQuery.trim();
     
     if (query) {
-      // Redirect to products page with search query
       router.push(`/products?search=${encodeURIComponent(query)}&page=1`);
     } else {
-      // If no search query, go to products page
       router.push('/products');
     }
     
-    // Close mobile menu if open
     setIsMenuOpen(false);
   }, [searchQuery, router]);
 
@@ -150,16 +149,23 @@ export default function Header() {
     const name = category.name?.toLowerCase() || '';
     const slug = category.slug?.toLowerCase() || '';
     
-    if (name.includes('electron') || slug.includes('electron')) return '📱';
-    if (name.includes('cloth') || slug.includes('cloth') || name.includes('fashion')) return '👕';
-    if (name.includes('home') || slug.includes('home') || name.includes('garden')) return '🏠';
-    if (name.includes('book') || slug.includes('book')) return '📚';
-    if (name.includes('sport') || slug.includes('sport')) return '⚽';
-    if (name.includes('beauty') || slug.includes('beauty') || name.includes('cosmetic')) return '💄';
-    if (name.includes('food') || slug.includes('food') || name.includes('grocery')) return '🍎';
-    if (name.includes('toy') || slug.includes('toy')) return '🧸';
-    if (name.includes('health') || slug.includes('health')) return '💊';
-    if (name.includes('auto') || slug.includes('auto') || name.includes('car')) return '🚗';
+    // Адаптированные иконки для магазина урбеча
+    if (name.includes('орех') || slug.includes('nut')) return '🌰';
+    if (name.includes('семя') || slug.includes('seed')) return '🌱';
+    if (name.includes('лен') || slug.includes('flax')) return '🟤';
+    if (name.includes('кунжут') || slug.includes('sesame')) return '⚪';
+    if (name.includes('подсолнеч') || slug.includes('sunflower')) return '🌻';
+    if (name.includes('тыкв') || slug.includes('pumpkin')) return '🎃';
+    if (name.includes('кокос') || slug.includes('coconut')) return '🥥';
+    if (name.includes('миндал') || slug.includes('almond')) return '🌰';
+    if (name.includes('арахис') || slug.includes('peanut')) return '🥜';
+    if (name.includes('фисташк') || slug.includes('pistachio')) return '🟢';
+    if (name.includes('фундук') || slug.includes('hazelnut')) return '🌰';
+    if (name.includes('специ') || slug.includes('spice')) return '🌶️';
+    if (name.includes('мед') || slug.includes('honey')) return '🍯';
+    if (name.includes('масло') || slug.includes('oil')) return '🫒';
+    if (name.includes('паста') || slug.includes('paste')) return '🥣';
+    if (name.includes('натур') || slug.includes('natural')) return '🌿';
     
     return '📦'; // Default icon
   };
@@ -178,7 +184,7 @@ export default function Header() {
     })
     .slice(0, 5);
 
-  // Get remaining categories for "More +" dropdown
+  // Get remaining categories for "Еще +" dropdown
   const moreCategories = categories
     .filter(category => !category.parent || category.parent === null)
     .sort((a, b) => {
@@ -198,30 +204,31 @@ export default function Header() {
       <div className={styles.topBar}>
         <div className={styles.container}>
           <nav className={styles.topNav}>
-            <Link href="/about">О нас</Link>
-            <Link href="/contacts">Контакты</Link>
+            <Link href="/about" className={styles.topNavLink}>О нас</Link>
+            <Link href="/contacts" className={styles.topNavLink}>Контакты</Link>
             
             {displayIsAuthenticated && displayUser ? (
               <>
-                <span className={styles.welcomeText}>Добро пожаловать, {displayUser.name}</span>
-                <Link href="/profile">Профиль</Link>
+                <span className={styles.welcomeText}>Привет, {displayUser.name}!</span>
+                <Link href="/profile" className={styles.topNavLink}>Профиль</Link>
                 <button onClick={handleLogout} className={styles.logoutBtn}>
                   Выйти
                 </button>
               </>
             ) : (
               <>
-                <Link href="/login">Войти</Link>
-                <Link href="/register">Регистрация</Link>
+                <Link href="/login" className={styles.topNavLink}>Войти</Link>
+                <Link href="/register" className={styles.topNavLink}>Регистрация</Link>
               </>
             )}
-            
+            {isAdmin&&(
             <Link 
               href="/admin" 
-              className={pathname.startsWith('/admin') ? styles.adminActive : ''}
+              className={`${styles.topNavLink} ${pathname.startsWith('/admin') ? styles.adminActive : ''}`}
             >
-              Панель управления
+              Админ-панель
             </Link>
+            )}
           </nav>
         </div>
       </div>
@@ -232,7 +239,7 @@ export default function Header() {
           <form onSubmit={handleSearch} className={styles.searchContainer}>
             <input
               type="text"
-              placeholder="Поиск товаров..."
+              placeholder="Поиск по каталогу урбеча..."
               value={searchQuery}
               onChange={handleSearchInput}
               onKeyDown={handleKeyDown}
@@ -244,7 +251,7 @@ export default function Header() {
             <div className={styles.cartIcon}>
               <Link href="/cart" className={styles.cartLink}>
                 🛒
-                {isClient && cartCount > 0 && ( // FIX: Only show cart count on client
+                {isClient && cartCount > 0 && (
                   <span className={styles.cartCount}>{cartCount}</span>
                 )}
               </Link>
@@ -260,13 +267,13 @@ export default function Header() {
             {/* Logo */}
             <div className={styles.logo}>
               <Link href="/" onClick={handleHomeClick}>
-                <h1>MyShop</h1>
+                <h1>Урбеч Магазин</h1>
               </Link>
             </div>
 
             {/* Desktop Navigation - Hidden on mobile */}
             <nav className={styles.desktopNav}>
-              <Link href="/products" className={styles.navLink}>All Products</Link>
+              <Link href="/products" className={styles.navLink}>Все товары</Link>
               {!isClient || categoriesLoading ? (
                 <div className={styles.navLoading}>
                   <span>Загрузка категорий...</span>
@@ -336,7 +343,7 @@ export default function Header() {
                   {moreCategories.length > 0 && (
                     <div className={styles.dropdown}>
                       <button className={`${styles.dropdownToggle} ${styles.moreDropdown}`}>
-                        More +
+                        Ещё +
                         <span className={styles.dropdownArrow}>▼</span>
                       </button>
                       <div className={styles.dropdownMenu}>
@@ -458,6 +465,14 @@ export default function Header() {
                     <Link href="/register" className={styles.mobileLink} onClick={closeMobileMenu}>
                       Регистрация
                     </Link>
+                    {isAdmin && (
+                     <Link href="/admin" className={styles.mobileLink} onClick={closeMobileMenu}>
+                     Админ-панель
+                           </Link>  
+                      )}
+
+
+
                   </>
                 )}
               </div>

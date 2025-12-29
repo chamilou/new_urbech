@@ -2,6 +2,25 @@
 import styles from './contacts.module.css';
 
 export default function Contacts() {
+  const phoneNumber = "+79679379376";
+  const whatsappLink = `https://wa.me/${phoneNumber.replace('+', '')}`;
+  const telegramLink = `https://t.me/${phoneNumber.replace('+', '')}`;
+  const email = "shikhmirzaev2000@mail.ru";
+  const address = "368933 Чирката, Гумбетовский район, Республика Дагестан";
+
+  const handleOpenChat = () => {
+    if (typeof window !== 'undefined') {
+      alert("Чат скоро будет доступен!");
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Здесь будет логика отправки формы
+    alert("Сообщение отправлено! Мы свяжемся с вами в ближайшее время.");
+    e.target.reset();
+  };
+
   return (
     <div className={styles.container}>
       {/* Герой секция */}
@@ -9,8 +28,13 @@ export default function Contacts() {
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>Свяжитесь с нами</h1>
           <p className={styles.heroSubtitle}>
-            Мы всегда готовы помочь вам! Свяжитесь с нашей командой поддержки для любых вопросов или запросов
+            Мы всегда готовы помочь вам! Свяжитесь с нами по любым вопросам о нашем урбече
           </p>
+          <div className={styles.heroDecoration}>
+            <span className={styles.decorationIcon}>📞</span>
+            <span className={styles.decorationIcon}>✉️</span>
+            <span className={styles.decorationIcon}>📍</span>
+          </div>
         </div>
       </section>
 
@@ -21,8 +45,8 @@ export default function Contacts() {
           <div className={styles.sectionContent}>
             <h2 className={styles.sectionTitle}>Наши контакты</h2>
             <p className={styles.sectionText}>
-              Мы ценим каждого клиента и готовы предоставить вам наилучший сервис. 
-              Не стесняйтесь обращаться к нам любым удобным для вас способом.
+              Мы — семейный бизнес по производству традиционного дагестанского урбеча. 
+              Ценим каждого клиента и готовы помочь с выбором и ответить на все вопросы.
             </p>
           </div>
 
@@ -30,36 +54,47 @@ export default function Contacts() {
             <div className={styles.contactCard}>
               <div className={styles.contactIcon}>📞</div>
               <h3 className={styles.contactTitle}>Телефон</h3>
-              <p className={styles.contactInfo}>+7 (495) 123-45-67</p>
+              <p className={styles.contactInfo}>{phoneNumber}</p>
               <p className={styles.contactDescription}>
-                Доступно с 9:00 до 21:00 ежедневно
+                Доступно с 9:00 до 21:00 по московскому времени
               </p>
+              <div className={styles.messengerButtons}>
+                <a href={whatsappLink} className={styles.messengerButton} target="_blank" rel="noopener noreferrer">
+                  WhatsApp
+                </a>
+                <a href={telegramLink} className={styles.messengerButton} target="_blank" rel="noopener noreferrer">
+                  Telegram
+                </a>
+              </div>
             </div>
 
             <div className={styles.contactCard}>
               <div className={styles.contactIcon}>✉️</div>
               <h3 className={styles.contactTitle}>Email</h3>
-              <p className={styles.contactInfo}>support@myshop.ru</p>
+              <p className={styles.contactInfo}>{email}</p>
               <p className={styles.contactDescription}>
-                Ответим в течение 2 часов в рабочее время
+                Ответим в течение 24 часов
               </p>
-            </div>
-
-            <div className={styles.contactCard}>
-              <div className={styles.contactIcon}>💬</div>
-              <h3 className={styles.contactTitle}>Онлайн-чат</h3>
-              <p className={styles.contactInfo}>Доступен 24/7</p>
-              <p className={styles.contactDescription}>
-                Мгновенная помощь через встроенный чат
-              </p>
+              <a href={`mailto:${email}`} className={styles.emailButton}>
+                Написать письмо
+              </a>
             </div>
 
             <div className={styles.contactCard}>
               <div className={styles.contactIcon}>📍</div>
-              <h3 className={styles.contactTitle}>Адрес</h3>
-              <p className={styles.contactInfo}>Москва, ул. Примерная, д. 123</p>
+              <h3 className={styles.contactTitle}>Адрес производства</h3>
+              <p className={styles.contactInfo}>{address}</p>
               <p className={styles.contactDescription}>
-                Пн-Пт с 10:00 до 19:00 для личных визитов
+                Мы находимся в живописной горной местности Дагестана
+              </p>
+            </div>
+
+            <div className={styles.contactCard}>
+              <div className={styles.contactIcon}>👨‍👩‍👧‍👦</div>
+              <h3 className={styles.contactTitle}>Семейный бизнес</h3>
+              <p className={styles.contactInfo}>Работаем с 2023 года</p>
+              <p className={styles.contactDescription}>
+                Вся наша семья участвует в производстве традиционного урбеча
               </p>
             </div>
           </div>
@@ -73,7 +108,7 @@ export default function Contacts() {
               Заполните форму ниже, и мы свяжемся с вами в ближайшее время
             </p>
 
-            <form className={styles.contactForm}>
+            <form className={styles.contactForm} onSubmit={handleSubmit}>
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label htmlFor="name" className={styles.formLabel}>
@@ -110,7 +145,7 @@ export default function Contacts() {
                   type="text"
                   id="subject"
                   className={styles.formInput}
-                  placeholder="О чем вы хотите спросить?"
+                  placeholder="Например: Заказ урбеча, Вопрос о доставке"
                 />
               </div>
 
@@ -122,7 +157,7 @@ export default function Contacts() {
                   id="message"
                   className={styles.formTextarea}
                   rows="6"
-                  placeholder="Опишите ваш вопрос или проблему..."
+                  placeholder="Опишите ваш вопрос или оставьте пожелания..."
                   required
                 ></textarea>
               </div>
@@ -147,34 +182,34 @@ export default function Contacts() {
             <h2 className={styles.sectionTitle}>Часто задаваемые вопросы</h2>
             <div className={styles.faqGrid}>
               <div className={styles.faqItem}>
-                <h3 className={styles.faqQuestion}>Как оформить возврат товара?</h3>
+                <h3 className={styles.faqQuestion}>Как происходит доставка урбеча?</h3>
                 <p className={styles.faqAnswer}>
-                  Вы можете оформить возврат в течение 14 дней с момента получения заказа. 
-                  Для этого свяжитесь с нашей службой поддержки.
+                  Доставляем по всей России через Почту России и СДЭК. 
+                  Сроки и стоимость доставки рассчитываются индивидуально.
                 </p>
               </div>
 
               <div className={styles.faqItem}>
-                <h3 className={styles.faqQuestion}>Сколько стоит доставка?</h3>
+                <h3 className={styles.faqQuestion}>Сколько хранится урбеч?</h3>
                 <p className={styles.faqAnswer}>
-                  Доставка бесплатна при заказе от 3000 рублей. Для заказов до этой суммы 
-                  стоимость доставки рассчитывается индивидуально.
+                  Наш урбеч хранится 6 месяцев при комнатной температуре и 
+                  до 12 месяцев в холодильнике. Не содержит консервантов.
                 </p>
               </div>
 
               <div className={styles.faqItem}>
-                <h3 className={styles.faqQuestion}>Как отследить мой заказ?</h3>
+                <h3 className={styles.faqQuestion}>Какой урбеч вы рекомендуете?</h3>
                 <p className={styles.faqAnswer}>
-                  После отправки заказа мы вышлем вам трекер-номер для отслеживания 
-                  на указанную электронную почту.
+                  Все зависит от ваших предпочтений! Классический — из льна, 
+                  насыщенный — из кунжута, сладковатый — из миндаля. Поможем с выбором!
                 </p>
               </div>
 
               <div className={styles.faqItem}>
-                <h3 className={styles.faqQuestion}>Есть ли у вас самовывоз?</h3>
+                <h3 className={styles.faqQuestion}>Есть ли оптовые заказы?</h3>
                 <p className={styles.faqAnswer}>
-                  Да, вы можете забрать ваш заказ из нашего пункта выдачи в Москве 
-                  по адресу: ул. Примерная, д. 123.
+                  Да, мы работаем с оптовыми покупателями. 
+                  Свяжитесь с нами для обсуждения условий и цен.
                 </p>
               </div>
             </div>
@@ -184,17 +219,17 @@ export default function Contacts() {
         {/* Секция призыва к действию */}
         <section className={styles.ctaSection}>
           <div className={styles.ctaContent}>
-            <h2 className={styles.ctaTitle}>Нужна немедленная помощь?</h2>
+            <h2 className={styles.ctaTitle}>Попробуйте настоящий дагестанский урбеч!</h2>
             <p className={styles.ctaText}>
-              Наша служба поддержки готова помочь вам прямо сейчас через онлайн-чат или по телефону
+              Каждая баночка готовится с любовью по старинным рецептам из натуральных горных ингредиентов
             </p>
             <div className={styles.ctaButtons}>
-              <a href="tel:+74951234567" className={styles.ctaButtonPrimary}>
+              <a href="/products" className={styles.ctaButtonPrimary}>
+                Выбрать урбеч
+              </a>
+              <a href={`tel:${phoneNumber}`} className={styles.ctaButtonSecondary}>
                 Позвонить нам
               </a>
-              <button className={styles.ctaButtonSecondary}>
-                Открыть онлайн-чат
-              </button>
             </div>
           </div>
         </section>

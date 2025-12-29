@@ -1,120 +1,3 @@
-// 'use client';
-// import styles from './about.module.css';
-
-// export default function About() {
-//   return (
-//     <div className={styles.container}>
-//       {/* Hero Section */}
-//       <section className={styles.hero}>
-//         <div className={styles.heroContent}>
-//           <h1 className={styles.heroTitle}>About MyShop</h1>
-//           <p className={styles.heroSubtitle}>
-//             Your trusted destination for quality products and exceptional shopping experience
-//           </p>
-//         </div>
-//       </section>
-
-//       {/* Main Content */}
-//       <div className={styles.content}>
-//         {/* Our Story */}
-//         <section className={styles.section}>
-//           <div className={styles.sectionContent}>
-//             <h2 className={styles.sectionTitle}>Our Story</h2>
-//             <p className={styles.sectionText}>
-//               Founded with a passion for excellence, MyShop has been revolutionizing 
-//               the online shopping experience since day one. We believe that everyone 
-//               deserves access to high-quality products at affordable prices.
-//             </p>
-//             <p className={styles.sectionText}>
-//               What started as a small dream has grown into a trusted platform 
-//               serving thousands of satisfied customers worldwide. Our commitment 
-//               to quality, customer satisfaction, and innovation drives everything we do.
-//             </p>
-//           </div>
-//         </section>
-
-//         {/* Our Values */}
-//         <section className={styles.section}>
-//           <h2 className={styles.sectionTitle}>Our Values</h2>
-//           <div className={styles.valuesGrid}>
-//             <div className={styles.valueCard}>
-//               <div className={styles.valueIcon}>⭐</div>
-//               <h3 className={styles.valueTitle}>Quality First</h3>
-//               <p className={styles.valueText}>
-//                 We carefully curate every product to ensure it meets our high standards of quality and reliability.
-//               </p>
-//             </div>
-            
-//             <div className={styles.valueCard}>
-//               <div className={styles.valueIcon}>🚀</div>
-//               <h3 className={styles.valueTitle}>Fast Delivery</h3>
-//               <p className={styles.valueText}>
-//                 Quick and reliable shipping to get your products to you when you need them.
-//               </p>
-//             </div>
-            
-//             <div className={styles.valueCard}>
-//               <div className={styles.valueIcon}>💝</div>
-//               <h3 className={styles.valueTitle}>Customer Focus</h3>
-//               <p className={styles.valueText}>
-//                 Your satisfaction is our priority. We're here to make your shopping experience exceptional.
-//               </p>
-//             </div>
-//           </div>
-//         </section>
-
-//         {/* Why Choose Us */}
-//         <section className={styles.section}>
-//           <div className={styles.sectionContent}>
-//             <h2 className={styles.sectionTitle}>Why Choose MyShop?</h2>
-//             <div className={styles.featuresList}>
-//               <div className={styles.feature}>
-//                 <span className={styles.featureBullet}>✓</span>
-//                 <span>Wide selection of quality products</span>
-//               </div>
-//               <div className={styles.feature}>
-//                 <span className={styles.featureBullet}>✓</span>
-//                 <span>Competitive prices and great deals</span>
-//               </div>
-//               <div className={styles.feature}>
-//                 <span className={styles.featureBullet}>✓</span>
-//                 <span>Secure and easy shopping experience</span>
-//               </div>
-//               <div className={styles.feature}>
-//                 <span className={styles.featureBullet}>✓</span>
-//                 <span>Fast and reliable delivery</span>
-//               </div>
-//               <div className={styles.feature}>
-//                 <span className={styles.featureBullet}>✓</span>
-//                 <span>Excellent customer support</span>
-//               </div>
-//             </div>
-//           </div>
-//         </section>
-
-//         {/* CTA Section */}
-//         <section className={styles.ctaSection}>
-//           <div className={styles.ctaContent}>
-//             <h2 className={styles.ctaTitle}>Ready to Shop?</h2>
-//             <p className={styles.ctaText}>
-//               Join thousands of satisfied customers and discover why MyShop is the preferred choice for online shopping.
-//             </p>
-//             <div className={styles.ctaButtons}>
-//               <a href="/products" className={styles.ctaButtonPrimary}>
-//                 Shop Now
-//               </a>
-//               <a href="/contact" className={styles.ctaButtonSecondary}>
-//                 Contact Us
-//               </a>
-//             </div>
-//           </div>
-//         </section>
-//       </div>
-//     </div>
-//   );
-// }
-
-
 'use client';
 import styles from './about.module.css';
 
@@ -122,13 +5,18 @@ export default function About() {
   return (
     <div className={styles.container}>
       {/* Герой секция */}
-     
       <section className={styles.hero}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}> MyShop</h1>
+          <h1 className={styles.heroTitle}>Наш семейный урбеч</h1>
           <p className={styles.heroSubtitle}>
-            Ваш надежный партнер в мире качественных товаров и исключительного покупательского опыта
+            Традиционные дагестанские пасты ручной работы, приготовленные с любовью по старинным рецептам
           </p>
+          <div className={styles.heroDecoration}>
+            <span className={styles.decorationIcon}>🏔️</span>
+            <span className={styles.decorationIcon}>🌿</span>
+            <span className={styles.decorationIcon}>👨‍👩‍👧‍👦</span>
+            <span className={styles.decorationIcon}>🥜</span>
+          </div>
         </div>
       </section>
 
@@ -137,17 +25,60 @@ export default function About() {
         {/* Наша история */}
         <section className={styles.section}>
           <div className={styles.sectionContent}>
-            <h2 className={styles.sectionTitle}>Наша история</h2>
-            <p className={styles.sectionText}>
-              Основанный с страстью к совершенству, MyShop революционизирует онлайн-шоппинг 
-              с самого первого дня. Мы верим, что каждый заслуживает доступ к высококачественным 
-              товарам по доступным ценам.
-            </p>
-            <p className={styles.sectionText}>
-              То, что начиналось как небольшая мечта, превратилось в надежную платформу, 
-              обслуживающую тысячи довольных клиентов по всему миру. Наша приверженность 
-              качеству, удовлетворенности клиентов и инновациям движет всем, что мы делаем.
-            </p>
+            <h2 className={styles.sectionTitle}>Наша семейная история</h2>
+            <div className={styles.familyStory}>
+              <p className={styles.sectionText}>
+                Мы — молодая семья, хранители древней традиции приготовления <strong>урбеча</strong> — 
+                натуральной дагестанской пасты из обжаренных и перемолотых семян, орехов и трав. 
+                Наш путь начался с желания сохранить и поделиться с миром этой уникальной частью кавказской культуры.
+              </p>
+              <p className={styles.sectionText}>
+                Каждая баночка нашего урбеча — это результат кропотливой работы, уходящей корнями в традиции предков. 
+                Мы бережно собираем лучшие семена, сушим их на горном воздухе, обжариваем на открытом огне 
+                и перемалываем на каменных жерновах, обработанных по древней технологии.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Наш процесс */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Искусство приготовления урбеча</h2>
+          <div className={styles.processGrid}>
+            <div className={styles.processStep}>
+              <div className={styles.processIcon}>🌄</div>
+              <h3 className={styles.processTitle}>Горное сырьё</h3>
+              <p className={styles.processText}>
+                Используем только местные, экологически чистые семена, орехи и травы, 
+                выращенные в горной местности
+              </p>
+            </div>
+            
+            <div className={styles.processStep}>
+              <div className={styles.processIcon}>🔥</div>
+              <h3 className={styles.processTitle}>Традиционная обжарка</h3>
+              <p className={styles.processText}>
+                Медленная обжарка на открытом огне для раскрытия естественного вкуса 
+                и аромата каждого ингредиента
+              </p>
+            </div>
+            
+            <div className={styles.processStep}>
+              <div className={styles.processIcon}>🪨</div>
+              <h3 className={styles.processTitle}>Каменные жернова</h3>
+              <p className={styles.processText}>
+                Перемалываем на каменных жерновах, обработанных с учётом природной 
+                структуры горной породы, как делали наши предки
+              </p>
+            </div>
+            
+            <div className={styles.processStep}>
+              <div className={styles.processIcon}>👐</div>
+              <h3 className={styles.processTitle}>Ручная работа</h3>
+              <p className={styles.processText}>
+                Каждая партия готовится вручную с вниманием к деталям и любовью к традиции
+              </p>
+            </div>
           </div>
         </section>
 
@@ -156,55 +87,71 @@ export default function About() {
           <h2 className={styles.sectionTitle}>Наши ценности</h2>
           <div className={styles.valuesGrid}>
             <div className={styles.valueCard}>
-              <div className={styles.valueIcon}>⭐</div>
-              <h3 className={styles.valueTitle}>Качество прежде всего</h3>
+              <div className={styles.valueIcon}>🏡</div>
+              <h3 className={styles.valueTitle}>Семейные традиции</h3>
               <p className={styles.valueText}>
-                Мы тщательно отбираем каждый товар, чтобы гарантировать соответствие нашим высоким стандартам качества и надежности.
+                Сохраняем и передаём древние рецепты урбеча из поколения в поколение
               </p>
             </div>
             
             <div className={styles.valueCard}>
-              <div className={styles.valueIcon}>🚀</div>
-              <h3 className={styles.valueTitle}>Быстрая доставка</h3>
+              <div className={styles.valueIcon}>🌱</div>
+              <h3 className={styles.valueTitle}>100% натуральность</h3>
               <p className={styles.valueText}>
-                Быстрая и надежная доставка, чтобы вы получили свои товары именно тогда, когда они вам нужны.
+                Никаких консервантов, красителей или добавок. Только чистые, природные ингредиенты
               </p>
             </div>
             
             <div className={styles.valueCard}>
               <div className={styles.valueIcon}>💝</div>
-              <h3 className={styles.valueTitle}>Клиентоориентированность</h3>
+              <h3 className={styles.valueTitle}>Индивидуальный подход</h3>
               <p className={styles.valueText}>
-                Ваше удовлетворение - наш приоритет. Мы здесь, чтобы сделать ваш покупательский опыт исключительным.
+                Каждому клиенту — особое внимание. Мы верим, что счастье клиента — наш главный успех
+              </p>
+            </div>
+            
+            <div className={styles.valueCard}>
+              <div className={styles.valueIcon}>🌍</div>
+              <h3 className={styles.valueTitle}>Забота о природе</h3>
+              <p className={styles.processText}>
+                Используем местное сырьё, минимизируем отходы и уважаем природные циклы
               </p>
             </div>
           </div>
         </section>
 
-        {/* Почему выбирают нас */}
+        {/* Польза урбеча */}
         <section className={styles.section}>
           <div className={styles.sectionContent}>
-            <h2 className={styles.sectionTitle}>Почему выбирают MyShop?</h2>
-            <div className={styles.featuresList}>
-              <div className={styles.feature}>
-                <span className={styles.featureBullet}>✓</span>
-                <span>Широкий выбор качественных товаров</span>
+            <h2 className={styles.sectionTitle}>Почему наш урбеч особенный?</h2>
+            <div className={styles.benefitsList}>
+              <div className={styles.benefit}>
+                <span className={styles.benefitIcon}>💪</span>
+                <div>
+                  <h4>Богат природными питательными веществами</h4>
+                  <p>Источник белка, полезных жиров, витаминов и минералов в естественной форме</p>
+                </div>
               </div>
-              <div className={styles.feature}>
-                <span className={styles.featureBullet}>✓</span>
-                <span>Конкурентные цены и выгодные предложения</span>
+              <div className={styles.benefit}>
+                <span className={styles.benefitIcon}>❤️</span>
+                <div>
+                  <h4>Поддержка здоровья</h4>
+                  <p>Натуральный продукт для укрепления иммунитета и общего благополучия</p>
+                </div>
               </div>
-              <div className={styles.feature}>
-                <span className={styles.featureBullet}>✓</span>
-                <span>Безопасный и удобный процесс покупок</span>
+              <div className={styles.benefit}>
+                <span className={styles.benefitIcon}>👨‍🍳</span>
+                <div>
+                  <h4>Универсальность использования</h4>
+                  <p>Идеально для завтраков, десертов, соусов или как полезный перекус</p>
+                </div>
               </div>
-              <div className={styles.feature}>
-                <span className={styles.featureBullet}>✓</span>
-                <span>Быстрая и надежная доставка</span>
-              </div>
-              <div className={styles.feature}>
-                <span className={styles.featureBullet}>✓</span>
-                <span>Отличная служба поддержки клиентов</span>
+              <div className={styles.benefit}>
+                <span className={styles.benefitIcon}>📜</span>
+                <div>
+                  <h4>Связь с культурным наследием</h4>
+                  <p>Каждая ложка — вкус древней дагестанской традиции</p>
+                </div>
               </div>
             </div>
           </div>
@@ -213,16 +160,17 @@ export default function About() {
         {/* Секция призыва к действию */}
         <section className={styles.ctaSection}>
           <div className={styles.ctaContent}>
-            <h2 className={styles.ctaTitle}>Готовы совершать покупки?</h2>
+            <h2 className={styles.ctaTitle}>Попробуйте настоящий урбеч!</h2>
             <p className={styles.ctaText}>
-              Присоединяйтесь к тысячам довольных клиентов и узнайте, почему MyShop - предпочтительный выбор для онлайн-шоппинга.
+              Присоединяйтесь к тем, кто уже открыл для себя уникальный вкус и пользу традиционных дагестанских паст. 
+              Каждая баночка — это частичка нашей семьи и нашей любви к природе.
             </p>
             <div className={styles.ctaButtons}>
               <a href="/products" className={styles.ctaButtonPrimary}>
-                Начать покупки
+                Выбрать урбеч
               </a>
               <a href="/contact" className={styles.ctaButtonSecondary}>
-                Связаться с нами
+                Задать вопрос
               </a>
             </div>
           </div>

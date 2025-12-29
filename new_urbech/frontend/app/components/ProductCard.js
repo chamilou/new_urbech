@@ -8,35 +8,34 @@ import styles from './ProductCard.module.css';
 const PLACEHOLDER = '/placeholder-image.jpg';
 
 /**
- * Normalize backend image URLs to something the browser can load
- * and Next.js will accept based on your next.config.js rewrites.
+ * Нормализация URL изображений с бэкенда для загрузки в браузере
  */
 function normalizeMedia(src) {
   if (!src) return PLACEHOLDER;
 
-  // Absolute URLs (http/https)
+  // Абсолютные URL (http/https)
   if (src.startsWith('http://') || src.startsWith('https://')) return src;
 
-  // Already proxied /media path
+  // Уже проксированные пути /media
   if (src.startsWith('/media/')) return src;
 
-  // Relative like "media/..." or "uploads/..."
+  // Относительные пути типа "media/..." или "uploads/..."
   if (src.startsWith('media/')) return `/${src}`;
   if (src.startsWith('uploads/')) return `/media/${src.replace(/^\/+/, '')}`;
 
-  // Anything else, assume media path
+  // Всё остальное считаем медиа-путём
   return `/media/${src.replace(/^\/+/, '')}`;
 }
 
 /**
- * Format price with proper currency formatting
+ * Форматирование цены с правильным отображением валюты
  */
-function formatPrice(price, currencyCode = 'USD', locale = 'en-US') {
-  if (price == null || price === '') return 'Price unavailable';
+function formatPrice(price, currencyCode = 'USD', locale = 'ru-RU') {
+  if (price == null || price === '') return 'Цена не указана';
   
   try {
     const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
-    if (isNaN(numericPrice)) return 'Invalid price';
+    if (isNaN(numericPrice)) return 'Некорректная цена';
     
     return new Intl.NumberFormat(locale, {
       style: 'currency',
@@ -45,14 +44,14 @@ function formatPrice(price, currencyCode = 'USD', locale = 'en-US') {
       maximumFractionDigits: 2,
     }).format(numericPrice);
   } catch (error) {
-    // Fallback formatting
+    // Простое форматирование при ошибке
     const fallbackPrice = parseFloat(price);
-    return isNaN(fallbackPrice) ? 'Price unavailable' : `${currencyCode || '$'} ${fallbackPrice.toFixed(2)}`;
+    return isNaN(fallbackPrice) ? 'Цена не указана' : `${fallbackPrice.toFixed(2)} ${currencyCode || 'USD'}`;
   }
 }
 
 /**
- * Get product creation date from various possible fields
+ * Получение даты создания продукта из различных возможных полей
  */
 function getProductDate(product) {
   if (!product) return null;
@@ -74,7 +73,7 @@ export default function ProductCard({ product, onProductClick, onQuickAdd }) {
   const [imageSrc, setImageSrc] = useState(PLACEHOLDER);
   const [imageLoading, setImageLoading] = useState(true);
 
-  // Normalize image source on product change
+  // Нормализация изображения при изменении продукта
   useEffect(() => {
     if (!product) {
       setImageSrc(PLACEHOLDER);
@@ -89,7 +88,7 @@ export default function ProductCard({ product, onProductClick, onQuickAdd }) {
   }, [product]);
 
   const handleImageError = () => {
-    console.warn('Image failed:', imageSrc);
+    console.warn('Ошибка загрузки изображения:', imageSrc);
     if (imageSrc !== PLACEHOLDER) {
       setImageSrc(PLACEHOLDER);
     }
@@ -100,7 +99,7 @@ export default function ProductCard({ product, onProductClick, onQuickAdd }) {
     setImageLoading(false);
   };
 
-  // ---------- Optimized Calculations ----------
+  // ---------- Оптимизированные вычисления ----------
   const isNewProduct = useMemo(() => {
     const created = getProductDate(product);
     if (!created) return false;
@@ -127,7 +126,7 @@ export default function ProductCard({ product, onProductClick, onQuickAdd }) {
 
   const displayPrice = formatPrice(product?.price, product?.currencyCode);
 
-  // ---------- Handlers ----------
+  // ---------- Обработчики ----------
   const handleAddToCart = (e) => {
     e.stopPropagation();
     e.preventDefault();
@@ -137,7 +136,7 @@ export default function ProductCard({ product, onProductClick, onQuickAdd }) {
   };
 
   const handleCardClick = (e) => {
-    // Prevent navigation if clicking interactive elements
+    // Предотвращаем навигацию при клике на интерактивные элементы
     if (e.target.closest('button') || e.target.closest(`.${styles.quickAddButton}`)) {
       return;
     }
@@ -150,12 +149,12 @@ export default function ProductCard({ product, onProductClick, onQuickAdd }) {
     handleAddToCart(e);
   };
 
-  // ---------- Render ----------
+  // ---------- Рендер ----------
   if (!product) {
     return (
       <div className={styles.productCard}>
         <div className={styles.imageContainer}>
-          <div className={styles.imagePlaceholder}>Product not available</div>
+          <div className={styles.imagePlaceholder}>Продукт недоступен</div>
         </div>
       </div>
     );
@@ -163,12 +162,12 @@ export default function ProductCard({ product, onProductClick, onQuickAdd }) {
 
   return (
     <div className={styles.productCard} onClick={handleCardClick}>
-      {/* Product Link for SEO and accessibility */}
+      {/* Ссылка на продукт для SEO и доступности */}
       <Link 
         href={`/products/${product.id}`} 
         className={styles.productLink}
         onClick={(e) => {
-          // If onProductClick is provided, use it instead of default navigation
+          // Если предоставлен onProductClick, используем его вместо стандартной навигации
           if (onProductClick) {
             e.preventDefault();
             onProductClick(product);
@@ -176,18 +175,18 @@ export default function ProductCard({ product, onProductClick, onQuickAdd }) {
         }}
       >
         <div className={styles.imageContainer}>
-          {/* Spinner overlay while loading */}
+          {/* Индикатор загрузки */}
           {imageLoading && (
             <div className={styles.imagePlaceholder}>
               <div className={styles.loadingSpinner}></div>
-              Loading...
+              Загрузка...
             </div>
           )}
 
-          {/* Always render image to allow onLoad event */}
+          {/* Всегда рендерим изображение для обработки события onLoad */}
           <Image
             src={imageSrc}
-            alt={product.name || 'Product image'}
+            alt={product.name || 'Изображение продукта'}
             width={200}
             height={200}
             className={styles.productImage}
@@ -200,75 +199,75 @@ export default function ProductCard({ product, onProductClick, onQuickAdd }) {
             }}
           />
 
-          {/* Fallback if image truly failed */}
+          {/* Заглушка если изображение не загрузилось */}
           {!imageLoading && imageSrc === PLACEHOLDER && (
-            <div className={styles.imagePlaceholder}>📦 No Image</div>
+            <div className={styles.imagePlaceholder}>📦 Нет изображения</div>
           )}
 
-          {/* Badges */}
+          {/* Бейджи */}
           <div className={styles.badgesContainer}>
             {isRecentlyPosted() && (
-              <span className={`${styles.badge} ${styles.recentBadge}`}>🔥 Just Added</span>
+              <span className={`${styles.badge} ${styles.recentBadge}`}>🔥 Только что добавлен</span>
             )}
             {isNewProduct && !isRecentlyPosted() && (
-              <span className={`${styles.badge} ${styles.newBadge}`}>✨ New</span>
+              <span className={`${styles.badge} ${styles.newBadge}`}>✨ Новинка</span>
             )}
             {isTopProduct && (
-              <span className={`${styles.badge} ${styles.topBadge}`}>⭐ Popular</span>
+              <span className={`${styles.badge} ${styles.topBadge}`}>⭐ Популярный</span>
             )}
             {stockStatus === 'lowStock' && product.stock > 0 && (
               <span className={`${styles.badge} ${styles.lowStockBadge}`}>
-                ⚡ Low Stock
+                ⚡ Заканчивается
               </span>
             )}
           </div>
         </div>
 
         <div className={styles.productInfo}>
-          <h3 className={styles.productName}>{product.name || 'Unnamed Product'}</h3>
+          <h3 className={styles.productName}>{product.name || 'Без названия'}</h3>
 
           <p className={styles.productDescription}>
             {product.description
               ? product.description.length > 100
                 ? `${product.description.substring(0, 100)}...`
                 : product.description
-              : 'No description available'}
+              : 'Описание отсутствует'}
           </p>
 
           <div className={styles.priceSection}>
             <span className={styles.price}>{displayPrice}</span>
             <span className={`${styles.stock} ${styles[stockStatus]}`}>
               {stockStatus === 'outOfStock'
-                ? 'Out of stock'
+                ? 'Нет в наличии'
                 : stockStatus === 'lowStock'
-                ? `Only ${product.stock} left`
+                ? `Осталось ${product.stock} шт.`
                 : stockStatus === 'unknown'
-                ? 'Stock unknown'
-                : `${product.stock} in stock`}
+                ? 'Неизвестно'
+                : `${product.stock} в наличии`}
             </span>
           </div>
         </div>
       </Link>
 
-      {/* Quick Add Button - outside the Link to prevent navigation conflicts */}
+      {/* Кнопка быстрого добавления - вне ссылки для предотвращения конфликтов */}
       <button
         className={styles.quickAddButton}
         onClick={handleQuickAddClick}
         disabled={!product.stock || product.stock === 0}
-        title="Add to Cart"
-        aria-label={`Add ${product.name} to cart`}
+        title="Добавить в корзину"
+        aria-label={`Добавить ${product.name} в корзину`}
       >
         🛒
       </button>
 
-      {/* Main Add to Cart Button */}
+      {/* Основная кнопка добавления в корзину */}
       <button
         className={styles.addToCartBtn}
         onClick={handleAddToCart}
         disabled={!product.stock || product.stock === 0}
-        aria-label={`Add ${product.name} to cart`}
+        aria-label={`Добавить ${product.name} в корзину`}
       >
-        {!product.stock || product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+        {!product.stock || product.stock === 0 ? 'Нет в наличии' : 'В корзину'}
       </button>
     </div>
   );
