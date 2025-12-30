@@ -1,17 +1,20 @@
 FROM node:20-bookworm-slim
+
 WORKDIR /app
 
+# Prisma engines need OpenSSL present
 RUN apt-get update -y \
- && apt-get install -y --no-install-recommends openssl ca-certificates \
+ && apt-get install -y --no-install-recommends openssl ca-certificates libssl3 \
  && rm -rf /var/lib/apt/lists/*
 
-# Only prisma schema + migrations are needed
+# Only prisma folder is needed (schema + migrations)
 COPY prisma ./prisma
 
-# Create minimal node project and pin Prisma versions
+# Pin Prisma locally (so we never download "latest")
 RUN npm init -y \
  && npm install --save-dev prisma@5.4.2 \
  && npm install @prisma/client@5.4.2
 
-# Run prisma from local install (prevents npx fetching latest)
+# Run the local Prisma binary (NOT npx)
 CMD ["./node_modules/.bin/prisma", "migrate", "deploy"]
+
