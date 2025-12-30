@@ -1,11 +1,16 @@
 FROM node:20-bookworm-slim
+
 WORKDIR /app
 
+RUN apt-get update -y && apt-get install -y --no-install-recommends openssl \
+  && rm -rf /var/lib/apt/lists/*
+
+# Copy prisma folder (schema + migrations)
 COPY prisma ./prisma
 
+# Pin Prisma CLI to v5.17.0 (compatible with prisma-client-py)
 RUN npm init -y \
- && npm i prisma@latest
+ && npm i prisma@5.17.0
 
-ENV PRISMA_SCHEMA_PATH=./prisma/schema.prisma
+CMD ["npx", "prisma", "migrate", "deploy", "--schema=prisma/schema.prisma"]
 
-CMD ["npx", "prisma", "migrate", "deploy", "--schema=./prisma/schema.prisma"]
