@@ -7,12 +7,12 @@ RUN apt-get update -y \
  && apt-get install -y --no-install-recommends openssl ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-# Copy entire project to get schema
-COPY . .
+# Copy Prisma folder (schema + migrations)
+COPY prisma ./prisma
+COPY package*.json ./
 
-# Install Prisma CLI version 5 (compatible with URL in schema)
-RUN npm init -y \
- && npm i prisma@5.4.2
+# Install EXACTLY Prisma 5.4.2 (same as host)
+RUN npm ci || (npm init -y && npm install prisma@5.4.2 @prisma/client@5.4.2)
 
-# Run migrations
+# Run migrations in production mode
 CMD ["npx", "prisma", "migrate", "deploy"]
