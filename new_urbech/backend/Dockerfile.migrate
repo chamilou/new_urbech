@@ -12,7 +12,7 @@ COPY prisma ./prisma
 
 # Install a Prisma CLI version compatible with your schema
 RUN npm init -y \
- && npm i prisma@6
+ && npm i prisma@5
 
 # Run migrations in production mode
 CMD ["npx", "prisma", "migrate", "deploy"]
