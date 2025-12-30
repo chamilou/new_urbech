@@ -55,6 +55,9 @@
 │   │   │   └── session.cpython-313.pyc
 │   │   └── session.py
 │   ├── main.py
+│   ├── media
+│   │   ├── user_avatars
+│   │   └── users
 │   ├── schemas
 │   │   ├── __init__.py
 │   │   ├── __pycache__
@@ -83,7 +86,6 @@
 │       │   ├── auth.cpython-312.pyc
 │       │   └── auth.cpython-313.pyc
 │       └── auth.py
-├── backendtree.txt
 ├── docker-compose.yml
 ├── prisma
 │   ├── copyofOldPrisma.txt
@@ -92,9 +94,13 @@
 │   │   │   └── migration.sql
 │   │   ├── 20251123145057_add_default_sort_order_to_category
 │   │   │   └── migration.sql
+│   │   ├── 20251229214436_add_is_top_product_field
+│   │   │   └── migration.sql
+│   │   ├── 20251229214845_add_is_featured_field
+│   │   │   └── migration.sql
 │   │   └── migration_lock.toml
 │   └── schema.prisma
 ├── requirements.txt
 └── tree.txt
 
-17 directories, 81 files
+22 directories, 82 files

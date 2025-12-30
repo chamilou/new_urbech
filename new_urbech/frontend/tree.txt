@@ -1,0 +1,117 @@
+.
+├── README.md
+├── app
+│   ├── about
+│   │   ├── about.module.css
+│   │   └── page.js
+│   ├── admin
+│   │   ├── categories
+│   │   │   ├── page.js
+│   │   │   └── page.module.css
+│   │   ├── components
+│   │   │   ├── CategoryForm.js
+│   │   │   ├── CategoryForm.module.css
+│   │   │   ├── ProductForm.js
+│   │   │   └── ProductForm.module.css
+│   │   ├── layout.js
+│   │   ├── layout.module.css
+│   │   ├── page.js
+│   │   ├── page.module.css
+│   │   ├── products
+│   │   │   ├── page.js
+│   │   │   └── page.module.css
+│   │   └── settings
+│   │       └── seo
+│   │           ├── page.js
+│   │           └── page.module.css
+│   ├── cart
+│   │   ├── CartClient.js
+│   │   ├── cart.module.css
+│   │   └── page.js
+│   ├── category
+│   │   └── [slug]
+│   │       └── page.js
+│   ├── components
+│   │   ├── Footer.js
+│   │   ├── Footer.module.css
+│   │   ├── Header.js
+│   │   ├── Header.module.css
+│   │   ├── HeaderWrapper.js
+│   │   ├── ImageCarousel.js
+│   │   ├── ImageCarousel.module.css
+│   │   ├── ProductCard.js
+│   │   ├── ProductCard.module.css
+│   │   ├── ProductDetail.js
+│   │   ├── ProductDetail.module.css
+│   │   ├── ProductGrid.js
+│   │   ├── ProductGrid.module.css
+│   │   ├── Toast.js
+│   │   ├── Toast.module.css
+│   │   ├── ToastContainer.js
+│   │   └── ToastContainer.module.css
+│   ├── contacts
+│   │   ├── contacts.module.css
+│   │   └── page.js
+│   ├── context
+│   │   ├── AuthContext.js
+│   │   ├── CartContext.js
+│   │   └── UserContext.js
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── hooks
+│   │   └── useToast.js
+│   ├── layout.js
+│   ├── login
+│   │   ├── LoginClient.js
+│   │   ├── page.js
+│   │   └── page.module.css
+│   ├── orders
+│   │   └── [id]
+│   │       ├── order.module.css
+│   │       └── page.js
+│   ├── page.js
+│   ├── page.module.css
+│   ├── privacy
+│   │   ├── page.js
+│   │   └── privacy.module.css
+│   ├── products
+│   │   ├── ProductsClient.js
+│   │   ├── layout.js
+│   │   ├── page.js
+│   │   └── products.module.css
+│   ├── profile
+│   │   ├── page.js
+│   │   └── page.module.css
+│   ├── register
+│   │   ├── page.js
+│   │   └── page.module.css
+│   ├── returns
+│   │   ├── page.js
+│   │   └── return.module.css
+│   └── shipping
+│       ├── page.js
+│       └── shipping.module.css
+├── eslint.config.mjs
+├── frontendtree.txt
+├── jsconfig.json
+├── next-sitemap.config.js
+├── next.config.mjs
+├── package-lock.json
+├── package.json
+├── public
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── media
+│   │   ├── files
+│   │   ├── icons
+│   │   └── video
+│   ├── next.svg
+│   ├── placeholder-image.jpg
+│   ├── robots.txt
+│   ├── sitemap-0.xml
+│   ├── sitemap.xml
+│   ├── vercel.svg
+│   └── window.svg
+└── tree.txt
+
+30 directories, 85 files

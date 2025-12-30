@@ -1,0 +1,11 @@
+FROM node:20-bookworm-slim
+WORKDIR /app
+
+COPY prisma ./prisma
+
+RUN npm init -y \
+ && npm i prisma@latest
+
+ENV PRISMA_SCHEMA_PATH=./prisma/schema.prisma
+
+CMD ["npx", "prisma", "migrate", "deploy", "--schema=./prisma/schema.prisma"]

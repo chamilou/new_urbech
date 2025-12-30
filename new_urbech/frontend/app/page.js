@@ -32,7 +32,7 @@ export default function HomePage() {
         if (recentRes.ok) setRecentProducts(await recentRes.json());
         
       } catch (error) {
-        console.error('Error fetching home page data:', error);
+        console.error('Ошибка при загрузке данных главной страницы:', error);
       } finally {
         setLoading(false);
       }
@@ -45,34 +45,34 @@ export default function HomePage() {
   const carouselSlides = [
     {
       id: 1,
-      image: '/hero-1.jpg', // Replace with your images
-      title: 'Welcome to MyShop',
-      description: 'Discover amazing products at great prices',
-      buttonText: 'Shop Now',
+      image: '/hero-1.jpg', // Замените на ваши изображения
+      title: 'Добро пожаловать в Урбеч Магазин',
+      description: 'Откройте для себя натуральный дагестанский урбеч по лучшим ценам',
+      buttonText: 'К покупкам',
       buttonLink: '/products'
     },
     {
       id: 2,
       image: '/hero-2.jpg',
-      title: 'New Arrivals',
-      description: 'Check out our latest products',
-      buttonText: 'View New',
+      title: 'Новые поступления',
+      description: 'Попробуйте наши новинки из горного Дагестана',
+      buttonText: 'Смотреть новинки',
       buttonLink: '/products?new=true'
     },
     {
       id: 3,
       image: '/hero-3.jpg',
-      title: 'Featured Products',
-      description: 'Special selections just for you',
-      buttonText: 'Explore',
+      title: 'Рекомендуемые товары',
+      description: 'Особый выбор для настоящих ценителей',
+      buttonText: 'Исследовать',
       buttonLink: '/products?featured=true'
     }
   ];
 
   // Add to Cart handler for ProductDetail
   const handleAddToCart = (product, quantity) => {
-    console.log(`Added ${quantity} of ${product.name} to cart`);
-    // You can integrate with your cart context here
+    console.log(`Добавлено ${quantity} шт. ${product.name} в корзину`);
+    // Здесь можно интегрировать с контекстом корзины
     // addToCart(product, quantity);
   };
 
@@ -91,21 +91,21 @@ export default function HomePage() {
   return (
     <>
       <main className={styles.main}>
-        {/* Hero Carousel */}
+        {/* Герой-карусель */}
         <section className={styles.heroSection}>
           <ImageCarousel 
             slides={carouselSlides}
             autoPlay={true}
-            interval={5000} // 5 seconds
+            interval={5000} // 5 секунд
           />
         </section>
 
-        {/* Featured Products */}
+        {/* Рекомендуемые товары */}
         <section className={styles.productsSection}>
           <div className={styles.sectionHeader}>
-            <h2>Featured Products</h2>
+            <h2>Рекомендуемые товары</h2>
             <a href="/products?featured=true" className={styles.viewAllLink}>
-              View All →
+              Смотреть все →
             </a>
           </div>
           
@@ -121,19 +121,19 @@ export default function HomePage() {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onProductClick={handleProductClick} // Use the modal handler
+                  onProductClick={handleProductClick} // Использовать модальное окно
                 />
               ))}
             </div>
           )}
         </section>
 
-        {/* New Arrivals */}
+        {/* Новые поступления */}
         <section className={styles.productsSection}>
           <div className={styles.sectionHeader}>
-            <h2>New Arrivals</h2>
+            <h2>Новые поступления</h2>
             <a href="/products?new=true" className={styles.viewAllLink}>
-              View All →
+              Смотреть все →
             </a>
           </div>
           
@@ -149,19 +149,19 @@ export default function HomePage() {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onProductClick={handleProductClick} // Use the modal handler
+                  onProductClick={handleProductClick} // Использовать модальное окно
                 />
               ))}
             </div>
           )}
         </section>
 
-        {/* Recently Added */}
+        {/* Недавно добавленные */}
         <section className={styles.productsSection}>
           <div className={styles.sectionHeader}>
-            <h2>Just Added</h2>
+            <h2>Недавно добавленные</h2>
             <a href="/products?recent=true" className={styles.viewAllLink}>
-              View All →
+              Смотреть все →
             </a>
           </div>
           
@@ -177,15 +177,48 @@ export default function HomePage() {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onProductClick={handleProductClick} // Use the modal handler
+                  onProductClick={handleProductClick} // Использовать модальное окно
                 />
               ))}
             </div>
           )}
         </section>
+
+        {/* Приветственный текст */}
+        <section className={styles.welcomeSection}>
+          <div className={styles.welcomeContent}>
+            <h2>Добро пожаловать в наш магазин урбеча!</h2>
+            <p>
+              Мы предлагаем настоящий дагестанский урбеч, приготовленный по традиционным рецептам 
+              из натуральных горных ингредиентов. Каждая баночка — это частичка солнечного Дагестана.
+            </p>
+            <div className={styles.features}>
+              <div className={styles.feature}>
+                <span className={styles.featureIcon}>🌿</span>
+                <h3>100% натурально</h3>
+                <p>Без консервантов и добавок</p>
+              </div>
+              <div className={styles.feature}>
+                <span className={styles.featureIcon}>🏔️</span>
+                <h3>Горные ингредиенты</h3>
+                <p>Сырьё из экологически чистых районов</p>
+              </div>
+              <div className={styles.feature}>
+                <span className={styles.featureIcon}>👨‍👩‍👧</span>
+                <h3>Семейное производство</h3>
+                <p>Рецепты передаются из поколения в поколение</p>
+              </div>
+              <div className={styles.feature}>
+                <span className={styles.featureIcon}>🚚</span>
+                <h3>Быстрая доставка</h3>
+                <p>По всей России и СНГ</p>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
-      {/* Product Detail Modal */}
+      {/* Модальное окно деталей товара */}
       {showProductDetail && selectedProduct && (
         <ProductDetail
           product={selectedProduct}

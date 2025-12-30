@@ -1,9 +1,10 @@
 /* app/page.module.css */
 
-/* Main Layout */
+/* Основная верстка */
 .main {
   min-height: 100vh;
-  padding-top: 80px; /* Account for fixed header */
+  padding-top: 80px; /* Учитываем фиксированный заголовок */
+  background: linear-gradient(135deg, #fffaf0 0%, #fff8e1 100%); /* Легкий кремовый фон */
 }
 
 .container {
@@ -12,55 +13,95 @@
   margin: 0 auto;
 }
 
-/* Hero Section */
+/* Раздел героя */
 .heroSection {
   margin-bottom: 60px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(124, 139, 90, 0.15);
 }
 
-/* Products Sections */
+/* Секции товаров */
 .productsSection {
-  margin-bottom: 60px;
+  margin-bottom: 80px;
   padding: 0 20px;
+  position: relative;
+}
+
+.productsSection::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: linear-gradient(90deg, #7c8b5a, #e6b85c);
+  border-radius: 2px;
 }
 
 .sectionHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(124, 139, 90, 0.1);
 }
 
 .sectionHeader h2 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #333;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #2e3a2b; /* Темно-оливковый */
   margin: 0;
+  position: relative;
+  padding-left: 15px;
+}
+
+.sectionHeader h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 30px;
+  background: linear-gradient(180deg, #e6b85c, #7c8b5a);
+  border-radius: 3px;
 }
 
 .viewAllLink {
-  color: #007bff;
+  color: #7c8b5a; /* Оливковый */
   text-decoration: none;
-  font-weight: 600;
-  transition: color 0.3s ease;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  padding: 10px 20px;
+  border: 2px solid rgba(124, 139, 90, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .viewAllLink:hover {
-  color: #0056b3;
+  color: #2e3a2b;
+  background: rgba(230, 184, 92, 0.1);
+  border-color: #e6b85c;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(124, 139, 90, 0.15);
 }
 
-/* Products Grid */
+/* Сетка товаров */
 .productsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* Loading States */
+/* Состояния загрузки */
 .loading {
   text-align: center;
   padding: 3rem;
@@ -70,18 +111,22 @@
 
 .loadingGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .productSkeleton {
-  height: 400px;
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  border-radius: 12px;
+  height: 420px;
+  background: linear-gradient(90deg, 
+    rgba(230, 184, 92, 0.1) 25%, 
+    rgba(124, 139, 90, 0.15) 50%, 
+    rgba(230, 184, 92, 0.1) 75%);
+  border-radius: 16px;
   animation: loading 1.5s infinite;
   background-size: 200px 100%;
+  border: 1px solid rgba(124, 139, 90, 0.1);
 }
 
 @keyframes loading {
@@ -93,61 +138,70 @@
   }
 }
 
-/* Error States */
+/* Состояния ошибок */
 .error {
   text-align: center;
   padding: 2rem;
-  background: #fee;
-  border: 1px solid #fcc;
-  border-radius: 8px;
-  color: #c33;
+  background: rgba(179, 38, 30, 0.05);
+  border: 1px solid rgba(179, 38, 30, 0.2);
+  border-radius: 12px;
+  color: #b3261e;
   max-width: 500px;
   margin: 0 auto;
 }
 
 .error h2 {
   margin-top: 0;
-  color: #c33;
+  color: #b3261e;
   margin-bottom: 1rem;
+  font-size: 1.5rem;
 }
 
 .retryButton {
-  background: #007bff;
+  background: linear-gradient(135deg, #7c8b5a, #9dba89);
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
+  padding: 12px 24px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 1rem;
+  font-weight: 600;
   margin-top: 1rem;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(124, 139, 90, 0.3);
 }
 
 .retryButton:hover {
-  background: #0056b3;
+  background: linear-gradient(135deg, #9dba89, #7c8b5a);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(124, 139, 90, 0.4);
 }
 
-/* Empty States */
+/* Пустые состояния */
 .emptyState {
   text-align: center;
   padding: 3rem;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
+  background: rgba(124, 139, 90, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(124, 139, 90, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .emptyState h2 {
-  color: #495057;
+  color: #2e3a2b;
   margin-bottom: 1rem;
   margin-top: 0;
+  font-size: 1.8rem;
 }
 
 .emptyState p {
-  color: #6c757d;
+  color: #666;
   margin-bottom: 1.5rem;
+  font-size: 1.1rem;
 }
 
-/* Search Tags */
+/* Теги поиска */
 .searchTag {
   margin-top: 10px;
   font-size: 16px;
@@ -162,40 +216,142 @@
 }
 
 .clearSearchBtn {
-  background: #eee;
-  border: none;
-  padding: 4px 10px;
-  border-radius: 6px;
+  background: rgba(124, 139, 90, 0.1);
+  border: 1px solid rgba(124, 139, 90, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  transition: background 0.2s;
+  font-weight: 600;
+  color: #2e3a2b;
+  transition: all 0.3s ease;
 }
 
 .clearSearchBtn:hover {
-  background: #ddd;
+  background: rgba(230, 184, 92, 0.2);
+  border-color: #e6b85c;
+  transform: translateY(-1px);
 }
 
-/* Page Header (for individual pages) */
+/* Заголовок страницы */
 .header {
   text-align: center;
-  margin-bottom: 2rem;
-  padding: 0 20px;
+  margin-bottom: 3rem;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, rgba(255, 241, 201, 0.3), rgba(124, 139, 90, 0.1));
+  border-radius: 20px;
+  border: 1px solid rgba(124, 139, 90, 0.15);
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .header h1 {
-  color: #333;
-  margin-bottom: 0.5rem;
-  font-size: 2.5rem;
-  font-weight: 700;
+  color: #2e3a2b;
+  margin-bottom: 1rem;
+  font-size: 2.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #2e3a2b, #7c8b5a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .header p {
   color: #666;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   margin: 0;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
-/* Responsive Design */
+/* Секция приветствия */
+.welcomeSection {
+  margin: 100px 0;
+  padding: 60px 20px;
+  background: linear-gradient(135deg, rgba(255, 252, 246, 0.9), rgba(255, 241, 201, 0.3));
+  border-radius: 24px;
+  border: 1px solid rgba(230, 184, 92, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.welcomeSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #e6b85c, #7c8b5a, #e6b85c);
+}
+
+.welcomeContent {
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.welcomeContent h2 {
+  color: #2e3a2b;
+  font-size: 2.4rem;
+  margin-bottom: 30px;
+  font-weight: 800;
+}
+
+.welcomeContent p {
+  color: #666;
+  font-size: 1.2rem;
+  line-height: 1.8;
+  margin-bottom: 50px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.feature {
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+  border: 1px solid rgba(124, 139, 90, 0.15);
+  transition: all 0.3s ease;
+}
+
+.feature:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(124, 139, 90, 0.15);
+  border-color: rgba(230, 184, 92, 0.4);
+}
+
+.featureIcon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.feature h3 {
+  color: #2e3a2b;
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.feature p {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Адаптивный дизайн */
 @media (max-width: 768px) {
   .main {
     padding-top: 70px;
@@ -207,58 +363,100 @@
   
   .productsSection {
     padding: 0 16px;
+    margin-bottom: 60px;
   }
   
   .sectionHeader {
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
     align-items: flex-start;
+    padding-bottom: 20px;
   }
   
   .sectionHeader h2 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
+    padding-left: 12px;
+  }
+  
+  .header {
+    padding: 30px 16px;
+    margin-bottom: 2rem;
   }
   
   .header h1 {
-    font-size: 2rem;
+    font-size: 2.2rem;
+  }
+  
+  .header p {
+    font-size: 1.1rem;
   }
   
   .productsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
   }
   
   .loadingGrid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  
+  .welcomeSection {
+    margin: 60px 0;
+    padding: 40px 16px;
+  }
+  
+  .welcomeContent h2 {
+    font-size: 1.9rem;
+  }
+  
+  .welcomeContent p {
+    font-size: 1.1rem;
+  }
+  
+  .features {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .viewAllLink {
+    align-self: flex-start;
   }
 }
 
 @media (max-width: 480px) {
   .header h1 {
-    font-size: 1.75rem;
+    font-size: 1.9rem;
   }
   
   .productsGrid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 20px;
   }
   
   .loadingGrid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 20px;
   }
   
   .productSkeleton {
-    height: 350px;
+    height: 380px;
   }
   
   .sectionHeader h2 {
-    font-size: 1.25rem;
+    font-size: 1.6rem;
+  }
+  
+  .welcomeContent h2 {
+    font-size: 1.7rem;
+  }
+  
+  .feature {
+    padding: 20px;
   }
 }
 
-/* Utility Classes */
+/* Утилитарные классы */
 .textCenter {
   text-align: center;
 }
