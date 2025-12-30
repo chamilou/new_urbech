@@ -148,6 +148,8 @@ model Product {
   slug        String        @unique
   description String?
   status      PublishStatus @default(DRAFT)
+  isTopProduct Boolean @default(false)
+  featured Boolean @default(false)
 
   // Simple product price (variants may override). Decimal for money safety.
   price        Decimal? @db.Decimal(12, 2)

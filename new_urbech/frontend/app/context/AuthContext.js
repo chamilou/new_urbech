@@ -1,84 +1,105 @@
 'use client';
-import { createContext, useContext, useState, useEffect } from 'react';
 
-const AuthContext = createContext();
+import { createContext, useContext, useEffect, useState } from 'react';
+
+const AuthContext = createContext(null);
+
+/**
+ * Safely read response body ONCE and try to parse JSON only when possible.
+ * Never throws.
+ */
+const readJsonSafe = async (response) => {
+  const text = await response.text();
+  const contentType = response.headers.get('content-type') || '';
+  const trimmed = (text || '').trim();
+
+  if (!trimmed) {
+    return { text: '', json: null };
+  }
+
+  const looksLikeJson =
+    trimmed.startsWith('{') || trimmed.startsWith('[');
+
+  const canParseJson =
+    contentType.includes('application/json') || looksLikeJson;
+
+  if (!canParseJson) {
+    return { text, json: null };
+  }
+
+  try {
+    return { text, json: JSON.parse(trimmed) };
+  } catch {
+    return { text, json: null };
+  }
+};
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user from localStorage on initial load
+  /* --------------------------------------------------
+   * INITIAL LOAD
+   * -------------------------------------------------- */
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     const savedToken = localStorage.getItem('token');
-    
-    console.log('🔐 AuthProvider mount - savedUser:', savedUser ? 'Yes' : 'No', 'savedToken:', savedToken ? 'Yes' : 'No');
-    
+
     if (savedUser && savedToken) {
       try {
-        const userData = JSON.parse(savedUser);
-        console.log('🔐 Loading user from localStorage:', userData.email);
-        setUser(userData);
-        // Don't checkAuth immediately - use the cached user first for better UX
+        const parsed = JSON.parse(savedUser);
+        setUser(parsed);
         setLoading(false);
-      } catch (error) {
-        console.error('Error parsing saved user:', error);
+        return;
+      } catch {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
       }
-    } else {
-      checkAuth();
     }
+
+    checkAuth();
   }, []);
 
+  /* --------------------------------------------------
+   * CHECK AUTH
+   * -------------------------------------------------- */
   const checkAuth = async () => {
-    console.log('🔐 checkAuth called');
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.log('🔐 No token found');
         setUser(null);
         setLoading(false);
         return;
       }
 
-      console.log('🔐 Making auth check request with token...');
       const response = await fetch('/api/auth/me', {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
-      console.log('🔐 Auth check response status:', response.status);
-      
-      if (response.ok) {
-        const userData = await response.json();
-        console.log('✅ Auth successful, user:', userData.email);
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-      } else if (response.status === 422) {
-        // Token validation error - don't clear immediately, could be temporary
-        console.log('⚠️ Token validation error (422), but keeping user data for now');
-        // Keep the existing user state, but mark as needing revalidation
+
+      const { text, json } = await readJsonSafe(response);
+
+      if (response.ok && json) {
+        setUser(json);
+        localStorage.setItem('user', JSON.stringify(json));
       } else {
-        console.log('❌ Auth check failed with status:', response.status);
-        // Only clear on definite auth failures (401, 403, etc.)
-        if (response.status === 401 || response.status === 403) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setUser(null);
-        }
+        console.error('❌ Auth check failed:', text);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
       }
-    } catch (error) {
-      console.error('🔐 Auth check failed:', error);
-      // Don't clear on network errors - could be temporary
+    } catch (err) {
+      console.error('❌ Auth check error:', err);
     } finally {
       setLoading(false);
     }
   };
 
+  /* --------------------------------------------------
+   * LOGIN
+   * -------------------------------------------------- */
   const login = async (email, password) => {
-    console.log('🔐 Login attempt for:', email);
     try {
       const formData = new FormData();
       formData.append('username', email);
@@ -86,88 +107,140 @@ export function AuthProvider({ children }) {
 
       const response = await fetch('/api/auth/login', {
         method: 'POST',
-        body: formData
+        body: formData,
       });
 
-      console.log('🔐 Login response status:', response.status);
+      const { text, json } = await readJsonSafe(response);
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Login successful, user:', data.user.email);
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
-        return { success: true, data };
-      } else {
-        const errorData = await response.json();
-        console.log('❌ Login failed:', errorData);
-        return { success: false, error: errorData.detail || 'Login failed' };
+      if (!response.ok) {
+        return {
+          success: false,
+          error:
+            json?.detail ||
+            json?.message ||
+            `Login failed (${response.status}): ${text.slice(0, 200)}`,
+        };
       }
-    } catch (error) {
-      console.error('🔐 Login network error:', error);
+
+      if (!json?.user || !json?.access_token) {
+        return {
+          success: false,
+          error: 'Invalid response from server',
+        };
+      }
+
+      localStorage.setItem('token', json.access_token);
+      localStorage.setItem('user', JSON.stringify(json.user));
+      setUser(json.user);
+
+      return { success: true, data: json };
+    } catch (err) {
+      console.error('❌ Login error:', err);
       return { success: false, error: 'Network error' };
     }
   };
 
-  const register = async (name, email, password) => {
-    console.log('🔐 Register attempt for:', email);
-    try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name, email, password })
-      });
+  /* --------------------------------------------------
+   * REGISTER
+   * -------------------------------------------------- */
+ const register = async (name, email, password, phone, address, companyInfo) => {
+  console.log('🔐 Register attempt for:', email);
+  
+  try {
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        name, 
+        email, 
+        password,
+        phone: phone || '',
+        address: address || '',
+        company_info: companyInfo || null
+      })
+    });
 
-      console.log('🔐 Register response status:', response.status);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Register successful, user:', data.user.email);
+    console.log('🔐 Response status:', response.status);
+    
+    // Всегда получаем как текст
+    const text = await response.text();
+    console.log('🔐 Response text (preview):', text.substring(0, 300));
+    
+    // Проверяем что это JSON
+    const isJson = response.headers.get('content-type')?.includes('application/json');
+    
+    if (response.ok && isJson) {
+      try {
+        const data = JSON.parse(text);
+        console.log('✅ Registration successful:', data.user?.email);
+        
         localStorage.setItem('token', data.access_token);
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
+        
         return { success: true, data };
-      } else {
-        const errorData = await response.json();
-        console.log('❌ Register failed:', errorData);
-        return { success: false, error: errorData.detail || 'Registration failed' };
+      } catch (e) {
+        console.error('❌ Failed to parse success JSON:', e);
+        return { success: false, error: 'Server returned invalid data' };
       }
-    } catch (error) {
-      console.error('🔐 Register network error:', error);
-      return { success: false, error: 'Network error' };
+    } else {
+      // Обработка ошибок
+      let errorMsg = `Registration failed (${response.status})`;
+      
+      if (text && isJson) {
+        try {
+          const errorData = JSON.parse(text);
+          errorMsg = errorData.detail || errorData.message || errorMsg;
+        } catch (e) {
+          // Не JSON ошибка
+          if (text.includes('Internal Server Error')) {
+            errorMsg = 'Internal server error - please try again later';
+          } else if (text.includes('<html') || text.includes('<!DOCTYPE')) {
+            errorMsg = 'Server error - returned HTML instead of JSON';
+          }
+        }
+      }
+      
+      return { success: false, error: errorMsg };
     }
-  };
-
+  } catch (error) {
+    console.error('🔐 Network error:', error);
+    return { success: false, error: 'Network error - check your connection' };
+  }
+};
+  /* --------------------------------------------------
+   * LOGOUT
+   * -------------------------------------------------- */
   const logout = () => {
-    console.log('🔐 Logging out');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
   };
 
-  const value = {
-    user,
-    loading,
-    login,
-    register,
-    logout,
-    isAuthenticated: !!user,
-    checkAuth
-  };
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        checkAuth,
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
+/* --------------------------------------------------
+ * HOOK
+ * -------------------------------------------------- */
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error('useAuth must be used inside AuthProvider');
   }
-  return context;
+  return ctx;
 };

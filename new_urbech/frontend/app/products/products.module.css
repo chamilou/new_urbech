@@ -713,6 +713,55 @@
   }
 }
 
+/* ===========================
+   Mobile Price Filter Fix
+=========================== */
+
+/* Default layout - vertical on desktop */
+.priceInputs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* On mobile: make it horizontal in one line */
+@media (max-width: 768px) {
+  .priceInputs {
+    flex-direction: row !important; /* Force horizontal */
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .priceInput {
+    width: auto !important;
+    flex: 1 !important;
+    min-width: 0 !important; /* Allow inputs to shrink */
+  }
+  
+  .priceInputs span {
+    margin: 0 4px;
+    flex-shrink: 0;
+  }
+  
+  /* Adjust the filter group to accommodate the new layout */
+  .filterGroup {
+    overflow: visible;
+  }
+}
+
+/* For very small screens, adjust spacing */
+@media (max-width: 480px) {
+  .priceInputs {
+    gap: 6px;
+  }
+  
+  .priceInput {
+    padding: 10px 8px;
+    font-size: 14px;
+  }
+}
+
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   .sidebar,

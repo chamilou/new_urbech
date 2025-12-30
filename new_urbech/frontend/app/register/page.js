@@ -62,6 +62,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(''); // Clear previous errors
 
     // Validate all fields
     setTouched({
@@ -79,13 +80,24 @@ export default function Register() {
     }
 
     try {
-      const success = await register(formData.name, formData.email, formData.password);
-      if (success) {
+      // register возвращает объект {success: boolean, data/error}
+      const result = await register(
+        formData.name, 
+        formData.email, 
+        formData.password
+      );
+      
+      console.log('Registration result:', result);
+      
+      if (result.success) {
+        // Успешная регистрация - перенаправляем на главную
         router.push('/');
       } else {
-        setError('Registration failed. Please try again.');
+        // Ошибка регистрации - показываем сообщение
+        setError(result.error || 'Registration failed. Please try again.');
       }
     } catch (err) {
+      console.error('Registration error:', err);
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
@@ -125,7 +137,11 @@ export default function Register() {
         <h1 className={styles.title}>Create Account</h1>
         <p className={styles.subtitle}>Join MyShop today and start shopping</p>
 
-        {error && <div className={styles.error}>{error}</div>}
+        {error && (
+          <div className={styles.error}>
+            {typeof error === 'string' ? error : JSON.stringify(error)}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
           <div className={styles.formGroup}>

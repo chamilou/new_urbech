@@ -252,7 +252,7 @@ async def get_featured_products(limit: int = Query(8, ge=1, le=20)):
             "OR": [
                 {"isTopProduct": True},
                 {"featured": True},
-                {"is_popular": True},
+               {"is_popular": True},
                 {"top_product": True}
             ]
         },

@@ -8,6 +8,8 @@ from app.utils.auth import (
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
 from app.db.session import prisma
+from fastapi import HTTPException, status
+import traceback
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -18,7 +20,7 @@ async def register(user_data: UserRegister):
     existing_user = await prisma.user.find_unique(where={"email": user_data.email})
     if existing_user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=400,
             detail="Email already registered"
         )
     
@@ -29,12 +31,13 @@ async def register(user_data: UserRegister):
     user_data_dict = {
         "name": user_data.name,
         "email": user_data.email,
-        "password": hashed_password,
+        "hashedPassword": hashed_password,
         "role": "USER"  # Make sure role is included if it's required
     }
     
     user = await prisma.user.create(data=user_data_dict)
-    
+    from fastapi import HTTPException, status
+    import traceback
     # Create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(

@@ -81,11 +81,10 @@ export default function Header() {
     fetchCategories();
   }, []);
 
-  // Use context user or localStorage fallback
-  const displayUser = user || localUser;
-  const displayIsAuthenticated = isAuthenticated || !!localUser;
+  // Use context user or localStorage fallback - only on client
+  const displayUser = isClient ? (user || localUser) : null;
+  const displayIsAuthenticated = isClient ? (isAuthenticated || !!localUser) : false;
   const isAdmin = displayUser?.role === 'ADMIN';
-
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -146,6 +145,8 @@ export default function Header() {
 
   // Get category icon based on category name or slug
   const getCategoryIcon = (category) => {
+    if (!category) return '📦';
+    
     const name = category.name?.toLowerCase() || '';
     const slug = category.slug?.toLowerCase() || '';
     
@@ -207,27 +208,34 @@ export default function Header() {
             <Link href="/about" className={styles.topNavLink}>О нас</Link>
             <Link href="/contacts" className={styles.topNavLink}>Контакты</Link>
             
-            {displayIsAuthenticated && displayUser ? (
-              <>
-                <span className={styles.welcomeText}>Привет, {displayUser.name}!</span>
-                <Link href="/profile" className={styles.topNavLink}>Профиль</Link>
-                <button onClick={handleLogout} className={styles.logoutBtn}>
-                  Выйти
-                </button>
-              </>
+            {/* SIMPLIFIED FIX: Only render auth links after client mount */}
+            {isClient ? (
+              displayIsAuthenticated && displayUser ? (
+                <>
+                  <span className={styles.welcomeText}>Привет, {displayUser.name}!</span>
+                  <Link href="/profile" className={styles.topNavLink}>Профиль</Link>
+                  <button onClick={handleLogout} className={styles.logoutBtn}>
+                    Выйти
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className={styles.topNavLink}>Войти</Link>
+                  <Link href="/register" className={styles.topNavLink}>Регистрация</Link>
+                </>
+              )
             ) : (
-              <>
-                <Link href="/login" className={styles.topNavLink}>Войти</Link>
-                <Link href="/register" className={styles.topNavLink}>Регистрация</Link>
-              </>
+              // Show empty space during SSR to maintain layout
+              <div style={{ display: 'none' }}></div>
             )}
-            {isAdmin&&(
-            <Link 
-              href="/admin" 
-              className={`${styles.topNavLink} ${pathname.startsWith('/admin') ? styles.adminActive : ''}`}
-            >
-              Админ-панель
-            </Link>
+            
+            {isAdmin && isClient && (
+              <Link 
+                href="/admin" 
+                className={`${styles.topNavLink} ${pathname.startsWith('/admin') ? styles.adminActive : ''}`}
+              >
+                Админ-панель
+              </Link>
             )}
           </nav>
         </div>
@@ -448,32 +456,37 @@ export default function Header() {
                 <Link href="/contacts" className={styles.mobileLink} onClick={closeMobileMenu}>
                   Контакты
                 </Link>
-                {displayIsAuthenticated ? (
-                  <>
-                    <Link href="/profile" className={styles.mobileLink} onClick={closeMobileMenu}>
-                      Профиль
-                    </Link>
-                    <button onClick={handleLogout} className={styles.mobileLogoutBtn}>
-                      Выйти
-                    </button>
-                  </>
+                
+                {/* SIMPLIFIED: Only render auth links after client mount */}
+                {isClient ? (
+                  displayIsAuthenticated ? (
+                    <>
+                      <Link href="/profile" className={styles.mobileLink} onClick={closeMobileMenu}>
+                        Профиль
+                      </Link>
+                      <button onClick={handleLogout} className={styles.mobileLogoutBtn}>
+                        Выйти
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login" className={styles.mobileLink} onClick={closeMobileMenu}>
+                        Войти
+                      </Link>
+                      <Link href="/register" className={styles.mobileLink} onClick={closeMobileMenu}>
+                        Регистрация
+                      </Link>
+                    </>
+                  )
                 ) : (
-                  <>
-                    <Link href="/login" className={styles.mobileLink} onClick={closeMobileMenu}>
-                      Войти
-                    </Link>
-                    <Link href="/register" className={styles.mobileLink} onClick={closeMobileMenu}>
-                      Регистрация
-                    </Link>
-                    {isAdmin && (
-                     <Link href="/admin" className={styles.mobileLink} onClick={closeMobileMenu}>
-                     Админ-панель
-                           </Link>  
-                      )}
-
-
-
-                  </>
+                  // Empty div during SSR to maintain layout
+                  <div style={{ display: 'none' }}></div>
+                )}
+                
+                {isAdmin && isClient && (
+                  <Link href="/admin" className={styles.mobileLink} onClick={closeMobileMenu}>
+                    Админ-панель
+                  </Link>  
                 )}
               </div>
             </div>
