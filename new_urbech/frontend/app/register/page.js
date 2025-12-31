@@ -91,7 +91,7 @@ export default function Register() {
       
       if (result.success) {
         // Успешная регистрация - перенаправляем на главную
-        router.push('/');
+         router.push(`/verify?email=${encodeURIComponent(formData.email)}`);
       } else {
         // Ошибка регистрации - показываем сообщение
         setError(result.error || 'Registration failed. Please try again.');

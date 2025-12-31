@@ -1,31 +1,54 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 
 const AuthContext = createContext(null);
 
+// Change this if your backend is mounted differently.
+// If your FastAPI routes are /api/auth/*, keep "/api".
+// If they are /auth/*, set API_BASE = "".
+const API_BASE = '/api';
+
+const normalizeError = (err) => {
+  if (!err) return 'Unknown error';
+
+  if (typeof err === 'string') return err;
+
+  // FastAPI style: { detail: ... }
+  if (err.detail !== undefined) {
+    const d = err.detail;
+    if (typeof d === 'string') return d;
+    if (Array.isArray(d)) return d.map((e) => e?.msg || JSON.stringify(e)).join(', ');
+    if (typeof d === 'object' && d) return d.msg || JSON.stringify(d);
+  }
+
+  // Pydantic array directly
+  if (Array.isArray(err)) {
+    return err.map((e) => e?.msg || JSON.stringify(e)).join(', ');
+  }
+
+  // Generic object
+  if (typeof err === 'object') {
+    return err.msg || err.message || JSON.stringify(err);
+  }
+
+  return String(err);
+};
+
 /**
- * Safely read response body ONCE and try to parse JSON only when possible.
- * Never throws.
+ * Read response body ONCE and attempt JSON parse safely.
  */
 const readJsonSafe = async (response) => {
   const text = await response.text();
   const contentType = response.headers.get('content-type') || '';
   const trimmed = (text || '').trim();
 
-  if (!trimmed) {
-    return { text: '', json: null };
-  }
+  if (!trimmed) return { text: '', json: null };
 
-  const looksLikeJson =
-    trimmed.startsWith('{') || trimmed.startsWith('[');
+  const looksLikeJson = trimmed.startsWith('{') || trimmed.startsWith('[');
+  const canParseJson = contentType.includes('application/json') || looksLikeJson;
 
-  const canParseJson =
-    contentType.includes('application/json') || looksLikeJson;
-
-  if (!canParseJson) {
-    return { text, json: null };
-  }
+  if (!canParseJson) return { text, json: null };
 
   try {
     return { text, json: JSON.parse(trimmed) };
@@ -38,95 +61,88 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  /* --------------------------------------------------
-   * INITIAL LOAD
-   * -------------------------------------------------- */
+  const isAuthenticated = !!user;
+  const isVerified = !!user?.isVerified;
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+  }, []);
+
+  const checkAuth = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setUser(null);
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const { text, json } = await readJsonSafe(res);
+
+      if (!res.ok || !json) {
+        console.error('❌ Auth check failed:', res.status, text);
+        logout();
+        return;
+      }
+
+      setUser(json);
+      localStorage.setItem('user', JSON.stringify(json));
+    } catch (e) {
+      console.error('❌ Auth check error:', e);
+      logout();
+    }
+  }, [logout]);
+
+  // Initial load: hydrate from storage, then validate with server
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     const savedToken = localStorage.getItem('token');
 
     if (savedUser && savedToken) {
       try {
-        const parsed = JSON.parse(savedUser);
-        setUser(parsed);
-        setLoading(false);
-        return;
+        setUser(JSON.parse(savedUser));
       } catch {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
       }
     }
 
-    checkAuth();
-  }, []);
-
-  /* --------------------------------------------------
-   * CHECK AUTH
-   * -------------------------------------------------- */
-  const checkAuth = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch('/api/auth/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const { text, json } = await readJsonSafe(response);
-
-      if (response.ok && json) {
-        setUser(json);
-        localStorage.setItem('user', JSON.stringify(json));
-      } else {
-        console.error('❌ Auth check failed:', text);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUser(null);
-      }
-    } catch (err) {
-      console.error('❌ Auth check error:', err);
-    } finally {
+    (async () => {
+      await checkAuth();
       setLoading(false);
-    }
-  };
+    })();
+  }, [checkAuth]);
 
-  /* --------------------------------------------------
-   * LOGIN
-   * -------------------------------------------------- */
-  const login = async (email, password) => {
+  /**
+   * LOGIN (expects backend JSON body { email, password })
+   * Returns: { access_token, token_type, user }
+   */
+  const login = useCallback(async (email, password) => {
     try {
-      const formData = new FormData();
-      formData.append('username', email);
-      formData.append('password', password);
-
-      const response = await fetch('/api/auth/login', {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      const { text, json } = await readJsonSafe(response);
+      const { text, json } = await readJsonSafe(res);
 
-      if (!response.ok) {
+      if (!res.ok) {
         return {
           success: false,
-          error:
-            json?.detail ||
-            json?.message ||
-            `Login failed (${response.status}): ${text.slice(0, 200)}`,
+          error: normalizeError(json || text || `Login failed (${res.status})`),
+          status: res.status,
+          verificationRequired: res.status === 403 && res.headers.get('X-Verification-Required') === 'true',
         };
       }
 
-      if (!json?.user || !json?.access_token) {
-        return {
-          success: false,
-          error: 'Invalid response from server',
-        };
+      if (!json?.access_token || !json?.user) {
+        return { success: false, error: 'Invalid response from server' };
       }
 
       localStorage.setItem('token', json.access_token);
@@ -134,113 +150,128 @@ export function AuthProvider({ children }) {
       setUser(json.user);
 
       return { success: true, data: json };
-    } catch (err) {
-      console.error('❌ Login error:', err);
+    } catch (e) {
+      console.error('❌ Login error:', e);
       return { success: false, error: 'Network error' };
     }
-  };
+  }, []);
 
-  /* --------------------------------------------------
-   * REGISTER
-   * -------------------------------------------------- */
- const register = async (name, email, password, phone, address, companyInfo) => {
-  console.log('🔐 Register attempt for:', email);
-  
-  try {
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        name, 
-        email, 
-        password,
-        phone: phone || '',
-        address: address || '',
-        company_info: companyInfo || null
-      })
-    });
+  /**
+   * REGISTER (expects backend JSON body { name, email, password })
+   * Backend returns: { message, requiresVerification, user }
+   * IMPORTANT: no token stored here.
+   */
+  const register = useCallback(async (name, email, password) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
 
-    console.log('🔐 Response status:', response.status);
-    
-    // Всегда получаем как текст
-    const text = await response.text();
-    console.log('🔐 Response text (preview):', text.substring(0, 300));
-    
-    // Проверяем что это JSON
-    const isJson = response.headers.get('content-type')?.includes('application/json');
-    
-    if (response.ok && isJson) {
-      try {
-        const data = JSON.parse(text);
-        console.log('✅ Registration successful:', data.user?.email);
-        
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
-        
-        return { success: true, data };
-      } catch (e) {
-        console.error('❌ Failed to parse success JSON:', e);
-        return { success: false, error: 'Server returned invalid data' };
+      const { text, json } = await readJsonSafe(res);
+
+      if (!res.ok) {
+        return {
+          success: false,
+          error: normalizeError(json || text || `Registration failed (${res.status})`),
+          status: res.status,
+        };
       }
-    } else {
-      // Обработка ошибок
-      let errorMsg = `Registration failed (${response.status})`;
-      
-      if (text && isJson) {
-        try {
-          const errorData = JSON.parse(text);
-          errorMsg = errorData.detail || errorData.message || errorMsg;
-        } catch (e) {
-          // Не JSON ошибка
-          if (text.includes('Internal Server Error')) {
-            errorMsg = 'Internal server error - please try again later';
-          } else if (text.includes('<html') || text.includes('<!DOCTYPE')) {
-            errorMsg = 'Server error - returned HTML instead of JSON';
-          }
-        }
-      }
-      
-      return { success: false, error: errorMsg };
+
+      // Do not set token/user yet (verification required)
+      return { success: true, data: json };
+    } catch (e) {
+      console.error('❌ Register error:', e);
+      return { success: false, error: 'Network error' };
     }
-  } catch (error) {
-    console.error('🔐 Network error:', error);
-    return { success: false, error: 'Network error - check your connection' };
-  }
-};
-  /* --------------------------------------------------
-   * LOGOUT
-   * -------------------------------------------------- */
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-  };
+  }, []);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        register,
-        logout,
-        checkAuth,
-        isAuthenticated: !!user,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  /**
+   * VERIFY EMAIL (expects backend JSON { email, code })
+   * Backend returns token + user on success -> we store token and user
+   */
+  const verifyEmail = useCallback(async (email, code) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/verify-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const { text, json } = await readJsonSafe(res);
+
+      if (!res.ok) {
+        return {
+          success: false,
+          error: normalizeError(json || text || `Verification failed (${res.status})`),
+          status: res.status,
+        };
+      }
+
+      // Should return token + user
+      if (json?.access_token && json?.user) {
+        localStorage.setItem('token', json.access_token);
+        localStorage.setItem('user', JSON.stringify(json.user));
+        setUser(json.user);
+      }
+
+      return { success: true, data: json };
+    } catch (e) {
+      console.error('❌ Verify error:', e);
+      return { success: false, error: 'Network error' };
+    }
+  }, []);
+
+  /**
+   * RESEND VERIFICATION CODE (expects JSON { email })
+   */
+  const resendVerification = useCallback(async (email) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/resend-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const { text, json } = await readJsonSafe(res);
+
+      if (!res.ok) {
+        return {
+          success: false,
+          error: normalizeError(json || text || `Resend failed (${res.status})`),
+          status: res.status,
+        };
+      }
+
+      return { success: true, data: json };
+    } catch (e) {
+      console.error('❌ Resend error:', e);
+      return { success: false, error: 'Network error' };
+    }
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      isAuthenticated,
+      isVerified,
+      login,
+      register,
+      verifyEmail,
+      resendVerification,
+      checkAuth,
+      logout,
+    }),
+    [user, loading, isAuthenticated, isVerified, login, register, verifyEmail, resendVerification, checkAuth, logout]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-/* --------------------------------------------------
- * HOOK
- * -------------------------------------------------- */
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error('useAuth must be used inside AuthProvider');
-  }
+  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
   return ctx;
 };

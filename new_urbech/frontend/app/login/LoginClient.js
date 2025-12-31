@@ -82,7 +82,7 @@ export default function LoginClient() {
 
         <div className={styles.footer}>
           <p>
-            Don`&apos;`t have an account?
+          <span> Don't have an account? </span>
             <Link href="/register" className={styles.link}>
               Sign up here
             </Link>

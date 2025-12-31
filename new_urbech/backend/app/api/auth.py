@@ -1,119 +1,186 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from datetime import timedelta
-from app.schemas.auth import UserLogin, UserRegister, Token
-from app.utils.auth import (
-    ALGORITHM, SECRET_KEY, authenticate_user, create_access_token, 
-    get_password_hash, get_current_active_user,
-    ACCESS_TOKEN_EXPIRE_MINUTES
-)
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi.security import OAuth2PasswordBearer
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+import random
+import hmac
+
 from app.db.session import prisma
-from fastapi import HTTPException, status
-import traceback
+from app.utils.security import hash_password, verify_password, create_access_token, decode_token
+from app.utils.email import send_verification_email  # must accept code=...
 
 router = APIRouter()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
+
+# --------------------
+# Pydantic models (INLINE = fewer files)
+# --------------------
+class RegisterRequest(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+class VerifyRequest(BaseModel):
+    email: EmailStr
+    code: str
+
+class ResendRequest(BaseModel):
+    email: EmailStr
+
+
+def gen_code() -> str:
+    return f"{random.randint(100000, 999999)}"
+
+
+# --------------------
+# Auth helpers
+# --------------------
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    email = decode_token(token)
+    user = await prisma.user.find_unique(where={"email": email})
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return user
+
+
+# --------------------
+# Routes
+# --------------------
 @router.post("/register")
-async def register(user_data: UserRegister):
-    # Check if user already exists
-    existing_user = await prisma.user.find_unique(where={"email": user_data.email})
-    if existing_user:
-        raise HTTPException(
-            status_code=400,
-            detail="Email already registered"
-        )
-    
-    # Create new user - FIXED: Ensure all required fields are included
-    hashed_password = get_password_hash(user_data.password)
-    
-    # Create the user data dictionary with all required fields
-    user_data_dict = {
-        "name": user_data.name,
-        "email": user_data.email,
-        "hashedPassword": hashed_password,
-        "role": "USER"  # Make sure role is included if it's required
-    }
-    
-    user = await prisma.user.create(data=user_data_dict)
-    from fastapi import HTTPException, status
-    import traceback
-    # Create access token
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+async def register(payload: RegisterRequest, background_tasks: BackgroundTasks):
+    existing = await prisma.user.find_unique(where={"email": payload.email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    # ✅ bootstrap admin (first user)
+    any_user = await prisma.user.find_first()
+    role = "ADMIN" if any_user is None else "USER"
+
+    code = gen_code()
+    user = await prisma.user.create(data={
+        "name": payload.name,
+        "email": payload.email,
+        "hashedPassword": hash_password(payload.password),
+        "role": role,
+        "isVerified": False,
+        "verificationCode": code,
+    })
+
+    # send code (do not crash registration if email fails)
+    background_tasks.add_task(
+        send_verification_email,
+        email=user.email,
+        name=user.name,
+        code=code,
     )
-    
+
     return {
-        "access_token": access_token,
-        "token_type": "bearer",
+        "message": "Registered. Check your email for the verification code.",
+        "requiresVerification": True,
         "user": {
             "id": user.id,
             "name": user.name,
             "email": user.email,
-            "role": user.role
+            "role": user.role,
+            "isVerified": user.isVerified
         }
     }
+
+
+@router.post("/verify-email")
+async def verify_email(payload: VerifyRequest):
+    user = await prisma.user.find_unique(where={"email": payload.email})
+    if not user:
+        # security: don't leak existence too much (still okay to say invalid)
+        raise HTTPException(status_code=400, detail="Invalid code or email")
+
+    if user.isVerified:
+        token = create_access_token(user.email)
+        return {"message": "Already verified", "access_token": token, "token_type": "bearer",
+                "user": {"id": user.id, "name": user.name, "email": user.email, "role": user.role, "isVerified": True}}
+
+    if not user.verificationCode:
+        raise HTTPException(status_code=400, detail="Invalid code or email")
+
+    # constant-time compare
+    if not hmac.compare_digest(user.verificationCode, payload.code):
+        raise HTTPException(status_code=400, detail="Invalid code or email")
+
+    updated = await prisma.user.update(
+        where={"id": user.id},
+        data={"isVerified": True, "verificationCode": None},
+    )
+
+    token = create_access_token(updated.email)
+    return {
+        "message": "Email verified",
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": updated.id,
+            "name": updated.name,
+            "email": updated.email,
+            "role": updated.role,
+            "isVerified": updated.isVerified
+        }
+    }
+
+
+@router.post("/resend-verification")
+async def resend_verification(payload: ResendRequest, background_tasks: BackgroundTasks):
+    user = await prisma.user.find_unique(where={"email": payload.email})
+
+    # security: do not reveal if user exists
+    if not user:
+        return {"message": "If an account exists, a code has been sent."}
+
+    if user.isVerified:
+        return {"message": "Already verified"}
+
+    code = gen_code()
+    await prisma.user.update(where={"id": user.id}, data={"verificationCode": code})
+
+    background_tasks.add_task(
+        send_verification_email,
+        email=user.email,
+        name=user.name,
+        code=code,
+    )
+
+    return {"message": "If an account exists, a code has been sent."}
+
 
 @router.post("/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = await authenticate_user(form_data.username, form_data.password)
-    if not user:
+async def login(payload: LoginRequest):
+    user = await prisma.user.find_unique(where={"email": payload.email})
+    if not user or not verify_password(payload.password, user.hashedPassword):
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
+
+    if not user.isVerified:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            status_code=403,
+            detail="Email not verified",
+            headers={"X-Verification-Required": "true"},
         )
-    
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
-    )
-    
+
+    token = create_access_token(user.email)
     return {
-        "access_token": access_token,
+        "access_token": token,
         "token_type": "bearer",
-        "user": {
-            "id": user.id,
-            "name": user.name,
-            "email": user.email,
-            "role": user.role
-        }
+        "user": {"id": user.id, "name": user.name, "email": user.email, "role": user.role, "isVerified": user.isVerified},
     }
 
+
 @router.get("/me")
-async def read_users_me(current_user = Depends(get_current_active_user)):
-    return {
-        "id": current_user.id,
-        "name": current_user.name,
-        "email": current_user.email,
-        "role": current_user.role
-    }
+async def me(current_user=Depends(get_current_user)):
+    return {"id": current_user.id, "name": current_user.name, "email": current_user.email, "role": current_user.role, "isVerified": current_user.isVerified}
+
 
 @router.post("/logout")
 async def logout():
-    # With JWT, logout is handled on the client side by removing the token
-    return {"message": "Successfully logged out"}
-
-@router.get("/debug-token")
-async def debug_token(token: str = Depends(oauth2_scheme)):
-    """Debug endpoint to check token validation"""
-    from jose import jwt
-    from app.utils.auth import SECRET_KEY, ALGORITHM
-    
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return {
-            "valid": True,
-            "payload": payload,
-            "email": payload.get("sub"),
-            "secret_key_used": SECRET_KEY,
-            "algorithm_used": ALGORITHM
-        }
-    except Exception as e:
-        return {
-            "valid": False,
-            "error": str(e),
-            "secret_key_used": SECRET_KEY,
-            "algorithm_used": ALGORITHM
-        }
+    return {"message": "Logged out (client removes token)"}
