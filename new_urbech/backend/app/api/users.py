@@ -1,7 +1,9 @@
+#app/api/users.py
 from fastapi import APIRouter, HTTPException, Depends
 from app.db.session import prisma
 from app.schemas.user import UserCreate, UserResponse # Importing the schemas!
-from app.utils.auth import get_password_hash
+from app.utils.security import hash_password
+
 
 router = APIRouter()
 
@@ -13,7 +15,7 @@ async def create_user(user: UserCreate):  # Using the schema as request body
         raise HTTPException(status_code=400, detail="Email already registered")
     
     # Hash password
-    hashed_password = get_password_hash(user.password)
+    hashed_password = hash_password(user.password)
     
     # Create user in database
     db_user = await prisma.user.create({
