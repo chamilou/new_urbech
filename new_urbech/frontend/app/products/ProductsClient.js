@@ -6,7 +6,7 @@ import ProductDetail from '../components/ProductDetail';
 import styles from './products.module.css';
 import Link from 'next/link';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api';
 const ITEMS_PER_PAGE = 12;
 
 export default function ProductsClient({ initialCategory = '', initialScope = 'exact' }) {
