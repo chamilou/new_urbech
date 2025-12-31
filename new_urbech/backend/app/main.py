@@ -1,19 +1,14 @@
 # app/main.py
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware  # <-- Keep this one
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 from app.db.session import prisma
 # Import from config instead of defining here
 from app.core.config import MEDIA_ROOT, ALLOWED_ORIGINS
 from app.api.endpoints import api_router
-from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 load_dotenv()
-
-
-# Import routers
-
 
 
 @asynccontextmanager
@@ -37,10 +32,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Mount static files
-app.mount("/media", StaticFiles(directory=str(MEDIA_ROOT)), name="media")
-
-# CORS middleware
+# CORS middleware - THIS IS CRITICAL
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -49,7 +41,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# Mount static files
+app.mount("/media", StaticFiles(directory=str(MEDIA_ROOT)), name="media")
 
 app.include_router(api_router, prefix="/api")
 
@@ -60,4 +53,17 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "message": "API is running"}
+    return {
+        "status": "healthy", 
+        "message": "API is running",
+        "cors_origins": ALLOWED_ORIGINS
+    }
+
+# Add a CORS test endpoint
+@app.get("/api/cors-test")
+async def cors_test():
+    return {
+        "success": True,
+        "message": "CORS is working!",
+        "allowed_origins": ALLOWED_ORIGINS
+    }
