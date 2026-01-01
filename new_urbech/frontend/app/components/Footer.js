@@ -25,6 +25,9 @@ export default function Footer() {
           {/* Информация о компании */}
           <div className={styles.footerSection}>
             <h3 className={styles.sectionTitle}>Урбеч Магазин</h3>
+            <ul className={styles.footerLinks}>
+              <li><Link href="/privacy" className={styles.footerLink}>Главная</Link></li>
+              </ul>
             <p className={styles.companyDescription}>
               Наш семейный бизнес по производству традиционного дагестанского урбеча. 
               Каждая баночка готовится с любовью по старинным рецептам из натуральных горных ингредиентов.

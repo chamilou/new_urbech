@@ -130,12 +130,12 @@ export default function CategoryForm({ category, onClose, onSave }) {
     try {
       const res = await fetch(`${API_BASE}/categories`, { cache: 'no-store' });
 
-      if (!res.ok) throw new Error(`Failed to fetch categories: ${res.status}`);
+      if (!res.ok) throw new Error(`Не удалось загрузить категории: ${res.status}`);
       const data = await res.json();
       setCategories(Array.isArray(data) ? data : []);
     } catch (e) {
-      console.error('Error fetching categories:', e);
-      setError(e.message || 'Failed to load categories');
+      console.error('Ошибка загрузки категорий:', e);
+      setError(e.message || 'Не удалось загрузить категории');
     } finally {
       setFetching(false);
     }
@@ -206,7 +206,7 @@ export default function CategoryForm({ category, onClose, onSave }) {
 
       // Validate required fields
       if (!formData.name.trim()) {
-        throw new Error('Category name is required');
+        throw new Error('Название категории обязательно');
       }
 
       // Ensure slug is not empty - generate from name if needed
@@ -214,7 +214,7 @@ export default function CategoryForm({ category, onClose, onSave }) {
       if (!finalSlug) {
         finalSlug = advancedSlugify(formData.name);
         if (!finalSlug) {
-          throw new Error('Could not generate a valid slug from the category name');
+          throw new Error('Не удалось сгенерировать корректный slug из названия категории');
         }
       }
 
@@ -256,8 +256,8 @@ export default function CategoryForm({ category, onClose, onSave }) {
       
       onSave?.(result);
     } catch (e) {
-      console.error('Error saving category:', e);
-      setError(e.message || 'Failed to save category');
+      console.error('Ошибка сохранения категории:', e);
+      setError(e.message || 'Не удалось сохранить категорию');
     } finally {
       setLoading(false);
     }
@@ -294,13 +294,13 @@ export default function CategoryForm({ category, onClose, onSave }) {
   // }, []);
 
   return (
-    <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label="Category form">
+    <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label="Форма категории">
       <div className={styles.modal}>
-        <h2>{category ? 'Edit Category' : 'Add New Category'}</h2>
+        <h2>{category ? 'Редактировать категорию' : 'Добавить новую категорию'}</h2>
 
         {(error || fetching) && (
           <div className={styles.infoRow}>
-            {fetching && <span className={styles.helpText}>Loading categories…</span>}
+            {fetching && <span className={styles.helpText}>Загрузка категорий…</span>}
             {error && <div className={styles.error}>{error}</div>}
           </div>
         )}
@@ -308,7 +308,7 @@ export default function CategoryForm({ category, onClose, onSave }) {
         <form onSubmit={handleSubmit} className={styles.form}>
           {/* Name */}
           <div className={styles.formGroup}>
-            <label htmlFor="name">Category Name *</label>
+            <label htmlFor="name">Название категории *</label>
             <input
               id="name"
               type="text"
@@ -316,7 +316,7 @@ export default function CategoryForm({ category, onClose, onSave }) {
               value={formData.name}
               onChange={handleChange}
               required
-              placeholder="Enter category name (supports Cyrillic)"
+              placeholder="Введите название категории (поддерживается кириллица)"
               disabled={loading}
             />
           </div>
@@ -324,7 +324,7 @@ export default function CategoryForm({ category, onClose, onSave }) {
           {/* Slug (auto, editable) */}
           <div className={styles.formGroup}>
             <div className={styles.slugHeader}>
-              <label htmlFor="slug">Slug *</label>
+              <label htmlFor="slug">URL (slug) *</label>
               {formData.name && (
                 <button
                   type="button"
@@ -332,7 +332,7 @@ export default function CategoryForm({ category, onClose, onSave }) {
                   className={styles.regenerateSlugBtn}
                   disabled={loading}
                 >
-                  Regenerate from Name
+                  Сгенерировать из названия
                 </button>
               )}
             </div>
@@ -344,7 +344,7 @@ export default function CategoryForm({ category, onClose, onSave }) {
                 value={formData.slug}
                 onChange={handleSlugChange}
                 required
-                placeholder="auto-generated-from-name"
+                placeholder="автоматически-из-названия"
                 disabled={loading}
               />
               <label className={styles.checkbox}>
@@ -355,20 +355,20 @@ export default function CategoryForm({ category, onClose, onSave }) {
                   onChange={handleChange}
                   disabled={loading}
                 />
-                Auto-generate
+                Автогенерация
               </label>
             </div>
             <small className={styles.helpText}>
               {formData.slug
                 ? `URL: /category/${formData.slug}`
-                : 'Slug will be generated from the name (Cyrillic supported)'}
-              {slugModified && ' (manually modified)'}
+                : 'Slug будет сгенерирован из названия (поддерживается кириллица)'}
+              {slugModified && ' (изменено вручную)'}
             </small>
           </div>
 
           {/* Menu Priority */}
           <div className={styles.formGroup}>
-            <label htmlFor="defaultSortOrder">Menu Priority</label>
+            <label htmlFor="defaultSortOrder">Приоритет в меню</label>
             <input
               id="defaultSortOrder"
               type="number"
@@ -382,13 +382,13 @@ export default function CategoryForm({ category, onClose, onSave }) {
               disabled={loading}
             />
             <small className={styles.helpText}>
-              Higher number = higher position in menu. Categories are sorted by this number (descending).
+              Большее число = выше позиция в меню. Категории сортируются по этому числу (по убыванию).
             </small>
           </div>
 
           {/* Parent */}
           <div className={styles.formGroup}>
-            <label htmlFor="parentId">Parent Category (Optional)</label>
+            <label htmlFor="parentId">Родительская категория (необязательно)</label>
             <select
               id="parentId"
               name="parentId"
@@ -396,7 +396,7 @@ export default function CategoryForm({ category, onClose, onSave }) {
               onChange={handleChange}
               disabled={loading || fetching}
             >
-              <option value="">No Parent (Top Level Category)</option>
+              <option value="">Без родителя (корневая категория)</option>
               {parentOptions.map((c) => (
                 <option key={c.id} value={c.id}>
                   {buildIndentedLabel(c)}
@@ -404,7 +404,7 @@ export default function CategoryForm({ category, onClose, onSave }) {
               ))}
             </select>
             <small className={styles.helpText}>
-              {category ? "You can't pick the current category or its descendants." : "Select a parent category to create a subcategory."}
+              {category ? "Нельзя выбрать текущую категорию или её подкатегории." : "Выберите родительскую категорию для создания подкатегории."}
             </small>
           </div>
 
@@ -416,14 +416,14 @@ export default function CategoryForm({ category, onClose, onSave }) {
               className={styles.cancelBtn}
               disabled={loading}
             >
-              Cancel
+              Отмена
             </button>
             <button 
               type="submit" 
               disabled={loading || !formData.name.trim() || !formData.slug.trim()}
               className={styles.saveBtn}
             >
-              {loading ? 'Saving…' : category ? 'Update Category' : 'Create Category'}
+              {loading ? 'Сохранение…' : category ? 'Обновить категорию' : 'Создать категорию'}
             </button>
           </div>
         </form>

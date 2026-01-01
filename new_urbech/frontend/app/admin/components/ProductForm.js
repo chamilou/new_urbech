@@ -1,4 +1,3 @@
-
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -54,12 +53,12 @@ export default function ProductForm({ product, onClose, onSave }) {
       const categoriesData = await response.json();
       setCategories(categoriesData);
     } else {
-      console.error('Failed to fetch categories:', response.status);
-      setErrors(prev => ({ ...prev, categories: 'Failed to load categories' }));
+      console.error('Ошибка загрузки категорий:', response.status);
+      setErrors(prev => ({ ...prev, categories: 'Не удалось загрузить категории' }));
     }
   } catch (error) {
-    console.error('Error fetching categories:', error);
-    setErrors(prev => ({ ...prev, categories: 'Network error loading categories' }));
+    console.error('Ошибка загрузки категорий:', error);
+    setErrors(prev => ({ ...prev, categories: 'Ошибка сети при загрузке категорий' }));
   } finally {
     setCategoriesLoading(false);
   }
@@ -68,10 +67,10 @@ export default function ProductForm({ product, onClose, onSave }) {
  const handleCategorySaved = async (createdCategory) => {
   setShowCategoryForm(false);
 
-  // refresh categories list
+  // Обновить список категорий
   await fetchCategories();
 
-  // auto-select the new category (this is the UX part you're missing)
+  // Автоматически выбрать новую категорию
   if (createdCategory?.id) {
     setFormData(prev => ({
       ...prev,
@@ -84,46 +83,46 @@ export default function ProductForm({ product, onClose, onSave }) {
   const validateForm = () => {
     const newErrors = {};
 
-    // Name validation
+    // Валидация названия
     if (!formData.name.trim()) {
-      newErrors.name = 'Product name is required';
+      newErrors.name = 'Название товара обязательно';
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Product name must be at least 2 characters';
+      newErrors.name = 'Название должно быть не менее 2 символов';
     }
 
-    // Price validation
+    // Валидация цены
     if (!formData.price) {
-      newErrors.price = 'Price is required';
+      newErrors.price = 'Цена обязательна';
     } else {
       const price = parseFloat(formData.price);
       if (isNaN(price) || price < 0) {
-        newErrors.price = 'Price must be a valid positive number';
+        newErrors.price = 'Цена должна быть положительным числом';
       }
     }
 
-    // Stock validation
+    // Валидация количества
     if (!formData.stock) {
-      newErrors.stock = 'Stock is required';
+      newErrors.stock = 'Количество обязательно';
     } else {
       const stock = parseInt(formData.stock);
       if (isNaN(stock) || stock < 0) {
-        newErrors.stock = 'Stock must be a valid positive number';
+        newErrors.stock = 'Количество должно быть положительным числом';
       }
     }
 
-    // Min Stock validation
+    // Валидация минимального запаса
     if (!formData.minStock) {
-      newErrors.minStock = 'Minimum stock is required';
+      newErrors.minStock = 'Минимальный запас обязателен';
     } else {
       const minStock = parseInt(formData.minStock);
       if (isNaN(minStock) || minStock < 0) {
-        newErrors.minStock = 'Minimum stock must be a valid positive number';
+        newErrors.minStock = 'Минимальный запас должен быть положительным числом';
       }
     }
 
-    // Image URL validation (if provided)
+    // Валидация URL изображения (если указан)
     if (formData.mainImageUrl && !isValidUrl(formData.mainImageUrl)) {
-      newErrors.mainImageUrl = 'Please enter a valid image URL';
+      newErrors.mainImageUrl = 'Введите корректный URL изображения';
     }
 
     setErrors(newErrors);
@@ -163,12 +162,12 @@ export default function ProductForm({ product, onClose, onSave }) {
         setImagePreview(imageUrl);
       } else {
         const errorText = await response.text();
-        setErrors(prev => ({ ...prev, image: 'Failed to upload image' }));
-        console.error('Image upload failed:', errorText);
+        setErrors(prev => ({ ...prev, image: 'Не удалось загрузить изображение' }));
+        console.error('Ошибка загрузки изображения:', errorText);
       }
     } catch (error) {
-      console.error('Error uploading image:', error);
-      setErrors(prev => ({ ...prev, image: 'Network error during upload' }));
+      console.error('Ошибка загрузки изображения:', error);
+      setErrors(prev => ({ ...prev, image: 'Ошибка сети при загрузке' }));
     } finally {
       setUploading(false);
     }
@@ -178,23 +177,23 @@ export default function ProductForm({ product, onClose, onSave }) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // File type validation
+    // Проверка типа файла
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      setErrors(prev => ({ ...prev, image: 'Please select a valid image file (JPEG, PNG, or WebP)' }));
+      setErrors(prev => ({ ...prev, image: 'Выберите допустимый файл изображения (JPEG, PNG или WebP)' }));
       return;
     }
 
-    // File size validation (5MB)
+    // Проверка размера файла (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setErrors(prev => ({ ...prev, image: 'Image size must be less than 5MB' }));
+      setErrors(prev => ({ ...prev, image: 'Размер изображения должен быть менее 5MB' }));
       return;
     }
 
-    // Clear previous errors
+    // Очистить предыдущие ошибки
     setErrors(prev => ({ ...prev, image: '' }));
 
-    // Create preview
+    // Создать превью
     const previewUrl = URL.createObjectURL(file);
     setImagePreview(previewUrl);
     handleImageUpload(file);
@@ -207,9 +206,9 @@ export default function ProductForm({ product, onClose, onSave }) {
       mainImageUrl: url
     }));
     
-    // Validate URL in real-time
+    // Валидация URL в реальном времени
     if (url && !isValidUrl(url)) {
-      setErrors(prev => ({ ...prev, mainImageUrl: 'Please enter a valid URL' }));
+      setErrors(prev => ({ ...prev, mainImageUrl: 'Введите корректный URL' }));
     } else {
       setErrors(prev => ({ ...prev, mainImageUrl: '' }));
     }
@@ -233,7 +232,7 @@ export default function ProductForm({ product, onClose, onSave }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate form before submission
+    // Валидация формы перед отправкой
     if (!validateForm()) {
       return;
     }
@@ -265,15 +264,15 @@ export default function ProductForm({ product, onClose, onSave }) {
         body: JSON.stringify(submitData)
       });
 
-      // Handle response
+      // Обработка ответа
       if (!response.ok) {
-        let errorMessage = `Error ${response.status}: Failed to save product`;
+        let errorMessage = `Ошибка ${response.status}: Не удалось сохранить товар`;
         
         try {
           const errorData = await response.json();
           errorMessage = errorData.detail || errorData.message || errorMessage;
         } catch {
-          // If response is not JSON, use status text
+          // Если ответ не JSON, использовать текст статуса
           errorMessage = response.statusText || errorMessage;
         }
         
@@ -282,14 +281,14 @@ export default function ProductForm({ product, onClose, onSave }) {
 
       const result = await response.json();
       
-      // Cleanup
+      // Очистка
       if (imagePreview.startsWith('blob:')) {
         URL.revokeObjectURL(imagePreview);
       }
       
       onSave(result);
     } catch (error) {
-      console.error('Error saving product:', error);
+      console.error('Ошибка сохранения товара:', error);
       setErrors(prev => ({ ...prev, submit: error.message }));
     } finally {
       setLoading(false);
@@ -299,7 +298,7 @@ export default function ProductForm({ product, onClose, onSave }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // Clear error when user starts typing
+    // Очистить ошибку при начале ввода
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -320,13 +319,13 @@ export default function ProductForm({ product, onClose, onSave }) {
   const handleNumberChange = (e) => {
     const { name, value } = e.target;
     
-    // Allow only numbers and decimal point for price
+    // Разрешить только цифры и точку для цены
     if (name === 'price') {
       if (value === '' || /^\d*\.?\d*$/.test(value)) {
         handleChange(e);
       }
     } else {
-      // For stock fields, allow only integers
+      // Для полей количества разрешить только целые числа
       if (value === '' || /^\d+$/.test(value)) {
         handleChange(e);
       }
@@ -337,9 +336,9 @@ export default function ProductForm({ product, onClose, onSave }) {
     <>
       <div className={styles.modalOverlay}>
         <div className={styles.modal}>
-          <h2>{product ? 'Edit Product' : 'Add New Product'}</h2>
+          <h2>{product ? 'Редактировать товар' : 'Добавить новый товар'}</h2>
           
-          {/* Global error message */}
+          {/* Глобальное сообщение об ошибке */}
           {errors.submit && (
             <div className={styles.errorBanner}>
               {errors.submit}
@@ -347,9 +346,9 @@ export default function ProductForm({ product, onClose, onSave }) {
           )}
           
           <form onSubmit={handleSubmit} className={styles.form}>
-            {/* Product Name */}
+            {/* Название товара */}
             <div className={styles.formGroup}>
-              <label htmlFor="product-name">Product Name *</label>
+              <label htmlFor="product-name">Название товара *</label>
               <input
                 id="product-name"
                 type="text"
@@ -357,7 +356,7 @@ export default function ProductForm({ product, onClose, onSave }) {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                placeholder="Enter product name"
+                placeholder="Введите название товара"
                 disabled={loading}
                 aria-describedby={errors.name ? "name-error" : undefined}
               />
@@ -368,9 +367,9 @@ export default function ProductForm({ product, onClose, onSave }) {
               )}
             </div>
 
-            {/* Price */}
+            {/* Цена */}
             <div className={styles.formGroup}>
-              <label htmlFor="product-price">Price *</label>
+              <label htmlFor="product-price">Цена *</label>
               <input
                 id="product-price"
                 type="number"
@@ -391,24 +390,24 @@ export default function ProductForm({ product, onClose, onSave }) {
               )}
             </div>
 
-            {/* Description */}
+            {/* Описание */}
             <div className={styles.formGroup}>
-              <label htmlFor="product-description">Description</label>
+              <label htmlFor="product-description">Описание</label>
               <textarea
                 id="product-description"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 rows="3"
-                placeholder="Product description (optional)"
+                placeholder="Описание товара (необязательно)"
                 disabled={loading}
               />
             </div>
 
-            {/* Stock Fields */}
+            {/* Поля количества */}
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label htmlFor="product-stock">Stock *</label>
+                <label htmlFor="product-stock">Количество *</label>
                 <input
                   id="product-stock"
                   type="number"
@@ -428,7 +427,7 @@ export default function ProductForm({ product, onClose, onSave }) {
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="product-minstock">Min Stock *</label>
+                <label htmlFor="product-minstock">Мин. запас *</label>
                 <input
                   id="product-minstock"
                   type="number"
@@ -448,22 +447,22 @@ export default function ProductForm({ product, onClose, onSave }) {
               </div>
             </div>
 
-            {/* Category Selection */}
+            {/* Выбор категории */}
             <div className={styles.formGroup}>
               <div className={styles.categoryHeader}>
-                <label htmlFor="product-category">Category</label>
+                <label htmlFor="product-category">Категория</label>
                 <button
                   type="button"
                   onClick={() => setShowCategoryForm(true)}
                   className={styles.addCategoryBtn}
                   disabled={loading}
                 >
-                  + Add New Category
+                  + Добавить категорию
                 </button>
               </div>
               
               {categoriesLoading ? (
-                <div className={styles.loadingText}>Loading categories...</div>
+                <div className={styles.loadingText}>Загрузка категорий...</div>
               ) : categories.length > 0 ? (
                 <>
                   <select
@@ -473,7 +472,7 @@ export default function ProductForm({ product, onClose, onSave }) {
                     onChange={handleChange}
                     disabled={loading}
                   >
-                    <option value="">No Category</option>
+                    <option value="">Без категории</option>
                     {categories.map(category => (
                       <option key={category.id} value={category.id}>
                         {category.name}
@@ -489,7 +488,7 @@ export default function ProductForm({ product, onClose, onSave }) {
               ) : (
                 <div className={styles.noCategories}>
                   <div className={styles.errorText}>
-                    No categories available
+                    Нет доступных категорий
                   </div>
                   <button
                     type="button"
@@ -497,29 +496,29 @@ export default function ProductForm({ product, onClose, onSave }) {
                     className={styles.addCategoryBtnInline}
                     disabled={loading}
                   >
-                    Create First Category
+                    Создать первую категорию
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Image Upload Section */}
+            {/* Секция загрузки изображения */}
             <div className={styles.formGroup}>
-              <label>Product Image (Optional)</label>
+              <label>Изображение товара (необязательно)</label>
               
               {imagePreview && (
                 <div className={styles.imagePreview}>
                   <div className={styles.imageContainer}>
                     <Image
                       src={imagePreview}
-                      alt="Product preview"
+                      alt="Превью товара"
                       width={200}
                       height={200}
                       className={styles.previewImage}
                       onError={(e) => {
-                        console.error('Image failed to load:', imagePreview);
+                        console.error('Изображение не загрузилось:', imagePreview);
                         e.target.style.display = 'none';
-                        setErrors(prev => ({ ...prev, image: 'Failed to load image' }));
+                        setErrors(prev => ({ ...prev, image: 'Не удалось загрузить изображение' }));
                       }}
                     />
                   </div>
@@ -529,7 +528,7 @@ export default function ProductForm({ product, onClose, onSave }) {
                     className={styles.removeImageBtn}
                     disabled={loading}
                   >
-                    Remove Image
+                    Удалить изображение
                   </button>
                 </div>
               )}
@@ -545,10 +544,10 @@ export default function ProductForm({ product, onClose, onSave }) {
                       className={styles.fileInput}
                     />
                     <span className={styles.uploadButton}>
-                      {uploading ? 'Uploading...' : 'Upload Image'}
+                      {uploading ? 'Загрузка...' : 'Загрузить изображение'}
                     </span>
                   </label>
-                  <small>JPEG, PNG, or WebP (max 5MB)</small>
+                  <small>JPEG, PNG или WebP (макс. 5MB)</small>
                   {errors.image && (
                     <div className={styles.fieldError}>
                       {errors.image}
@@ -557,7 +556,7 @@ export default function ProductForm({ product, onClose, onSave }) {
                 </div>
 
                 <div className={styles.urlOption}>
-                  <span className={styles.urlLabel}>Or enter image URL:</span>
+                  <span className={styles.urlLabel}>Или введите URL изображения:</span>
                   <input
                     type="url"
                     name="mainImageUrl"
@@ -577,7 +576,7 @@ export default function ProductForm({ product, onClose, onSave }) {
               </div>
             </div>
 
-            {/* Form Actions */}
+            {/* Действия формы */}
             <div className={styles.formActions}>
               <button 
                 type="button" 
@@ -585,21 +584,21 @@ export default function ProductForm({ product, onClose, onSave }) {
                 className={styles.cancelBtn}
                 disabled={loading}
               >
-                Cancel
+                Отмена
               </button>
               <button 
                 type="submit" 
                 disabled={loading || uploading}
                 className={styles.saveBtn}
               >
-                {loading ? 'Saving...' : (product ? 'Update Product' : 'Create Product')}
+                {loading ? 'Сохранение...' : (product ? 'Обновить товар' : 'Создать товар')}
               </button>
             </div>
           </form>
         </div>
       </div>
 
-      {/* Category Form Modal */}
+      {/* Модальное окно формы категории */}
       {showCategoryForm && (
         <CategoryForm
           onClose={() => setShowCategoryForm(false)}

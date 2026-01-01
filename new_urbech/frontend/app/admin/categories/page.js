@@ -29,7 +29,7 @@ export default function AdminCategoriesTable() {
 
       if (!res.ok) {
         const msg = (data && (data.detail || data.error || JSON.stringify(data))) || res.statusText;
-        throw new Error(`Request failed: ${res.status} ${msg}`);
+        throw new Error(`Ошибка запроса: ${res.status} ${msg}`);
       }
 
       const list = Array.isArray(data) ? data : [];
@@ -59,7 +59,7 @@ export default function AdminCategoriesTable() {
   };
 
   const handleDeleteCategory = async (category) => {
-    if (!confirm(`Are you sure you want to delete "${category.name}"? This action cannot be undone.`)) {
+    if (!confirm(`Вы уверены, что хотите удалить категорию "${category.name}"? Это действие нельзя отменить.`)) {
       return;
     }
 
@@ -70,13 +70,13 @@ export default function AdminCategoriesTable() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.detail || 'Failed to delete category');
+        throw new Error(data.detail || 'Не удалось удалить категорию');
       }
 
       await fetchCategories();
       setError('');
     } catch (e) {
-      setError(e.message || 'Failed to delete category');
+      setError(e.message || 'Не удалось удалить категорию');
     }
   };
 
@@ -97,8 +97,8 @@ export default function AdminCategoriesTable() {
     const stockStatus = product.stock === 0 ? 'outOfStock' : 
                        product.stock < (product.minStock || 5) ? 'lowStock' : 'inStock';
     
-    const stockText = product.stock === 0 ? 'Out of stock' : 
-                     product.stock < (product.minStock || 5) ? `Low (${product.stock})` : `In stock (${product.stock})`;
+    const stockText = product.stock === 0 ? 'Нет в наличии' : 
+                     product.stock < (product.minStock || 5) ? `Мало (${product.stock})` : `В наличии (${product.stock})`;
 
     return (
       <div key={product.id} className={styles.productInlineItem}>
@@ -145,7 +145,7 @@ export default function AdminCategoriesTable() {
     if (products.length === 0) {
       return (
         <div className={styles.productsInline}>
-          <div className={styles.noProducts}>No products</div>
+          <div className={styles.noProducts}>Нет товаров</div>
         </div>
       );
     }
@@ -160,7 +160,7 @@ export default function AdminCategoriesTable() {
             className={styles.moreProductsCompact}
             onClick={() => toggleProductsExpansion(category.id)}
           >
-            +{products.length - 3} more products
+            +{products.length - 3} ещё товаров
           </div>
         )}
         {isExpanded && products.length > 3 && (
@@ -168,7 +168,7 @@ export default function AdminCategoriesTable() {
             className={styles.moreProductsCompact}
             onClick={() => toggleProductsExpansion(category.id)}
           >
-            Show less
+            Показать меньше
           </div>
         )}
       </div>
@@ -178,13 +178,13 @@ export default function AdminCategoriesTable() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Categories & Products</h1>
+        <h1>Категории и Товары</h1>
         <div className={styles.headerActions}>
           <button 
             className={styles.createBtn}
             onClick={handleAddCategory}
           >
-            + Add Category
+            + Добавить категорию
           </button>
         </div>
         {error && <div className={styles.error}>⚠️ {error}</div>}
@@ -202,11 +202,11 @@ export default function AdminCategoriesTable() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Category Name</th>
-              <th>Slug</th>
-              <th>Product Count</th>
-              <th>Products</th>
-              <th>Actions</th>
+              <th>Название категории</th>
+              <th>URL (слаг)</th>
+              <th>Количество товаров</th>
+              <th>Товары</th>
+              <th>Действия</th>
             </tr>
           </thead>
           <tbody>
@@ -215,7 +215,7 @@ export default function AdminCategoriesTable() {
                 <td className={styles.categoryName}>
                   <strong>{category.name}</strong>
                   {category.parent && (
-                    <small> (Child of {category.parent.name})</small>
+                    <small> (Подкатегория {category.parent.name})</small>
                   )}
                 </td>
                 <td className={styles.categorySlug}>
@@ -233,7 +233,7 @@ export default function AdminCategoriesTable() {
                       className={styles.editBtn}
                       onClick={() => handleEditCategory(category)}
                     >
-                      Edit
+                      Редактировать
                     </button>
                     <button
                       className={styles.viewBtn}
@@ -243,13 +243,13 @@ export default function AdminCategoriesTable() {
                         )
                       }
                     >
-                      {selectedCategory?.id === category.id ? 'Hide' : 'View'} Details
+                      {selectedCategory?.id === category.id ? 'Скрыть' : 'Подробнее'}
                     </button>
                     <button
                       className={styles.deleteBtn}
                       onClick={() => handleDeleteCategory(category)}
                     >
-                      Delete
+                      Удалить
                     </button>
                   </div>
                 </td>
@@ -258,7 +258,7 @@ export default function AdminCategoriesTable() {
             {!safeCategories.length && !error && (
               <tr>
                 <td colSpan={5} className={styles.empty}>
-                  No categories found. <button onClick={handleAddCategory} className={styles.textButton}>Create your first category</button>
+                  Категории не найдены. <button onClick={handleAddCategory} className={styles.textButton}>Создайте первую категорию</button>
                 </td>
               </tr>
             )}
@@ -266,11 +266,11 @@ export default function AdminCategoriesTable() {
         </table>
       </div>
 
-      {/* Products Detail Modal */}
+      {/* Модальное окно с товарами */}
       {selectedCategory && (
         <div className={styles.productsModal}>
           <div className={styles.modalHeader}>
-            <h2>Products in {selectedCategory.name}</h2>
+            <h2>Товары в категории {selectedCategory.name}</h2>
             <button className={styles.closeBtn} onClick={() => setSelectedCategory(null)}>×</button>
           </div>
           <div className={styles.productsGrid}>
@@ -294,7 +294,7 @@ export default function AdminCategoriesTable() {
                   <p className={styles.productPrice}>
                     {product.price != null ? `$${product.price}` : '—'}
                   </p>
-                  <p className={styles.productStock}>Stock: {product.stock ?? 0}</p>
+                  <p className={styles.productStock}>Количество: {product.stock ?? 0}</p>
                   <p className={styles.productDescription}>
                     {(product.description ?? '').substring(0, 100)}...
                   </p>
@@ -303,7 +303,7 @@ export default function AdminCategoriesTable() {
             ))}
             {selectedCategory.products?.length === 0 && (
               <div className={styles.noProducts}>
-                No products in this category yet.
+                В этой категории пока нет товаров.
               </div>
             )}
           </div>
