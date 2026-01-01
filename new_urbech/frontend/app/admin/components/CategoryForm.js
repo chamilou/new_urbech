@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import styles from './CategoryForm.module.css';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api';
 
 // Enhanced slugify function with Cyrillic transliteration
 const slugify = (text) => {
