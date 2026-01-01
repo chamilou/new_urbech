@@ -1,31 +1,48 @@
 .container {
   min-height: 100vh;
-  background: #ffffff;
+  background: linear-gradient(135deg, #fffaf0 0%, #fff8e1 100%);
   padding-top: 80px;
 }
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #7c8b5a 0%, #9dba89 100%);
   color: white;
   padding: 4rem 2rem;
   text-align: center;
   margin-bottom: 60px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 15px 35px rgba(124, 139, 90, 0.15);
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #e6b85c, #7c8b5a, #e6b85c);
 }
 
 .heroContent {
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .heroTitle {
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, #fff, #f8fafc);
+  background: linear-gradient(135deg, #fff, #fff8e1);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-shadow: 0 2px 4px rgba(46, 58, 43, 0.1);
 }
 
 .heroSubtitle {
@@ -61,11 +78,24 @@
 
 .sectionTitle {
   font-size: 2rem;
-  font-weight: 700;
-  color: #333;
+  font-weight: 800;
+  color: #2e3a2b;
   margin-bottom: 30px;
   text-align: center;
   position: relative;
+  padding-left: 15px;
+}
+
+.sectionTitle::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 30px;
+  background: linear-gradient(180deg, #e6b85c, #7c8b5a);
+  border-radius: 3px;
 }
 
 .sectionTitle::after {
@@ -76,7 +106,7 @@
   transform: translateX(-50%);
   width: 60px;
   height: 3px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #e6b85c, #7c8b5a);
   border-radius: 2px;
 }
 
@@ -104,11 +134,11 @@
 }
 
 .deliveryCard {
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.7);
   padding: 2.5rem 2rem;
-  border-radius: 12px;
+  border-radius: 16px;
   text-align: center;
-  border: 1px solid #e9ecef;
+  border: 1px solid rgba(124, 139, 90, 0.15);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -120,33 +150,35 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  height: 5px;
+  background: linear-gradient(135deg, #e6b85c, #7c8b5a);
 }
 
 .deliveryCard:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.08);
+  box-shadow: 0 12px 28px rgba(124, 139, 90, 0.15);
   background: #ffffff;
+  border-color: rgba(230, 184, 92, 0.4);
 }
 
 .deliveryIcon {
   font-size: 3rem;
   margin-bottom: 1.5rem;
   opacity: 0.9;
+  color: #7c8b5a;
 }
 
 .deliveryTitle {
   font-size: 1.375rem;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #2e3a2b;
   margin-bottom: 1rem;
 }
 
 .deliveryInfo {
   font-size: 1.125rem;
-  font-weight: 600;
-  color: #4f46e5;
+  font-weight: 700;
+  color: #7c8b5a;
   margin-bottom: 0.5rem;
 }
 
@@ -158,10 +190,10 @@
 }
 
 .deliveryPrice {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.9);
   padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  border: 1px solid rgba(124, 139, 90, 0.15);
   margin-top: 1rem;
 }
 
@@ -169,7 +201,7 @@
   display: block;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #4f46e5;
+  color: #7c8b5a;
   margin-bottom: 0.25rem;
 }
 
@@ -191,17 +223,18 @@
 }
 
 .zoneCard {
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.7);
   padding: 2rem;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  border: 1px solid rgba(124, 139, 90, 0.15);
   transition: all 0.3s ease;
 }
 
 .zoneCard:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.08);
+  box-shadow: 0 8px 20px rgba(124, 139, 90, 0.15);
   background: #ffffff;
+  border-color: rgba(230, 184, 92, 0.4);
 }
 
 .zoneHeader {
@@ -210,7 +243,7 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #e9ecef;
+  border-bottom: 2px solid rgba(124, 139, 90, 0.1);
 }
 
 .zoneColor {
@@ -219,10 +252,24 @@
   border-radius: 4px;
 }
 
+/* Zone color variations - using olive/gold palette */
+.zoneCard:nth-child(1) .zoneColor {
+  background: linear-gradient(135deg, #7c8b5a, #9dba89);
+}
+.zoneCard:nth-child(2) .zoneColor {
+  background: linear-gradient(135deg, #e6b85c, #f5d37d);
+}
+.zoneCard:nth-child(3) .zoneColor {
+  background: linear-gradient(135deg, #a5b893, #c5d6b5);
+}
+.zoneCard:nth-child(4) .zoneColor {
+  background: linear-gradient(135deg, #9dba89, #b5cf9e);
+}
+
 .zoneTitle {
   font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #2e3a2b;
   margin: 0;
 }
 
@@ -236,7 +283,7 @@
   padding: 0.5rem 0;
   color: #666;
   line-height: 1.5;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(124, 139, 90, 0.1);
 }
 
 .zoneItem:last-child {
@@ -255,30 +302,32 @@
 }
 
 .paymentCard {
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.7);
   padding: 2rem;
-  border-radius: 12px;
+  border-radius: 16px;
   text-align: center;
-  border: 1px solid #e9ecef;
+  border: 1px solid rgba(124, 139, 90, 0.15);
   transition: all 0.3s ease;
 }
 
 .paymentCard:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.08);
+  box-shadow: 0 8px 20px rgba(124, 139, 90, 0.15);
   background: #ffffff;
+  border-color: rgba(230, 184, 92, 0.4);
 }
 
 .paymentIcon {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   opacity: 0.9;
+  color: #7c8b5a;
 }
 
 .paymentTitle {
   font-size: 1.125rem;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #2e3a2b;
   margin-bottom: 0.75rem;
 }
 
@@ -297,23 +346,24 @@
 }
 
 .faqItem {
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.7);
   padding: 2rem;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  border: 1px solid rgba(124, 139, 90, 0.15);
   transition: all 0.3s ease;
 }
 
 .faqItem:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.08);
+  box-shadow: 0 8px 20px rgba(124, 139, 90, 0.15);
   background: #ffffff;
+  border-color: rgba(230, 184, 92, 0.4);
 }
 
 .faqQuestion {
   font-size: 1.125rem;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #2e3a2b;
   margin-bottom: 1rem;
 }
 
@@ -325,23 +375,37 @@
 
 /* CTA Section */
 .ctaSection {
-  background: #f8f9fa;
+  background: linear-gradient(135deg, rgba(255, 241, 201, 0.3), rgba(124, 139, 90, 0.1));
   padding: 4rem 2rem;
-  border-radius: 12px;
+  border-radius: 20px;
   text-align: center;
   margin-top: 60px;
-  border: 1px solid #e9ecef;
+  border: 1px solid rgba(124, 139, 90, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.ctaSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #e6b85c, #7c8b5a, #e6b85c);
 }
 
 .ctaContent {
   max-width: 600px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .ctaTitle {
   font-size: 2rem;
-  font-weight: 700;
-  color: #333;
+  font-weight: 800;
+  color: #2e3a2b;
   margin-bottom: 1rem;
 }
 
@@ -360,43 +424,43 @@
 }
 
 .ctaButtonPrimary {
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  background: linear-gradient(135deg, #7c8b5a, #9dba89);
   color: white;
   padding: 1rem 2.5rem;
-  border-radius: 8px;
+  border-radius: 12px;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
   font-size: 1rem;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 8px 20px rgba(124, 139, 90, 0.3);
 }
 
 .ctaButtonPrimary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
-  background: linear-gradient(135deg, #4338ca, #6d28d9);
+  box-shadow: 0 12px 25px rgba(124, 139, 90, 0.4);
+  background: linear-gradient(135deg, #9dba89, #7c8b5a);
 }
 
 .ctaButtonSecondary {
-  background: white;
-  color: #4f46e5;
+  background: rgba(255, 255, 255, 0.9);
+  color: #7c8b5a;
   padding: 1rem 2.5rem;
-  border-radius: 8px;
+  border-radius: 12px;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
   transition: all 0.3s ease;
-  border: 2px solid #4f46e5;
+  border: 2px solid #7c8b5a;
   font-size: 1rem;
   cursor: pointer;
 }
 
 .ctaButtonSecondary:hover {
-  background: #4f46e5;
+  background: #7c8b5a;
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 8px 20px rgba(124, 139, 90, 0.2);
 }
 
 /* Responsive Design */
@@ -408,6 +472,7 @@
   .hero {
     padding: 3rem 1.5rem;
     margin-bottom: 40px;
+    border-radius: 16px;
   }
   
   .heroTitle {
@@ -452,6 +517,7 @@
   .ctaSection {
     padding: 3rem 1.5rem;
     margin-top: 40px;
+    border-radius: 16px;
   }
   
   .ctaTitle {
@@ -495,5 +561,11 @@
   .paymentDescription,
   .faqAnswer {
     font-size: 0.9rem;
+  }
+  
+  .deliveryCard::before,
+  .hero::before,
+  .ctaSection::before {
+    height: 3px;
   }
 }

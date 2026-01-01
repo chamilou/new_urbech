@@ -26,7 +26,7 @@ export default function Footer() {
           <div className={styles.footerSection}>
             <h3 className={styles.sectionTitle}>Урбеч Магазин</h3>
             <ul className={styles.footerLinks}>
-              <li><Link href="/privacy" className={styles.footerLink}>Главная</Link></li>
+              <li><Link href="/privacy" className={styles.footerLink}>Конфидециальность</Link></li>
               </ul>
             <p className={styles.companyDescription}>
               Наш семейный бизнес по производству традиционного дагестанского урбеча. 
