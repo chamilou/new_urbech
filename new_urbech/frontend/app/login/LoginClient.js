@@ -13,7 +13,7 @@ export default function LoginClient() {
   const { login, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  // Redirect if already authenticated
+  // Перенаправление, если уже авторизован
   if (isAuthenticated) {
     router.push('/');
     return null;
@@ -38,7 +38,7 @@ export default function LoginClient() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h1>Login to Your Account</h1>
+        <h1>Вход в аккаунт</h1>
         
         {error && (
           <div className={styles.error}>
@@ -48,26 +48,26 @@ export default function LoginClient() {
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Электронная почта</label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="Enter your email"
+              placeholder="Введите вашу почту"
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Пароль</label>
             <input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Enter your password"
+              placeholder="Введите ваш пароль"
             />
           </div>
 
@@ -76,15 +76,15 @@ export default function LoginClient() {
             disabled={loading}
             className={styles.submitButton}
           >
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Вход...' : 'Войти'}
           </button>
         </form>
 
         <div className={styles.footer}>
           <p>
-          <span> Don't have an account? </span>
+            <span> Нет аккаунта? </span>
             <Link href="/register" className={styles.link}>
-              Sign up here
+              Зарегистрируйтесь здесь
             </Link>
           </p>
         </div>

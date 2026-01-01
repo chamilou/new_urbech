@@ -42,19 +42,19 @@ export default function Register() {
   // Validation function
   const validateForm = useCallback(() => {
     if (!formData.name.trim()) {
-      return 'Name is required';
+      return 'Имя обязательно для заполнения';
     }
     if (!formData.email.trim()) {
-      return 'Email is required';
+      return 'Email обязателен для заполнения';
     }
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      return 'Email is invalid';
+      return 'Неверный формат email';
     }
     if (formData.password.length < 6) {
-      return 'Password must be at least 6 characters';
+      return 'Пароль должен содержать не менее 6 символов';
     }
     if (formData.password !== formData.confirmPassword) {
-      return 'Passwords do not match';
+      return 'Пароли не совпадают';
     }
     return null;
   }, [formData]);
@@ -87,18 +87,18 @@ export default function Register() {
         formData.password
       );
       
-      console.log('Registration result:', result);
+      console.log('Результат регистрации:', result);
       
       if (result.success) {
         // Успешная регистрация - перенаправляем на главную
          router.push(`/verify?email=${encodeURIComponent(formData.email)}`);
       } else {
         // Ошибка регистрации - показываем сообщение
-        setError(result.error || 'Registration failed. Please try again.');
+        setError(result.error || 'Ошибка регистрации. Пожалуйста, попробуйте снова.');
       }
     } catch (err) {
-      console.error('Registration error:', err);
-      setError(err.message || 'Registration failed. Please try again.');
+      console.error('Ошибка регистрации:', err);
+      setError(err.message || 'Ошибка регистрации. Пожалуйста, попробуйте снова.');
     } finally {
       setLoading(false);
     }
@@ -115,16 +115,16 @@ export default function Register() {
     
     switch (fieldName) {
       case 'name':
-        return !formData.name.trim() ? 'Name is required' : null;
+        return !formData.name.trim() ? 'Имя обязательно для заполнения' : null;
       case 'email':
-        if (!formData.email.trim()) return 'Email is required';
-        if (!/\S+@\S+\.\S+/.test(formData.email)) return 'Email is invalid';
+        if (!formData.email.trim()) return 'Email обязателен для заполнения';
+        if (!/\S+@\S+\.\S+/.test(formData.email)) return 'Неверный формат email';
         return null;
       case 'password':
-        if (formData.password.length < 6) return 'Password must be at least 6 characters';
+        if (formData.password.length < 6) return 'Пароль должен содержать не менее 6 символов';
         return null;
       case 'confirmPassword':
-        if (formData.password !== formData.confirmPassword) return 'Passwords do not match';
+        if (formData.password !== formData.confirmPassword) return 'Пароли не совпадают';
         return null;
       default:
         return null;
@@ -134,8 +134,8 @@ export default function Register() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h1 className={styles.title}>Create Account</h1>
-        <p className={styles.subtitle}>Join MyShop today and start shopping</p>
+        <h1 className={styles.title}>Создать аккаунт</h1>
+        <p className={styles.subtitle}>Присоединяйтесь к MyShop сегодня и начинайте покупки</p>
 
         {error && (
           <div className={styles.error}>
@@ -145,7 +145,7 @@ export default function Register() {
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
           <div className={styles.formGroup}>
-            <label htmlFor="name">Full Name</label>
+            <label htmlFor="name">Полное имя</label>
             <input
               type="text"
               id="name"
@@ -154,7 +154,7 @@ export default function Register() {
               onChange={handleChange}
               required
               disabled={loading}
-              placeholder="Enter your full name"
+              placeholder="Введите ваше полное имя"
               className={getFieldError('name') ? styles.inputError : ''}
             />
             {getFieldError('name') && (
@@ -163,7 +163,7 @@ export default function Register() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="email">Email Address</label>
+            <label htmlFor="email">Email адрес</label>
             <input
               type="email"
               id="email"
@@ -172,7 +172,7 @@ export default function Register() {
               onChange={handleChange}
               required
               disabled={loading}
-              placeholder="Enter your email"
+              placeholder="Введите ваш email"
               className={getFieldError('email') ? styles.inputError : ''}
             />
             {getFieldError('email') && (
@@ -181,7 +181,7 @@ export default function Register() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">Пароль</label>
             <input
               type="password"
               id="password"
@@ -190,7 +190,7 @@ export default function Register() {
               onChange={handleChange}
               required
               disabled={loading}
-              placeholder="At least 6 characters"
+              placeholder="Не менее 6 символов"
               minLength="6"
               className={getFieldError('password') ? styles.inputError : ''}
             />
@@ -200,7 +200,7 @@ export default function Register() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label htmlFor="confirmPassword">Подтвердите пароль</label>
             <input
               type="password"
               id="confirmPassword"
@@ -209,7 +209,7 @@ export default function Register() {
               onChange={handleChange}
               required
               disabled={loading}
-              placeholder="Confirm your password"
+              placeholder="Подтвердите ваш пароль"
               minLength="6"
               className={getFieldError('confirmPassword') ? styles.inputError : ''}
             />
@@ -225,19 +225,19 @@ export default function Register() {
           >
             {loading ? (
               <span>
-                Creating Account<span className={styles.loadingDots}></span>
+                Создание аккаунта<span className={styles.loadingDots}></span>
               </span>
             ) : (
-              'Create Account'
+              'Создать аккаунт'
             )}
           </button>
         </form>
 
         <div className={styles.footer}>
           <p className={styles.footerText}>
-            Already have an account?{' '}
+            Уже есть аккаунт?{' '}
             <Link href="/login" className={styles.link}>
-              Sign in
+              Войти
             </Link>
           </p>
         </div>
