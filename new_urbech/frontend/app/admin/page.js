@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import styles from './page.module.css';
 
 export default function AdminDashboard() {
@@ -89,29 +90,27 @@ export default function AdminDashboard() {
           <h3>Orders (Last 7 Days)</h3>
           <p className={styles.number}>{stats.recent_orders}</p>
         </div>
-        
       </div>
 
       {/* Quick Actions */}
       <div className={styles.quickActions}>
         <h2>Quick Actions</h2>
         <div className={styles.actionButtons}>
-          <a href="/admin/products" className={styles.actionBtn}>
+          <Link href="/admin/products" className={styles.actionBtn}>
             Manage Products
-          </a>
-          <a href="/admin/orders" className={styles.actionBtn}>
+          </Link>
+          <Link href="/admin/orders" className={styles.actionBtn}>
             View Orders
-          </a>
-          <a href="/admin/customers" className={styles.actionBtn}>
+          </Link>
+          <Link href="/admin/customers" className={styles.actionBtn}>
             Manage Customers
-          </a>
-          <a href="/admin/categories" className={styles.actionBtn}>
+          </Link>
+          <Link href="/admin/categories" className={styles.actionBtn}>
             Manage Categories
-          </a>
-          <a href="/admin/settings/seo" className={styles.actionBtn}>
-  Sitemap Settings
-</a>
-
+          </Link>
+          <Link href="/admin/settings/seo" className={styles.actionBtn}>
+            Sitemap Settings
+          </Link>
         </div>
       </div>
     </div>
