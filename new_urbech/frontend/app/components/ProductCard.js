@@ -30,26 +30,40 @@ function normalizeMedia(src) {
 /**
  * Форматирование цены с правильным отображением валюты
  */
-function formatPrice(price, currencyCode = 'USD', locale = 'ru-RU') {
+/**
+ * Форматирование цены с правильным отображением рубля
+ */
+function formatPrice(price, currencyCode = 'RUB', locale = 'ru-RU') {
   if (price == null || price === '') return 'Цена не указана';
   
   try {
     const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
     if (isNaN(numericPrice)) return 'Некорректная цена';
     
+    // Для рубля используем стандартный код RUB
+    if (currencyCode === 'RUB' || currencyCode === 'РУБ') {
+      return new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: 'RUB',
+        minimumFractionDigits: 0, // Часто для рублей не показывают копейки
+        maximumFractionDigits: 0,
+        currencyDisplay: 'symbol', // Покажет символ ₽
+      }).format(numericPrice);
+    }
+    
+    // Для других валют
     return new Intl.NumberFormat(locale, {
       style: 'currency',
-      currency: currencyCode || 'USD',
+      currency: currencyCode,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(numericPrice);
   } catch (error) {
     // Простое форматирование при ошибке
     const fallbackPrice = parseFloat(price);
-    return isNaN(fallbackPrice) ? 'Цена не указана' : `${fallbackPrice.toFixed(2)} ${currencyCode || 'USD'}`;
+    return isNaN(fallbackPrice) ? 'Цена не указана' : `${fallbackPrice.toFixed(0)} ₽`;
   }
 }
-
 /**
  * Получение даты создания продукта из различных возможных полей
  */
