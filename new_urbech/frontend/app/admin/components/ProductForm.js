@@ -53,7 +53,9 @@ export default function ProductForm({ product, onClose, onSave }) {
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
+    articleNumber: '',
     price: '',
+    currencyCode: 'USD',
     description: '',
     stock: '',
     minStock: '5',
@@ -74,30 +76,35 @@ export default function ProductForm({ product, onClose, onSave }) {
 
   useEffect(() => {
     if (product) {
+      // ProductResponse.categories is usually [{id,name,slug}] (your schema),
+      // but prisma include can be nested. Handle both safely.
+      const categoryIds =
+        product.categories?.map((x) => x?.categoryId || x?.id || x?.category?.id).filter(Boolean) || [];
+
       setFormData({
         name: product.name || '',
         slug: product.slug || '',
-        price: product.price || '',
+        articleNumber: product.articleNumber || '',
+        price: product.price ?? '',
+        currencyCode: (product.currencyCode || 'USD').toString().trim().toUpperCase(),
         description: product.description || '',
         stock: product.stock?.toString() || '',
         minStock: product.minStock?.toString() || '5',
-        // NOTE: depending on your API shape, this might be category.id or categoryId
-        categoryIds: product.categories?.map((cat) => cat.categoryId || cat.id) || [],
+        categoryIds,
         mainImageUrl: product.mainImageUrl || ''
       });
 
-      if (product.mainImageUrl) {
-        setImagePreview(product.mainImageUrl);
-      }
+      if (product.mainImageUrl) setImagePreview(product.mainImageUrl);
 
-      // When editing: keep slug as-is unless user changes
       setAutoSlug(false);
       setSlugModified(true);
     } else {
       setFormData({
         name: '',
         slug: '',
+        articleNumber: '',
         price: '',
+        currencyCode: 'USD',
         description: '',
         stock: '',
         minStock: '5',
@@ -107,9 +114,7 @@ export default function ProductForm({ product, onClose, onSave }) {
       setAutoSlug(true);
       setSlugModified(false);
 
-      if (imagePreview?.startsWith('blob:')) {
-        URL.revokeObjectURL(imagePreview);
-      }
+      if (imagePreview?.startsWith('blob:')) URL.revokeObjectURL(imagePreview);
       setImagePreview('');
     }
 
@@ -117,7 +122,7 @@ export default function ProductForm({ product, onClose, onSave }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
 
-  // Auto-generate slug from name (same logic as CategoryForm)
+  // Auto-generate slug from name
   useEffect(() => {
     if (autoSlug && formData.name && !slugModified) {
       const newSlug = advancedSlugify(formData.name);
@@ -149,7 +154,6 @@ export default function ProductForm({ product, onClose, onSave }) {
 
   const handleCategorySaved = async (createdCategory) => {
     setShowCategoryForm(false);
-
     await fetchCategories();
 
     if (createdCategory?.id) {
@@ -185,6 +189,14 @@ export default function ProductForm({ product, onClose, onSave }) {
       newErrors.slug = 'Slug обязателен (не удалось сгенерировать из названия)';
     } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(finalSlug)) {
       newErrors.slug = 'Slug должен содержать только латиницу, цифры и дефисы';
+    }
+
+    // Currency code
+    const cc = (formData.currencyCode || '').toString().trim().toUpperCase();
+    if (!cc) {
+      newErrors.currencyCode = 'Валюта обязательна';
+    } else if (!/^[A-Z]{3}$/.test(cc)) {
+      newErrors.currencyCode = 'Валюта должна быть 3 буквы (например USD, EUR, CHF)';
     }
 
     // Price
@@ -241,7 +253,11 @@ export default function ProductForm({ product, onClose, onSave }) {
 
       if (response.ok) {
         const result = await response.json();
-        const imageUrl = `http://localhost:8000${result.url}`;
+        const base = API_BASE.replace(/\/$/, '');
+        const imageUrl = result.url.startsWith('http')
+        ? result.url
+         : `${base}${result.url.startsWith('/') ? '' : '/'}${result.url}`;
+
 
         setFormData((prev) => ({
           ...prev,
@@ -285,10 +301,7 @@ export default function ProductForm({ product, onClose, onSave }) {
 
   const handleUrlChange = (e) => {
     const url = e.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      mainImageUrl: url
-    }));
+    setFormData((prev) => ({ ...prev, mainImageUrl: url }));
 
     if (url && !isValidUrl(url)) {
       setErrors((prev) => ({ ...prev, mainImageUrl: 'Введите корректный URL' }));
@@ -300,26 +313,18 @@ export default function ProductForm({ product, onClose, onSave }) {
   };
 
   const handleRemoveImage = () => {
-    setFormData((prev) => ({
-      ...prev,
-      mainImageUrl: ''
-    }));
+    setFormData((prev) => ({ ...prev, mainImageUrl: '' }));
 
-    if (imagePreview?.startsWith('blob:')) {
-      URL.revokeObjectURL(imagePreview);
-    }
+    if (imagePreview?.startsWith('blob:')) URL.revokeObjectURL(imagePreview);
 
     setImagePreview('');
     setErrors((prev) => ({ ...prev, image: '', mainImageUrl: '' }));
   };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
 
-    // Clear field error on input
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
 
     if (name === 'autoSlug') {
       setAutoSlug(checked);
@@ -331,30 +336,25 @@ export default function ProductForm({ product, onClose, onSave }) {
     }
 
     if (name === 'categoryIds') {
-      setFormData((prev) => ({
-        ...prev,
-        categoryIds: value ? [value] : []
-      }));
+      setFormData((prev) => ({ ...prev, categoryIds: value ? [value] : [] }));
       return;
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    if (name === 'currencyCode') {
+      setFormData((prev) => ({ ...prev, currencyCode: value }));
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleNumberChange = (e) => {
     const { name, value } = e.target;
 
     if (name === 'price') {
-      if (value === '' || /^\d*\.?\d*$/.test(value)) {
-        handleChange(e);
-      }
+      if (value === '' || /^\d*\.?\d*$/.test(value)) handleChange(e);
     } else {
-      if (value === '' || /^\d+$/.test(value)) {
-        handleChange(e);
-      }
+      if (value === '' || /^\d+$/.test(value)) handleChange(e);
     }
   };
 
@@ -379,30 +379,26 @@ export default function ProductForm({ product, onClose, onSave }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     setLoading(true);
     setErrors({});
 
     try {
-      const url = product
-        ? `${API_BASE}/products/${product.id}`
-        : `${API_BASE}/products`;
-
+      const url = product ? `${API_BASE}/products/${product.id}` : `${API_BASE}/products`;
       const method = product ? 'PUT' : 'POST';
 
-      // Ensure slug is not empty
       let finalSlug = formData.slug?.trim();
-      if (!finalSlug) {
-        finalSlug = advancedSlugify(formData.name);
-      }
+      if (!finalSlug) finalSlug = advancedSlugify(formData.name);
+
+      const currencyCode = (formData.currencyCode || 'USD').toString().trim().toUpperCase();
 
       const submitData = {
         name: formData.name.trim(),
         slug: finalSlug,
+        articleNumber: formData.articleNumber?.trim() || null,
         price: parseFloat(formData.price),
-        currencyCode: 'USD',
+        currencyCode,
         description: formData.description?.trim() || null,
         stock: parseInt(formData.stock),
         minStock: parseInt(formData.minStock),
@@ -431,9 +427,7 @@ export default function ProductForm({ product, onClose, onSave }) {
 
       const result = await response.json();
 
-      if (imagePreview?.startsWith('blob:')) {
-        URL.revokeObjectURL(imagePreview);
-      }
+      if (imagePreview?.startsWith('blob:')) URL.revokeObjectURL(imagePreview);
 
       onSave?.(result);
     } catch (error) {
@@ -444,7 +438,6 @@ export default function ProductForm({ product, onClose, onSave }) {
     }
   };
 
-  // Optional: sort categories by name for nicer UX
   const categoryOptions = useMemo(() => {
     return [...categories].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   }, [categories]);
@@ -455,11 +448,7 @@ export default function ProductForm({ product, onClose, onSave }) {
         <div className={styles.modal}>
           <h2>{product ? 'Редактировать товар' : 'Добавить новый товар'}</h2>
 
-          {errors.submit && (
-            <div className={styles.errorBanner}>
-              {errors.submit}
-            </div>
-          )}
+          {errors.submit && <div className={styles.errorBanner}>{errors.submit}</div>}
 
           <form onSubmit={handleSubmit} className={styles.form}>
             {/* Name */}
@@ -474,13 +463,9 @@ export default function ProductForm({ product, onClose, onSave }) {
                 required
                 placeholder="Введите название товара (поддерживается кириллица)"
                 disabled={loading}
-                aria-describedby={errors.name ? "name-error" : undefined}
+                aria-describedby={errors.name ? 'name-error' : undefined}
               />
-              {errors.name && (
-                <div id="name-error" className={styles.fieldError}>
-                  {errors.name}
-                </div>
-              )}
+              {errors.name && <div id="name-error" className={styles.fieldError}>{errors.name}</div>}
             </div>
 
             {/* Slug */}
@@ -509,7 +494,7 @@ export default function ProductForm({ product, onClose, onSave }) {
                   required
                   placeholder="avtomaticheski-iz-nazvaniya"
                   disabled={loading}
-                  aria-describedby={errors.slug ? "slug-error" : undefined}
+                  aria-describedby={errors.slug ? 'slug-error' : undefined}
                 />
                 <label className={styles.checkbox}>
                   <input
@@ -524,17 +509,53 @@ export default function ProductForm({ product, onClose, onSave }) {
               </div>
 
               <small className={styles.helpText}>
-                {formData.slug
-                  ? `URL: /product/${formData.slug}`
-                  : 'Slug будет сгенерирован из названия (поддерживается кириллица)'}
+                {formData.slug ? `URL: /product/${formData.slug}` : 'Slug будет сгенерирован из названия (поддерживается кириллица)'}
                 {slugModified && ' (изменено вручную)'}
               </small>
 
-              {errors.slug && (
-                <div id="slug-error" className={styles.fieldError}>
-                  {errors.slug}
+              {errors.slug && <div id="slug-error" className={styles.fieldError}>{errors.slug}</div>}
+            </div>
+
+            {/* Article Number (unique in Prisma) */}
+            <div className={styles.formGroup}>
+              <label htmlFor="product-article">Артикул (articleNumber)</label>
+              <input
+                id="product-article"
+                type="text"
+                name="articleNumber"
+                value={formData.articleNumber}
+                onChange={handleChange}
+                placeholder="Например: SKU-001 (уникально)"
+                disabled={loading}
+              />
+              <small className={styles.helpText}>
+                Артикул должен быть уникальным. Можно на латинице/цифрах (ENA — ок).
+              </small>
+            </div>
+
+            {/* Currency */}
+            <div className={styles.formGroup}>
+              <label htmlFor="product-currency">Валюта *</label>
+              <select
+                id="product-currency"
+                name="currencyCode"
+                value={formData.currencyCode}
+                onChange={handleChange}
+                disabled={loading}
+                aria-describedby={errors.currencyCode ? 'currency-error' : undefined}
+              >
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="CHF">CHF</option>
+                <option value="RUB">RUB</option>
+                <option value="GBP">GBP</option>
+              </select>
+              {errors.currencyCode && (
+                <div id="currency-error" className={styles.fieldError}>
+                  {errors.currencyCode}
                 </div>
               )}
+              <small className={styles.helpText}>ISO код из 3 букв (USD, EUR, CHF...)</small>
             </div>
 
             {/* Price */}
@@ -551,13 +572,9 @@ export default function ProductForm({ product, onClose, onSave }) {
                 required
                 placeholder="0.00"
                 disabled={loading}
-                aria-describedby={errors.price ? "price-error" : undefined}
+                aria-describedby={errors.price ? 'price-error' : undefined}
               />
-              {errors.price && (
-                <div id="price-error" className={styles.fieldError}>
-                  {errors.price}
-                </div>
-              )}
+              {errors.price && <div id="price-error" className={styles.fieldError}>{errors.price}</div>}
             </div>
 
             {/* Description */}
@@ -587,13 +604,9 @@ export default function ProductForm({ product, onClose, onSave }) {
                   onChange={handleNumberChange}
                   required
                   disabled={loading}
-                  aria-describedby={errors.stock ? "stock-error" : undefined}
+                  aria-describedby={errors.stock ? 'stock-error' : undefined}
                 />
-                {errors.stock && (
-                  <div id="stock-error" className={styles.fieldError}>
-                    {errors.stock}
-                  </div>
-                )}
+                {errors.stock && <div id="stock-error" className={styles.fieldError}>{errors.stock}</div>}
               </div>
 
               <div className={styles.formGroup}>
@@ -607,13 +620,9 @@ export default function ProductForm({ product, onClose, onSave }) {
                   onChange={handleNumberChange}
                   required
                   disabled={loading}
-                  aria-describedby={errors.minStock ? "minstock-error" : undefined}
+                  aria-describedby={errors.minStock ? 'minstock-error' : undefined}
                 />
-                {errors.minStock && (
-                  <div id="minstock-error" className={styles.fieldError}>
-                    {errors.minStock}
-                  </div>
-                )}
+                {errors.minStock && <div id="minstock-error" className={styles.fieldError}>{errors.minStock}</div>}
               </div>
             </div>
 
@@ -650,17 +659,11 @@ export default function ProductForm({ product, onClose, onSave }) {
                     ))}
                   </select>
 
-                  {errors.categories && (
-                    <div className={styles.fieldError}>
-                      {errors.categories}
-                    </div>
-                  )}
+                  {errors.categories && <div className={styles.fieldError}>{errors.categories}</div>}
                 </>
               ) : (
                 <div className={styles.noCategories}>
-                  <div className={styles.errorText}>
-                    Нет доступных категорий
-                  </div>
+                  <div className={styles.errorText}>Нет доступных категорий</div>
                   <button
                     type="button"
                     onClick={() => setShowCategoryForm(true)}
@@ -688,7 +691,6 @@ export default function ProductForm({ product, onClose, onSave }) {
                       className={styles.previewImage}
                       onError={(e) => {
                         console.error('Изображение не загрузилось:', imagePreview);
-                        // Next/Image uses a wrapped element; defensive:
                         try {
                           e.currentTarget.style.display = 'none';
                         } catch {}
@@ -722,11 +724,7 @@ export default function ProductForm({ product, onClose, onSave }) {
                     </span>
                   </label>
                   <small>JPEG, PNG или WebP (макс. 5MB)</small>
-                  {errors.image && (
-                    <div className={styles.fieldError}>
-                      {errors.image}
-                    </div>
-                  )}
+                  {errors.image && <div className={styles.fieldError}>{errors.image}</div>}
                 </div>
 
                 <div className={styles.urlOption}>
@@ -739,7 +737,7 @@ export default function ProductForm({ product, onClose, onSave }) {
                     placeholder="https://example.com/image.jpg"
                     className={styles.urlInput}
                     disabled={loading}
-                    aria-describedby={errors.mainImageUrl ? "url-error" : undefined}
+                    aria-describedby={errors.mainImageUrl ? 'url-error' : undefined}
                   />
                   {errors.mainImageUrl && (
                     <div id="url-error" className={styles.fieldError}>
@@ -752,19 +750,10 @@ export default function ProductForm({ product, onClose, onSave }) {
 
             {/* Actions */}
             <div className={styles.formActions}>
-              <button
-                type="button"
-                onClick={onClose}
-                className={styles.cancelBtn}
-                disabled={loading}
-              >
+              <button type="button" onClick={onClose} className={styles.cancelBtn} disabled={loading}>
                 Отмена
               </button>
-              <button
-                type="submit"
-                disabled={loading || uploading}
-                className={styles.saveBtn}
-              >
+              <button type="submit" disabled={loading || uploading} className={styles.saveBtn}>
                 {loading ? 'Сохранение...' : (product ? 'Обновить товар' : 'Создать товар')}
               </button>
             </div>
@@ -773,10 +762,7 @@ export default function ProductForm({ product, onClose, onSave }) {
       </div>
 
       {showCategoryForm && (
-        <CategoryForm
-          onClose={() => setShowCategoryForm(false)}
-          onSave={handleCategorySaved}
-        />
+        <CategoryForm onClose={() => setShowCategoryForm(false)} onSave={handleCategorySaved} />
       )}
     </>
   );
