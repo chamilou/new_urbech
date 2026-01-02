@@ -1,14 +1,58 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import CategoryForm from './CategoryForm';
 import styles from './ProductForm.module.css';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api';
 
+// --- Cyrillic-friendly slug helper (same idea as CategoryForm) ---
+const advancedSlugify = (text) => {
+  if (!text) return '';
+
+  const transliterationMap = {
+    // Russian basic
+    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo', 'ж': 'zh',
+    'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o',
+    'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'ts',
+    'ч': 'ch', 'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu',
+    'я': 'ya',
+
+    // Ukrainian
+    'є': 'ye', 'і': 'i', 'ї': 'yi', 'ґ': 'g',
+
+    // Belarusian
+    'ў': 'u',
+
+    // Uppercase
+    'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D', 'Е': 'E', 'Ё': 'Yo', 'Ж': 'Zh',
+    'З': 'Z', 'И': 'I', 'Й': 'Y', 'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N', 'О': 'O',
+    'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T', 'У': 'U', 'Ф': 'F', 'Х': 'H', 'Ц': 'Ts',
+    'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Sch', 'Ъ': '', 'Ы': 'Y', 'Ь': '', 'Э': 'E', 'Ю': 'Yu',
+    'Я': 'Ya',
+    'Є': 'Ye', 'І': 'I', 'Ї': 'Yi', 'Ґ': 'G',
+    'Ў': 'U'
+  };
+
+  return text
+    .toString()
+    .split('')
+    .map((char) => transliterationMap[char] || char)
+    .join('')
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+};
+
 export default function ProductForm({ product, onClose, onSave }) {
   const [formData, setFormData] = useState({
     name: '',
+    slug: '',
     price: '',
     description: '',
     stock: '',
@@ -16,6 +60,10 @@ export default function ProductForm({ product, onClose, onSave }) {
     categoryIds: [],
     mainImageUrl: ''
   });
+
+  const [autoSlug, setAutoSlug] = useState(true);
+  const [slugModified, setSlugModified] = useState(false);
+
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
@@ -28,105 +76,88 @@ export default function ProductForm({ product, onClose, onSave }) {
     if (product) {
       setFormData({
         name: product.name || '',
+        slug: product.slug || '',
         price: product.price || '',
         description: product.description || '',
         stock: product.stock?.toString() || '',
         minStock: product.minStock?.toString() || '5',
-        categoryIds: product.categories?.map(cat => cat.categoryId) || [],
+        // NOTE: depending on your API shape, this might be category.id or categoryId
+        categoryIds: product.categories?.map((cat) => cat.categoryId || cat.id) || [],
         mainImageUrl: product.mainImageUrl || ''
       });
+
       if (product.mainImageUrl) {
         setImagePreview(product.mainImageUrl);
       }
+
+      // When editing: keep slug as-is unless user changes
+      setAutoSlug(false);
+      setSlugModified(true);
+    } else {
+      setFormData({
+        name: '',
+        slug: '',
+        price: '',
+        description: '',
+        stock: '',
+        minStock: '5',
+        categoryIds: [],
+        mainImageUrl: ''
+      });
+      setAutoSlug(true);
+      setSlugModified(false);
+
+      if (imagePreview?.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview);
+      }
+      setImagePreview('');
     }
+
     fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);
 
- const fetchCategories = async () => {
-  setCategoriesLoading(true);
-  try {
-    const response = await fetch(`${API_BASE}/categories?includeParent=true&limit=500`, {
-      cache: 'no-store',
-    });
-
-    if (response.ok) {
-      const categoriesData = await response.json();
-      setCategories(categoriesData);
-    } else {
-      console.error('Ошибка загрузки категорий:', response.status);
-      setErrors(prev => ({ ...prev, categories: 'Не удалось загрузить категории' }));
+  // Auto-generate slug from name (same logic as CategoryForm)
+  useEffect(() => {
+    if (autoSlug && formData.name && !slugModified) {
+      const newSlug = advancedSlugify(formData.name);
+      setFormData((prev) => ({ ...prev, slug: newSlug }));
     }
-  } catch (error) {
-    console.error('Ошибка загрузки категорий:', error);
-    setErrors(prev => ({ ...prev, categories: 'Ошибка сети при загрузке категорий' }));
-  } finally {
-    setCategoriesLoading(false);
-  }
-};
+  }, [formData.name, autoSlug, slugModified]);
 
- const handleCategorySaved = async (createdCategory) => {
-  setShowCategoryForm(false);
+  const fetchCategories = async () => {
+    setCategoriesLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/categories?includeParent=true&limit=500`, {
+        cache: 'no-store',
+      });
 
-  // Обновить список категорий
-  await fetchCategories();
-
-  // Автоматически выбрать новую категорию
-  if (createdCategory?.id) {
-    setFormData(prev => ({
-      ...prev,
-      categoryIds: [createdCategory.id],
-    }));
-  }
-};
-
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Валидация названия
-    if (!formData.name.trim()) {
-      newErrors.name = 'Название товара обязательно';
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Название должно быть не менее 2 символов';
-    }
-
-    // Валидация цены
-    if (!formData.price) {
-      newErrors.price = 'Цена обязательна';
-    } else {
-      const price = parseFloat(formData.price);
-      if (isNaN(price) || price < 0) {
-        newErrors.price = 'Цена должна быть положительным числом';
+      if (response.ok) {
+        const categoriesData = await response.json();
+        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+      } else {
+        console.error('Ошибка загрузки категорий:', response.status);
+        setErrors((prev) => ({ ...prev, categories: 'Не удалось загрузить категории' }));
       }
+    } catch (error) {
+      console.error('Ошибка загрузки категорий:', error);
+      setErrors((prev) => ({ ...prev, categories: 'Ошибка сети при загрузке категорий' }));
+    } finally {
+      setCategoriesLoading(false);
     }
+  };
 
-    // Валидация количества
-    if (!formData.stock) {
-      newErrors.stock = 'Количество обязательно';
-    } else {
-      const stock = parseInt(formData.stock);
-      if (isNaN(stock) || stock < 0) {
-        newErrors.stock = 'Количество должно быть положительным числом';
-      }
+  const handleCategorySaved = async (createdCategory) => {
+    setShowCategoryForm(false);
+
+    await fetchCategories();
+
+    if (createdCategory?.id) {
+      setFormData((prev) => ({
+        ...prev,
+        categoryIds: [createdCategory.id],
+      }));
     }
-
-    // Валидация минимального запаса
-    if (!formData.minStock) {
-      newErrors.minStock = 'Минимальный запас обязателен';
-    } else {
-      const minStock = parseInt(formData.minStock);
-      if (isNaN(minStock) || minStock < 0) {
-        newErrors.minStock = 'Минимальный запас должен быть положительным числом';
-      }
-    }
-
-    // Валидация URL изображения (если указан)
-    if (formData.mainImageUrl && !isValidUrl(formData.mainImageUrl)) {
-      newErrors.mainImageUrl = 'Введите корректный URL изображения';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const isValidUrl = (string) => {
@@ -138,9 +169,66 @@ export default function ProductForm({ product, onClose, onSave }) {
     }
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Name
+    if (!formData.name.trim()) {
+      newErrors.name = 'Название товара обязательно';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Название должно быть не менее 2 символов';
+    }
+
+    // Slug
+    const finalSlug = formData.slug?.trim() || advancedSlugify(formData.name);
+    if (!finalSlug) {
+      newErrors.slug = 'Slug обязателен (не удалось сгенерировать из названия)';
+    } else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(finalSlug)) {
+      newErrors.slug = 'Slug должен содержать только латиницу, цифры и дефисы';
+    }
+
+    // Price
+    if (formData.price === '' || formData.price === null || formData.price === undefined) {
+      newErrors.price = 'Цена обязательна';
+    } else {
+      const price = parseFloat(formData.price);
+      if (isNaN(price) || price < 0) {
+        newErrors.price = 'Цена должна быть положительным числом';
+      }
+    }
+
+    // Stock
+    if (formData.stock === '' || formData.stock === null || formData.stock === undefined) {
+      newErrors.stock = 'Количество обязательно';
+    } else {
+      const stock = parseInt(formData.stock);
+      if (isNaN(stock) || stock < 0) {
+        newErrors.stock = 'Количество должно быть положительным числом';
+      }
+    }
+
+    // Min stock
+    if (formData.minStock === '' || formData.minStock === null || formData.minStock === undefined) {
+      newErrors.minStock = 'Минимальный запас обязателен';
+    } else {
+      const minStock = parseInt(formData.minStock);
+      if (isNaN(minStock) || minStock < 0) {
+        newErrors.minStock = 'Минимальный запас должен быть положительным числом';
+      }
+    }
+
+    // Image URL
+    if (formData.mainImageUrl && !isValidUrl(formData.mainImageUrl)) {
+      newErrors.mainImageUrl = 'Введите корректный URL изображения';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleImageUpload = async (file) => {
     setUploading(true);
-    setErrors(prev => ({ ...prev, image: '' }));
+    setErrors((prev) => ({ ...prev, image: '' }));
 
     try {
       const uploadFormData = new FormData();
@@ -154,46 +242,42 @@ export default function ProductForm({ product, onClose, onSave }) {
       if (response.ok) {
         const result = await response.json();
         const imageUrl = `http://localhost:8000${result.url}`;
-        
-        setFormData(prev => ({
+
+        setFormData((prev) => ({
           ...prev,
           mainImageUrl: imageUrl
         }));
         setImagePreview(imageUrl);
       } else {
         const errorText = await response.text();
-        setErrors(prev => ({ ...prev, image: 'Не удалось загрузить изображение' }));
+        setErrors((prev) => ({ ...prev, image: 'Не удалось загрузить изображение' }));
         console.error('Ошибка загрузки изображения:', errorText);
       }
     } catch (error) {
       console.error('Ошибка загрузки изображения:', error);
-      setErrors(prev => ({ ...prev, image: 'Ошибка сети при загрузке' }));
+      setErrors((prev) => ({ ...prev, image: 'Ошибка сети при загрузке' }));
     } finally {
       setUploading(false);
     }
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    // Проверка типа файла
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      setErrors(prev => ({ ...prev, image: 'Выберите допустимый файл изображения (JPEG, PNG или WebP)' }));
+      setErrors((prev) => ({ ...prev, image: 'Выберите допустимый файл изображения (JPEG, PNG или WebP)' }));
       return;
     }
 
-    // Проверка размера файла (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setErrors(prev => ({ ...prev, image: 'Размер изображения должен быть менее 5MB' }));
+      setErrors((prev) => ({ ...prev, image: 'Размер изображения должен быть менее 5MB' }));
       return;
     }
 
-    // Очистить предыдущие ошибки
-    setErrors(prev => ({ ...prev, image: '' }));
+    setErrors((prev) => ({ ...prev, image: '' }));
 
-    // Создать превью
     const previewUrl = URL.createObjectURL(file);
     setImagePreview(previewUrl);
     handleImageUpload(file);
@@ -201,54 +285,122 @@ export default function ProductForm({ product, onClose, onSave }) {
 
   const handleUrlChange = (e) => {
     const url = e.target.value;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       mainImageUrl: url
     }));
-    
-    // Валидация URL в реальном времени
+
     if (url && !isValidUrl(url)) {
-      setErrors(prev => ({ ...prev, mainImageUrl: 'Введите корректный URL' }));
+      setErrors((prev) => ({ ...prev, mainImageUrl: 'Введите корректный URL' }));
     } else {
-      setErrors(prev => ({ ...prev, mainImageUrl: '' }));
+      setErrors((prev) => ({ ...prev, mainImageUrl: '' }));
     }
-    
+
     setImagePreview(url);
   };
 
   const handleRemoveImage = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       mainImageUrl: ''
     }));
-    setImagePreview('');
-    setErrors(prev => ({ ...prev, image: '', mainImageUrl: '' }));
-    
-    if (imagePreview.startsWith('blob:')) {
+
+    if (imagePreview?.startsWith('blob:')) {
       URL.revokeObjectURL(imagePreview);
     }
+
+    setImagePreview('');
+    setErrors((prev) => ({ ...prev, image: '', mainImageUrl: '' }));
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    // Clear field error on input
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+
+    if (name === 'autoSlug') {
+      setAutoSlug(checked);
+      if (checked && formData.name) {
+        setFormData((prev) => ({ ...prev, slug: advancedSlugify(formData.name) }));
+        setSlugModified(false);
+      }
+      return;
+    }
+
+    if (name === 'categoryIds') {
+      setFormData((prev) => ({
+        ...prev,
+        categoryIds: value ? [value] : []
+      }));
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleNumberChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === 'price') {
+      if (value === '' || /^\d*\.?\d*$/.test(value)) {
+        handleChange(e);
+      }
+    } else {
+      if (value === '' || /^\d+$/.test(value)) {
+        handleChange(e);
+      }
+    }
+  };
+
+  const handleSlugChange = (e) => {
+    const { value } = e.target;
+
+    if (!slugModified && value !== advancedSlugify(formData.name)) {
+      setSlugModified(true);
+    }
+
+    setFormData((prev) => ({ ...prev, slug: value }));
+  };
+
+  const handleRegenerateSlug = () => {
+    if (!formData.name) return;
+    const newSlug = advancedSlugify(formData.name);
+    setFormData((prev) => ({ ...prev, slug: newSlug }));
+    setSlugModified(false);
+    setAutoSlug(true);
+    if (errors.slug) setErrors((prev) => ({ ...prev, slug: '' }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Валидация формы перед отправкой
-    if (!validateForm()) {
-      return;
-    }
+
+    if (!validateForm()) return;
 
     setLoading(true);
     setErrors({});
 
     try {
-      const url = product 
+      const url = product
         ? `${API_BASE}/products/${product.id}`
         : `${API_BASE}/products`;
-      
+
       const method = product ? 'PUT' : 'POST';
+
+      // Ensure slug is not empty
+      let finalSlug = formData.slug?.trim();
+      if (!finalSlug) {
+        finalSlug = advancedSlugify(formData.name);
+      }
 
       const submitData = {
         name: formData.name.trim(),
+        slug: finalSlug,
         price: parseFloat(formData.price),
         currencyCode: 'USD',
         description: formData.description?.trim() || null,
@@ -264,89 +416,53 @@ export default function ProductForm({ product, onClose, onSave }) {
         body: JSON.stringify(submitData)
       });
 
-      // Обработка ответа
       if (!response.ok) {
         let errorMessage = `Ошибка ${response.status}: Не удалось сохранить товар`;
-        
+
         try {
           const errorData = await response.json();
           errorMessage = errorData.detail || errorData.message || errorMessage;
         } catch {
-          // Если ответ не JSON, использовать текст статуса
           errorMessage = response.statusText || errorMessage;
         }
-        
+
         throw new Error(errorMessage);
       }
 
       const result = await response.json();
-      
-      // Очистка
-      if (imagePreview.startsWith('blob:')) {
+
+      if (imagePreview?.startsWith('blob:')) {
         URL.revokeObjectURL(imagePreview);
       }
-      
-      onSave(result);
+
+      onSave?.(result);
     } catch (error) {
       console.error('Ошибка сохранения товара:', error);
-      setErrors(prev => ({ ...prev, submit: error.message }));
+      setErrors((prev) => ({ ...prev, submit: error.message }));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    
-    // Очистить ошибку при начале ввода
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-    
-    if (name === 'categoryIds') {
-      setFormData(prev => ({
-        ...prev,
-        categoryIds: value ? [value] : []
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
-  const handleNumberChange = (e) => {
-    const { name, value } = e.target;
-    
-    // Разрешить только цифры и точку для цены
-    if (name === 'price') {
-      if (value === '' || /^\d*\.?\d*$/.test(value)) {
-        handleChange(e);
-      }
-    } else {
-      // Для полей количества разрешить только целые числа
-      if (value === '' || /^\d+$/.test(value)) {
-        handleChange(e);
-      }
-    }
-  };
+  // Optional: sort categories by name for nicer UX
+  const categoryOptions = useMemo(() => {
+    return [...categories].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  }, [categories]);
 
   return (
     <>
       <div className={styles.modalOverlay}>
         <div className={styles.modal}>
           <h2>{product ? 'Редактировать товар' : 'Добавить новый товар'}</h2>
-          
-          {/* Глобальное сообщение об ошибке */}
+
           {errors.submit && (
             <div className={styles.errorBanner}>
               {errors.submit}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className={styles.form}>
-            {/* Название товара */}
+            {/* Name */}
             <div className={styles.formGroup}>
               <label htmlFor="product-name">Название товара *</label>
               <input
@@ -356,7 +472,7 @@ export default function ProductForm({ product, onClose, onSave }) {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                placeholder="Введите название товара"
+                placeholder="Введите название товара (поддерживается кириллица)"
                 disabled={loading}
                 aria-describedby={errors.name ? "name-error" : undefined}
               />
@@ -367,7 +483,61 @@ export default function ProductForm({ product, onClose, onSave }) {
               )}
             </div>
 
-            {/* Цена */}
+            {/* Slug */}
+            <div className={styles.formGroup}>
+              <div className={styles.slugHeader}>
+                <label htmlFor="product-slug">URL (slug) *</label>
+                {formData.name && (
+                  <button
+                    type="button"
+                    onClick={handleRegenerateSlug}
+                    className={styles.regenerateSlugBtn}
+                    disabled={loading}
+                  >
+                    Сгенерировать из названия
+                  </button>
+                )}
+              </div>
+
+              <div className={styles.inlineRow}>
+                <input
+                  id="product-slug"
+                  type="text"
+                  name="slug"
+                  value={formData.slug}
+                  onChange={handleSlugChange}
+                  required
+                  placeholder="avtomaticheski-iz-nazvaniya"
+                  disabled={loading}
+                  aria-describedby={errors.slug ? "slug-error" : undefined}
+                />
+                <label className={styles.checkbox}>
+                  <input
+                    type="checkbox"
+                    name="autoSlug"
+                    checked={autoSlug}
+                    onChange={handleChange}
+                    disabled={loading}
+                  />
+                  Автогенерация
+                </label>
+              </div>
+
+              <small className={styles.helpText}>
+                {formData.slug
+                  ? `URL: /product/${formData.slug}`
+                  : 'Slug будет сгенерирован из названия (поддерживается кириллица)'}
+                {slugModified && ' (изменено вручную)'}
+              </small>
+
+              {errors.slug && (
+                <div id="slug-error" className={styles.fieldError}>
+                  {errors.slug}
+                </div>
+              )}
+            </div>
+
+            {/* Price */}
             <div className={styles.formGroup}>
               <label htmlFor="product-price">Цена *</label>
               <input
@@ -390,7 +560,7 @@ export default function ProductForm({ product, onClose, onSave }) {
               )}
             </div>
 
-            {/* Описание */}
+            {/* Description */}
             <div className={styles.formGroup}>
               <label htmlFor="product-description">Описание</label>
               <textarea
@@ -404,7 +574,7 @@ export default function ProductForm({ product, onClose, onSave }) {
               />
             </div>
 
-            {/* Поля количества */}
+            {/* Stock + minStock */}
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
                 <label htmlFor="product-stock">Количество *</label>
@@ -447,7 +617,7 @@ export default function ProductForm({ product, onClose, onSave }) {
               </div>
             </div>
 
-            {/* Выбор категории */}
+            {/* Category */}
             <div className={styles.formGroup}>
               <div className={styles.categoryHeader}>
                 <label htmlFor="product-category">Категория</label>
@@ -460,10 +630,10 @@ export default function ProductForm({ product, onClose, onSave }) {
                   + Добавить категорию
                 </button>
               </div>
-              
+
               {categoriesLoading ? (
                 <div className={styles.loadingText}>Загрузка категорий...</div>
-              ) : categories.length > 0 ? (
+              ) : categoryOptions.length > 0 ? (
                 <>
                   <select
                     id="product-category"
@@ -473,12 +643,13 @@ export default function ProductForm({ product, onClose, onSave }) {
                     disabled={loading}
                   >
                     <option value="">Без категории</option>
-                    {categories.map(category => (
+                    {categoryOptions.map((category) => (
                       <option key={category.id} value={category.id}>
                         {category.name}
                       </option>
                     ))}
                   </select>
+
                   {errors.categories && (
                     <div className={styles.fieldError}>
                       {errors.categories}
@@ -502,10 +673,10 @@ export default function ProductForm({ product, onClose, onSave }) {
               )}
             </div>
 
-            {/* Секция загрузки изображения */}
+            {/* Image */}
             <div className={styles.formGroup}>
               <label>Изображение товара (необязательно)</label>
-              
+
               {imagePreview && (
                 <div className={styles.imagePreview}>
                   <div className={styles.imageContainer}>
@@ -517,13 +688,16 @@ export default function ProductForm({ product, onClose, onSave }) {
                       className={styles.previewImage}
                       onError={(e) => {
                         console.error('Изображение не загрузилось:', imagePreview);
-                        e.target.style.display = 'none';
-                        setErrors(prev => ({ ...prev, image: 'Не удалось загрузить изображение' }));
+                        // Next/Image uses a wrapped element; defensive:
+                        try {
+                          e.currentTarget.style.display = 'none';
+                        } catch {}
+                        setErrors((prev) => ({ ...prev, image: 'Не удалось загрузить изображение' }));
                       }}
                     />
                   </div>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={handleRemoveImage}
                     className={styles.removeImageBtn}
                     disabled={loading}
@@ -576,18 +750,18 @@ export default function ProductForm({ product, onClose, onSave }) {
               </div>
             </div>
 
-            {/* Действия формы */}
+            {/* Actions */}
             <div className={styles.formActions}>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={onClose}
                 className={styles.cancelBtn}
                 disabled={loading}
               >
                 Отмена
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={loading || uploading}
                 className={styles.saveBtn}
               >
@@ -598,7 +772,6 @@ export default function ProductForm({ product, onClose, onSave }) {
         </div>
       </div>
 
-      {/* Модальное окно формы категории */}
       {showCategoryForm && (
         <CategoryForm
           onClose={() => setShowCategoryForm(false)}

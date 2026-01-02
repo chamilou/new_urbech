@@ -198,6 +198,7 @@ async def get_categories(
 @router.post("/")
 async def create_category(body: CategoryCreate):
     """Create a new category, auto-slugify, compute path, validate parent."""
+    
     try:
         # slug: prefer provided, else from name
         slug = body.slug or slugify(body.name)
