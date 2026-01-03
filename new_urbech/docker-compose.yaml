@@ -30,7 +30,7 @@ services:
 
   backend:
     volumes:
-      - backend_media:/app/media
+      - backend_media:/app/app/media
     build:
       context: ./backend
       dockerfile: Dockerfile
