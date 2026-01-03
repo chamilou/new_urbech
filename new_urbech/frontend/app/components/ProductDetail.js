@@ -1,68 +1,76 @@
 'use client';
-import { useState } from 'react';
-import { useToast } from '../hooks/useToast';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import styles from './ProductDetail.module.css';
+import { useToast } from '../hooks/useToast';
 import { useCart } from '../context/CartContext';
+
+const PLACEHOLDER = '/placeholder-image.jpg';
 
 export default function ProductDetail({ product, onClose }) {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [broken, setBroken] = useState(() => new Set()); // track broken image urls
+
   const showToast = useToast();
   const { addToCart } = useCart();
 
-  // Обработка URL изображений
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return '/placeholder-image.jpg';
-    
-    if (imagePath.startsWith('http')) {
+  // Normalize image URLs for your current infra:
+  // - Prefer same-origin /media/** (Caddy proxies it to backend)
+  // - Support filename-only values
+  // - Support absolute URLs
+  const normalizeImageSrc = (imagePath) => {
+    if (!imagePath) return PLACEHOLDER;
+
+    // If already absolute
+    if (typeof imagePath === 'string' && imagePath.startsWith('http')) {
       return imagePath;
     }
-    
-    if (imagePath.startsWith('/media/')) {
-      return `http://localhost:8000${imagePath}`;
+
+    // If already a public media path (best)
+    if (typeof imagePath === 'string' && imagePath.startsWith('/media/')) {
+      return imagePath;
     }
-    
-    if (!imagePath.includes('/')) {
-      return `http://localhost:8000/media/products/${imagePath}`;
+
+    // If it's a bare filename like "abc.jpg"
+    if (typeof imagePath === 'string' && !imagePath.includes('/')) {
+      return `/media/products/${imagePath}`;
     }
-    
+
+    // Fallback: if it's some relative path, keep it
     return imagePath;
   };
 
-  // Формирование массива изображений
-  const getImagesArray = () => {
-    const images = [];
-    
-    if (product.mainImageUrl) {
-      images.push(getImageUrl(product.mainImageUrl));
-    }
-    
-    if (product.images && Array.isArray(product.images)) {
-      product.images.forEach(img => {
-        const imageUrl = typeof img === 'object' ? img.url : img;
-        if (imageUrl) {
-          images.push(getImageUrl(imageUrl));
-        }
+  const images = useMemo(() => {
+    const arr = [];
+
+    if (product?.mainImageUrl) arr.push(normalizeImageSrc(product.mainImageUrl));
+
+    if (Array.isArray(product?.images)) {
+      product.images.forEach((img) => {
+        const url = typeof img === 'object' ? img?.url : img;
+        if (url) arr.push(normalizeImageSrc(url));
       });
     }
-    
-    if (images.length === 0) {
-      images.push('/placeholder-image.jpg');
+
+    // De-dup while preserving order
+    const deduped = [];
+    const seen = new Set();
+    for (const u of arr) {
+      if (!seen.has(u)) {
+        seen.add(u);
+        deduped.push(u);
+      }
     }
-    
-    return images;
-  };
 
-  const images = getImagesArray();
+    return deduped.length ? deduped : [PLACEHOLDER];
+  }, [product]);
 
-  const increaseQuantity = () => {
-    setQuantity(prev => prev + 1);
-  };
+  const currentSrc = images[selectedImage] || PLACEHOLDER;
+  const displaySrc = broken.has(currentSrc) ? PLACEHOLDER : currentSrc;
 
-  const decreaseQuantity = () => {
-    setQuantity(prev => prev > 1 ? prev - 1 : 1);
-  };
+  const increaseQuantity = () => setQuantity((prev) => prev + 1);
+  const decreaseQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   const handleAddToCart = () => {
     const cartProduct = {
@@ -71,18 +79,11 @@ export default function ProductDetail({ product, onClose }) {
       name: product.name,
       price: product.price,
       mainImageUrl: product.mainImageUrl,
-      mainImage: product.mainImage,
-      image: product.image,
       description: product.description,
       currencyCode: product.currencyCode || 'USD',
-      stock: product.stock || 0
+      stock: product.stock || 0,
+      articleNumber: product.articleNumber,
     };
-
-    console.log("Добавление в корзину:", {
-      cartProduct,
-      quantity,
-      hasProductId: !!cartProduct.product_id
-    });
 
     try {
       addToCart(cartProduct, quantity);
@@ -93,14 +94,20 @@ export default function ProductDetail({ product, onClose }) {
     }
   };
 
-  const handleImageClick = (index) => {
-    setSelectedImage(index);
+  const handleImageClick = (index) => setSelectedImage(index);
+
+  const onImgError = (src) => {
+    setBroken((prev) => {
+      const next = new Set(prev);
+      next.add(src);
+      return next;
+    });
   };
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <button className={styles.closeButton} onClick={onClose}>
+        <button className={styles.closeButton} onClick={onClose} type="button">
           ×
         </button>
 
@@ -108,51 +115,50 @@ export default function ProductDetail({ product, onClose }) {
           <div className={styles.imagesSection}>
             <div className={styles.mainImage}>
               <Image
-                src={images[selectedImage]}
-                alt={product.name}
+                src={displaySrc}
+                alt={product?.name || 'Product'}
                 width={400}
                 height={400}
                 className={styles.productImage}
                 priority
-                onError={(e) => {
-                  e.target.src = '/placeholder-image.jpg';
-                }}
+                onError={() => onImgError(currentSrc)}
               />
             </div>
-            
+
             {images.length > 1 && (
               <div className={styles.thumbnailContainer}>
-                {images.map((image, index) => (
-                  <button
-                    key={index}
-                    className={`${styles.thumbnail} ${selectedImage === index ? styles.thumbnailActive : ''}`}
-                    onClick={() => handleImageClick(index)}
-                    type="button"
-                  >
-                    <Image
-                      src={image}
-                      alt={`${product.name} ${index + 1}`}
-                      width={60}
-                      height={60}
-                      className={styles.thumbnailImage}
-                      onError={(e) => {
-                        e.target.src = '/placeholder-image.jpg';
-                      }}
-                    />
-                  </button>
-                ))}
+                {images.map((src, index) => {
+                  const thumbSrc = broken.has(src) ? PLACEHOLDER : src;
+                  return (
+                    <button
+                      key={`${src}-${index}`}
+                      className={`${styles.thumbnail} ${selectedImage === index ? styles.thumbnailActive : ''}`}
+                      onClick={() => handleImageClick(index)}
+                      type="button"
+                    >
+                      <Image
+                        src={thumbSrc}
+                        alt={`${product?.name || 'Product'} ${index + 1}`}
+                        width={60}
+                        height={60}
+                        className={styles.thumbnailImage}
+                        onError={() => onImgError(src)}
+                      />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
 
           <div className={styles.infoSection}>
-            <h1 className={styles.productName}>{product.name}</h1>
-            
+            <h1 className={styles.productName}>{product?.name}</h1>
+
             <p className={styles.productPrice}>
-              {product.price ? `$${product.price}` : 'Цена не указана'}
+              {product?.price != null ? `${product.currencyCode || 'USD'} ${product.price}` : 'Цена не указана'}
             </p>
 
-            {product.description && (
+            {product?.description && (
               <div className={styles.description}>
                 <h3>Описание</h3>
                 <p>{product.description}</p>
@@ -160,15 +166,15 @@ export default function ProductDetail({ product, onClose }) {
             )}
 
             <div className={styles.stockInfo}>
-              <span className={`${styles.stockStatus} ${product.stock > 0 ? styles.inStock : styles.outOfStock}`}>
-                {product.stock > 0 ? `В наличии: ${product.stock} шт.` : 'Нет в наличии'}
+              <span className={`${styles.stockStatus} ${product?.stock > 0 ? styles.inStock : styles.outOfStock}`}>
+                {product?.stock > 0 ? `В наличии: ${product.stock} шт.` : 'Нет в наличии'}
               </span>
             </div>
 
             <div className={styles.quantitySelector}>
               <label className={styles.quantityLabel}>Количество:</label>
               <div className={styles.quantityControls}>
-                <button 
+                <button
                   className={styles.quantityButton}
                   onClick={decreaseQuantity}
                   disabled={quantity <= 1}
@@ -177,10 +183,10 @@ export default function ProductDetail({ product, onClose }) {
                   -
                 </button>
                 <span className={styles.quantityDisplay}>{quantity}</span>
-                <button 
+                <button
                   className={styles.quantityButton}
                   onClick={increaseQuantity}
-                  disabled={product.stock !== null && quantity >= product.stock}
+                  disabled={product?.stock != null && quantity >= product.stock}
                   type="button"
                 >
                   +
@@ -191,24 +197,26 @@ export default function ProductDetail({ product, onClose }) {
             <button
               className={styles.addToCartButton}
               onClick={handleAddToCart}
-              disabled={product.stock === 0}
+              disabled={product?.stock === 0}
               type="button"
             >
-              {product.stock === 0 ? 'Нет в наличии' : `Добавить в корзину (${quantity})`}
+              {product?.stock === 0 ? 'Нет в наличии' : `Добавить в корзину (${quantity})`}
             </button>
 
             <div className={styles.additionalInfo}>
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>Артикул:</span>
-                <span className={styles.infoValue}>{product.articleNumber || 'Не указан'}</span>
+                <span className={styles.infoValue}>{product?.articleNumber || 'Не указан'}</span>
               </div>
-              {product.categories && product.categories.length > 0 && (
+
+              {product?.categories && product.categories.length > 0 && (
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Категория:</span>
                   <span className={styles.infoValue}>
-                    {product.categories.map(cat => 
-                      typeof cat === 'object' ? cat.category?.name || cat.name : cat
-                    ).join(', ')}
+                    {product.categories
+                      .map((cat) => (typeof cat === 'object' ? cat.category?.name || cat.name : cat))
+                      .filter(Boolean)
+                      .join(', ')}
                   </span>
                 </div>
               )}

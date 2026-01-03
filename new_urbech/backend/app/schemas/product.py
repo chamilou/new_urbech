@@ -8,6 +8,7 @@ from typing import List, Optional, Any
 from pydantic import BaseModel, Field, field_validator
 from typing_extensions import Annotated
 from pydantic.types import StringConstraints
+from urllib.parse import urlparse
 
 
 # Helper types (Pydantic v2 style)
@@ -64,6 +65,30 @@ class ProductBase(BaseModel):
 
     # keep URL as str
     mainImageUrl: Optional[str] = None
+    @field_validator("mainImageUrl", mode="before")
+    @classmethod
+    def validate_main_image_url(cls, v):
+        if v is None or v == "":
+            return None
+
+        v = v.strip()
+
+        # Allow local uploaded media
+        if v.startswith("/media/"):
+            return v
+
+        # Allow absolute HTTPS URLs (optional)
+        parsed = urlparse(v)
+        if parsed.scheme == "https" and parsed.netloc:
+            return v
+
+        # (optional) allow http only in dev
+        # if parsed.scheme == "http":
+        #     return v
+
+        raise ValueError(
+            "mainImageUrl must be '/media/...' or a valid HTTPS URL"
+        )
 
     # taxonomy (either list can be provided)
     categoryIds: Optional[List[str]] = None
