@@ -239,43 +239,61 @@ export default function ProductForm({ product, onClose, onSave }) {
   };
 
   const handleImageUpload = async (file) => {
-    setUploading(true);
-    setErrors((prev) => ({ ...prev, image: '' }));
+  setUploading(true);
+  setErrors((prev) => ({ ...prev, image: '' }));
 
-    try {
-      const uploadFormData = new FormData();
-      uploadFormData.append('file', file);
+  try {
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', file);
 
-      const response = await fetch('/api/uploads/products', {
-        method: 'POST',
-        body: uploadFormData,
-      });
+    const response = await fetch('/api/uploads/products', {
+      method: 'POST',
+      body: uploadFormData,
+    });
 
-      if (response.ok) {
-        const result = await response.json();
-        const base = API_BASE.replace(/\/$/, '');
-        const imageUrl = result.url.startsWith('http')
-        ? result.url
-         : `${base}${result.url.startsWith('/') ? '' : '/'}${result.url}`;
+    // Read as text first so we can handle both JSON and non-JSON error bodies
+    const responseText = await response.text();
 
-
-        setFormData((prev) => ({
-          ...prev,
-          mainImageUrl: imageUrl
-        }));
-        setImagePreview(imageUrl);
-      } else {
-        const errorText = await response.text();
-        setErrors((prev) => ({ ...prev, image: 'Не удалось загрузить изображение' }));
-        console.error('Ошибка загрузки изображения:', errorText);
-      }
-    } catch (error) {
-      console.error('Ошибка загрузки изображения:', error);
-      setErrors((prev) => ({ ...prev, image: 'Ошибка сети при загрузке' }));
-    } finally {
-      setUploading(false);
+    if (!response.ok) {
+      console.error('Ошибка загрузки изображения:', response.status, responseText);
+      setErrors((prev) => ({
+        ...prev,
+        image: responseText || 'Не удалось загрузить изображение',
+      }));
+      return;
     }
-  };
+
+    let result = {};
+    try {
+      result = responseText ? JSON.parse(responseText) : {};
+    } catch (e) {
+      console.error('Upload response is not JSON:', responseText);
+      throw new Error('Upload response is not valid JSON');
+    }
+
+    if (!result?.url) {
+      throw new Error('Upload response missing url');
+    }
+
+    // IMPORTANT: store PUBLIC media url directly (do NOT prefix /api)
+    const imageUrl = result.url; // e.g. "/media/products/xxx.webp"
+
+    setFormData((prev) => ({
+      ...prev,
+      mainImageUrl: imageUrl,
+    }));
+    setImagePreview(imageUrl);
+  } catch (error) {
+    console.error('Ошибка загрузки изображения:', error);
+    setErrors((prev) => ({
+      ...prev,
+      image: error?.message || 'Ошибка сети при загрузке',
+    }));
+  } finally {
+    setUploading(false);
+  }
+};
+
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -544,10 +562,10 @@ export default function ProductForm({ product, onClose, onSave }) {
                 disabled={loading}
                 aria-describedby={errors.currencyCode ? 'currency-error' : undefined}
               >
+                <option value="RUB">RUB</option>
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
                 <option value="CHF">CHF</option>
-                <option value="RUB">RUB</option>
                 <option value="GBP">GBP</option>
               </select>
               {errors.currencyCode && (
