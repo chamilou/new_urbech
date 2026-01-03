@@ -4,7 +4,7 @@ from pathlib import Path
 from fnmatch import fnmatch
 import json
 
-router = APIRouter(prefix="/settings", tags=["settings"])
+router = APIRouter()
 
 SETTINGS_PATH = Path(__file__).resolve().parents[1] / "core" / "seo_settings.json"
 
