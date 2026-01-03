@@ -12,7 +12,7 @@ import shutil
 #   MEDIA_PRODUCTS_DIR = MEDIA_ROOT / "products"
 from app.core.config import PRODUCT_DIR, MEDIA_ROOT
 
-router = APIRouter(prefix="/uploads", tags=["uploads"])
+router = APIRouter()
 
 # Allowed content types -> file extension
 EXT_BY_MIME = {
