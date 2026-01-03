@@ -164,14 +164,21 @@ export default function ProductForm({ product, onClose, onSave }) {
     }
   };
 
-  const isValidUrl = (string) => {
-    try {
-      new URL(string);
-      return true;
-    } catch (_) {
-      return false;
-    }
-  };
+  const isValidUrl = (value) => {
+  if (!value) return true;
+
+  // allow your local public media paths
+  if (value.startsWith('/media/')) return true;
+
+  // allow absolute URLs
+  try {
+    new URL(value);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 
   const validateForm = () => {
     const newErrors = {};
@@ -748,7 +755,7 @@ export default function ProductForm({ product, onClose, onSave }) {
                 <div className={styles.urlOption}>
                   <span className={styles.urlLabel}>Или введите URL изображения:</span>
                   <input
-                    type="url"
+                    type="text"
                     name="mainImageUrl"
                     value={formData.mainImageUrl}
                     onChange={handleUrlChange}
