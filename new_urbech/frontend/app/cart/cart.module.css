@@ -525,11 +525,11 @@
 }
 
 /* Подсказки при наведении */
-[title] {
+.title {
   position: relative;
 }
 
-[title]:hover::after {
+.title:hover::after {
   content: attr(title);
   position: absolute;
   bottom: 100%;
