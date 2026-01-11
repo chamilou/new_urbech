@@ -73,6 +73,8 @@ services:
       # Browser should call your own domain through Caddy:
       # your code should use `${NEXT_PUBLIC_API_BASE}/...`
       NEXT_PUBLIC_API_BASE: /api
+    expose:
+      - "3000"
     depends_on:
       - backend
     networks: [appnet]
