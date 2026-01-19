@@ -3,15 +3,15 @@ from typing import Optional
 from app.schemas.product import Product
 
 class CartItemBase(BaseModel):
-    product_id: int
+    productId: str
     quantity: int
 
 class CartItemCreate(CartItemBase):
     pass
 
 class CartItem(CartItemBase):
-    id: int
-    user_id: int
+    id: str
+    userId: str
     product: Optional[Product] = None
 
     class Config:

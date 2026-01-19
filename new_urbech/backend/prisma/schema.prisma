@@ -73,6 +73,7 @@ model User {
   customers           Customer[]
   passwordResetTokens PasswordResetToken[]
   wishlist            WishlistItem[]
+  cartItems           CartItem[]
 
   // Optional ops
   lastLoginAt DateTime?
@@ -183,6 +184,7 @@ model Product {
   // Commerce
   orderItems   OrderItem[]
   wishlistedBy WishlistItem[]
+  cartItems    CartItem[]
 
   // Origin
   originAddressId String?
@@ -369,6 +371,22 @@ model WishlistItem {
 
   @@id([userId, productId])
   @@map("wishlist_items")
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@map("cart_items")
 }
 
 model Order {

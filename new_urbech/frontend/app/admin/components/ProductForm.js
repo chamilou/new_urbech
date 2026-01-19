@@ -275,11 +275,11 @@ export default function ProductForm({ product, onClose, onSave }) {
       result = responseText ? JSON.parse(responseText) : {};
     } catch (e) {
       console.error('Upload response is not JSON:', responseText);
-      throw new Error('Upload response is not valid JSON');
+      throw new Error('Ответ загрузки не является корректным JSON');
     }
 
     if (!result?.url) {
-      throw new Error('Upload response missing url');
+      throw new Error('В ответе загрузки отсутствует поле url');
     }
 
     // IMPORTANT: store PUBLIC media url directly (do NOT prefix /api)

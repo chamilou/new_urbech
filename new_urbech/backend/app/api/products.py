@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query, UploadFile, File
+from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Depends
 from fastapi.responses import JSONResponse
 from typing import List, Optional, Union
 from decimal import Decimal, InvalidOperation
@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 
 from app.db.session import prisma
 from app.schemas.product import ProductCreate, ProductUpdate, ProductResponse
+from app.api.auth import require_admin
 
 router = APIRouter()
 
@@ -322,7 +323,7 @@ async def get_bestsellers(limit: int = Query(8, ge=1, le=20)):
     return [ProductResponse.from_prisma(product) for product in products]
 
 @router.post("/", response_model=ProductResponse)
-async def create_product(body: ProductCreate):
+async def create_product(body: ProductCreate, _admin=Depends(require_admin)):
     try:
         slug = body.slug or slugify(body.name)
         cat_ids = await resolve_categories(body.categoryIds, body.categorySlugs)
@@ -368,7 +369,7 @@ async def get_product(product_id: str):
     return ProductResponse.from_prisma(prod)
 
 @router.put("/{product_id}", response_model=ProductResponse)
-async def update_product(product_id: str, body: ProductUpdate):
+async def update_product(product_id: str, body: ProductUpdate, _admin=Depends(require_admin)):
     existing = await prisma.product.find_unique(
         where={"id": product_id},
         include={"categories": True, "images": True},
@@ -426,7 +427,7 @@ async def update_product(product_id: str, body: ProductUpdate):
         raise HTTPException(status_code=500, detail=f"Error updating product: {e}")
 
 @router.delete("/{product_id}")
-async def delete_product(product_id: str):
+async def delete_product(product_id: str, _admin=Depends(require_admin)):
     existing = await prisma.product.find_unique(where={"id": product_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -435,7 +436,7 @@ async def delete_product(product_id: str):
 
 # ---------- CSV import ----------
 @router.post("/import")
-async def import_products(csv_file: UploadFile = File(...)):
+async def import_products(csv_file: UploadFile = File(...), _admin=Depends(require_admin)):
     """
     CSV columns (new schema):
     name,slug,description,price,currencyCode,stock,categorySlugs,mainImageUrl,images
@@ -509,17 +510,17 @@ async def import_products(csv_file: UploadFile = File(...)):
     })
 
 @router.post("/admin/import")
-async def import_products_admin(csv_file: UploadFile = File(...)):
+async def import_products_admin(csv_file: UploadFile = File(...), _admin=Depends(require_admin)):
     return await import_products(csv_file)
 
 # ---------- Admin Endpoints for Home Page Management ----------
 @router.get("/admin/home/featured", response_model=List[ProductResponse])
-async def get_admin_featured_products():
+async def get_admin_featured_products(_admin=Depends(require_admin)):
     """Admin endpoint to manage featured products"""
     return await get_featured_products(limit=50)
 
 @router.put("/admin/products/{product_id}/feature")
-async def toggle_product_feature(product_id: str, featured: bool):
+async def toggle_product_feature(product_id: str, featured: bool, _admin=Depends(require_admin)):
     """Toggle product featured status"""
     existing = await prisma.product.find_unique(where={"id": product_id})
     if not existing:
@@ -533,7 +534,7 @@ async def toggle_product_feature(product_id: str, featured: bool):
     return ProductResponse.from_prisma(updated)
 
 @router.put("/admin/products/{product_id}/top")
-async def toggle_product_top(product_id: str, top_product: bool):
+async def toggle_product_top(product_id: str, top_product: bool, _admin=Depends(require_admin)):
     """Toggle product top status"""
     existing = await prisma.product.find_unique(where={"id": product_id})
     if not existing:
@@ -551,7 +552,8 @@ async def toggle_product_top(product_id: str, top_product: bool):
 async def get_products_admin(
     skip: int = 0, 
     limit: int = 100,
-    search: Optional[str] = Query(None)
+    search: Optional[str] = Query(None),
+    _admin=Depends(require_admin),
 ):
     where = {}
     if search and search.strip():

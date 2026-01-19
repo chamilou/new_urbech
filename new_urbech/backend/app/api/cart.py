@@ -3,6 +3,7 @@ from app.db.session import prisma
 from app.schemas.product import Product
 from app.schemas.cart import CartItem, CartItemCreate  # We'll need to create this schema
 from typing import List
+from app.api.auth import get_current_user
 
 router = APIRouter()
 
@@ -10,10 +11,9 @@ router = APIRouter()
 # We need to add this since we're referencing it
 
 @router.get("/", response_model=List[CartItem])
-async def get_cart_items():
-    # Hardcoded user ID for now - in real app, get from authentication
-    user_id = 1
-    
+async def get_cart_items(current_user=Depends(get_current_user)):
+    user_id = current_user.id
+
     cart_items = await prisma.cartitem.find_many(
         where={"userId": user_id},
         include={"product": True}
@@ -21,12 +21,11 @@ async def get_cart_items():
     return cart_items
 
 @router.post("/", response_model=CartItem)
-async def add_to_cart(cart_item: CartItemCreate):
-    # Hardcoded user ID for now
-    user_id = 1
-    
+async def add_to_cart(cart_item: CartItemCreate, current_user=Depends(get_current_user)):
+    user_id = current_user.id
+
     # Check if product exists
-    product = await prisma.product.find_unique(where={"id": cart_item.product_id})
+    product = await prisma.product.find_unique(where={"id": cart_item.productId})
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
@@ -41,7 +40,7 @@ async def add_to_cart(cart_item: CartItemCreate):
     existing_item = await prisma.cartitem.find_first(
         where={
             "userId": user_id,
-            "productId": cart_item.product_id
+            "productId": cart_item.productId
         }
     )
     
@@ -58,11 +57,13 @@ async def add_to_cart(cart_item: CartItemCreate):
         )
     else:
         # Add new item to cart
-        new_item = await prisma.cartitem.create({
-            "userId": user_id,
-            "productId": cart_item.product_id,
-            "quantity": cart_item.quantity
-        })
+        new_item = await prisma.cartitem.create(
+            data={
+                "userId": user_id,
+                "productId": cart_item.productId,
+                "quantity": cart_item.quantity,
+            }
+        )
         # Return the new item with product details
         return await prisma.cartitem.find_unique(
             where={"id": new_item.id},
@@ -70,14 +71,14 @@ async def add_to_cart(cart_item: CartItemCreate):
         )
 
 @router.put("/{item_id}", response_model=CartItem)
-async def update_cart_item(item_id: int, quantity: int):
+async def update_cart_item(item_id: str, quantity: int, current_user=Depends(get_current_user)):
     # Check if cart item exists
     cart_item = await prisma.cartitem.find_unique(where={"id": item_id})
     if not cart_item:
         raise HTTPException(status_code=404, detail="Cart item not found")
     
     # Check if user owns this cart item
-    user_id = 1  # Hardcoded for now
+    user_id = current_user.id
     if cart_item.userId != user_id:
         raise HTTPException(status_code=403, detail="Not authorized to update this cart item")
     
@@ -104,14 +105,14 @@ async def update_cart_item(item_id: int, quantity: int):
     )
 
 @router.delete("/{item_id}")
-async def remove_from_cart(item_id: int):
+async def remove_from_cart(item_id: str, current_user=Depends(get_current_user)):
     # Check if cart item exists
     cart_item = await prisma.cartitem.find_unique(where={"id": item_id})
     if not cart_item:
         raise HTTPException(status_code=404, detail="Cart item not found")
     
     # Check if user owns this cart item
-    user_id = 1  # Hardcoded for now
+    user_id = current_user.id
     if cart_item.userId != user_id:
         raise HTTPException(status_code=403, detail="Not authorized to remove this cart item")
     
@@ -121,19 +122,17 @@ async def remove_from_cart(item_id: int):
     return {"message": "Item removed from cart successfully"}
 
 @router.delete("/")
-async def clear_cart():
-    # Hardcoded user ID for now
-    user_id = 1
-    
+async def clear_cart(current_user=Depends(get_current_user)):
+    user_id = current_user.id
+
     # Remove all cart items for user
     await prisma.cartitem.delete_many(where={"userId": user_id})
     
     return {"message": "Cart cleared successfully"}
 
 @router.get("/count")
-async def get_cart_item_count():
-    # Hardcoded user ID for now
-    user_id = 1
-    
+async def get_cart_item_count(current_user=Depends(get_current_user)):
+    user_id = current_user.id
+
     count = await prisma.cartitem.count(where={"userId": user_id})
     return {"count": count}

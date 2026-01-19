@@ -1,7 +1,7 @@
 #app/api/users.py
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from app.db.session import prisma
-from app.schemas.user import UserCreate, UserResponse # Importing the schemas!
+from app.schemas.user import UserCreate, UserResponse  # Importing the schemas!
 from app.utils.security import hash_password
 
 
@@ -18,16 +18,18 @@ async def create_user(user: UserCreate):  # Using the schema as request body
     hashed_password = hash_password(user.password)
     
     # Create user in database
-    db_user = await prisma.user.create({
-        "email": user.email,
-        "password": hashed_password,
-        "name": user.name
-    })
+    db_user = await prisma.user.create(
+        data={
+            "email": user.email,
+            "hashedPassword": hashed_password,
+            "name": user.name,
+        }
+    )
     
     return db_user  # This gets validated against UserResponse schema
 
 @router.get("/{user_id}", response_model=UserResponse)
-async def get_user(user_id: int):
+async def get_user(user_id: str):
     user = await prisma.user.find_unique(where={"id": user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

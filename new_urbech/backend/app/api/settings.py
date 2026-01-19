@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from pathlib import Path
 from fnmatch import fnmatch
 import json
+from app.api.auth import require_admin
 
 router = APIRouter()
 
@@ -24,7 +25,7 @@ async def get_seo_settings():
     return read_settings()
 
 @router.put("/seo")
-async def update_seo_settings(payload: SeoSettings):
+async def update_seo_settings(payload: SeoSettings, _admin=Depends(require_admin)):
     data = payload.model_dump()
     write_settings(data)
     return {"ok": True, "value": data}

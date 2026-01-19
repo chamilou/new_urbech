@@ -36,7 +36,7 @@ export default function AdminProducts() {
         { cache: 'no-store' }
       );
       
-      if (!res.ok) throw new Error(`Failed to fetch products: ${res.status}`);
+      if (!res.ok) throw new Error(`Не удалось загрузить товары: ${res.status}`);
       
       const data = await res.json();
       
@@ -48,12 +48,12 @@ export default function AdminProducts() {
         setProducts(data);
         setTotalPages(Math.ceil(data.length / itemsPerPage));
       } else {
-        throw new Error('Unexpected response format from API');
+        throw new Error('Неожиданный формат ответа от API');
       }
     } catch (e) {
       console.error('Error fetching products:', e);
       setProducts([]);
-      setError(e.message || 'Failed to fetch products');
+      setError(e.message || 'Не удалось загрузить товары');
     } finally {
       setLoading(false);
     }
@@ -102,7 +102,7 @@ export default function AdminProducts() {
   };
 
   const handleDelete = async (productId) => {
-    if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) return;
+    if (!confirm('Вы уверены, что хотите удалить этот товар? Это действие нельзя отменить.')) return;
     
     setDeletingProduct(productId);
     try {
@@ -111,12 +111,12 @@ export default function AdminProducts() {
       });
       
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.detail || 'Failed to delete product');
+      if (!res.ok) throw new Error(data?.detail || 'Не удалось удалить товар');
       
       // Remove from local state immediately
       setProducts(prev => prev.filter(p => p.id !== productId));
     } catch (e) {
-      alert(e.message || 'Error deleting product');
+      alert(e.message || 'Ошибка при удалении товара');
     } finally {
       setDeletingProduct(null);
     }
@@ -152,7 +152,7 @@ export default function AdminProducts() {
           const data = await res.json().catch(() => ({}));
           
           if (!res.ok) {
-            throw new Error(data?.detail || `Failed to update stock: ${res.status}`);
+            throw new Error(data?.detail || `Не удалось обновить остаток: ${res.status}`);
           }
           
           // Update local state immediately for better UX
@@ -161,7 +161,7 @@ export default function AdminProducts() {
           ));
         } catch (e) {
           console.error('Stock update error:', e);
-          alert(e.message || 'Error updating stock');
+          alert(e.message || 'Ошибка при обновлении остатка');
           fetchProducts(currentPage);
         } finally {
           setUpdatingProduct(null);
@@ -176,13 +176,13 @@ export default function AdminProducts() {
   const handleCsvUpload = (event) => {
     const file = event.target.files?.[0];
     if (!file) {
-      setError('No file selected');
+      setError('Файл не выбран');
       return;
     }
     
     // Check file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      setError('File too large. Maximum size is 10MB');
+      setError('Файл слишком большой. Максимальный размер 10 МБ');
       event.target.value = ''; // Clear file input
       return;
     }
@@ -191,19 +191,19 @@ export default function AdminProducts() {
       setCsvFile(file);
       setError('');
     } else {
-      setError('Please select a valid CSV file');
+      setError('Выберите корректный CSV файл');
       event.target.value = ''; // Clear file input
     }
   };
 const handleCsvImport = async () => {
   if (!csvFile) {
-    setError('Please select a CSV file first');
+    setError('Сначала выберите CSV файл');
     return;
   }
   
   if (!confirm(
-    `Import products from ${csvFile.name}?\n` +
-    `This will create new products and update existing ones based on slugs.`
+    `Импортировать товары из ${csvFile.name}?\n` +
+    `Будут созданы новые товары и обновлены существующие по slug.`
   )) return;
   
   setImportLoading(true);
@@ -260,21 +260,21 @@ const handleCsvImport = async () => {
         
         if (uniqueSlugs.length > 0) {
           throw new Error(
-            `Unknown category slugs: ${uniqueSlugs.join(', ')}\n\n` +
-            `Please create these categories first or remove them from the CSV.\n` +
-            `Existing categories: ${existingCategories.slice(0, 10).map(c => c.slug).join(', ')}${existingCategories.length > 10 ? '...' : ''}`
+            `Неизвестные slugs категорий: ${uniqueSlugs.join(', ')}\n\n` +
+            `Сначала создайте эти категории или удалите их из CSV.\n` +
+            `Существующие категории: ${existingCategories.slice(0, 10).map(c => c.slug).join(', ')}${existingCategories.length > 10 ? '...' : ''}`
           );
         }
       }
-      throw new Error(result?.detail || `Import failed: ${res.status}`);
+      throw new Error(result?.detail || `Импорт не удался: ${res.status}`);
     }
 
     setImportProgress(100);
     
     // Show success message
-    const successMessage = `Successfully imported ${result.imported || 0}/${result.total || 0} products`;
+    const successMessage = `Успешно импортировано ${result.imported || 0}/${result.total || 0} товаров`;
     const errorsMessage = result.errors?.length > 0 
-      ? `\n\n${result.errors.length} error(s):\n${result.errors.slice(0, 5).join('\n')}${result.errors.length > 5 ? '\n... and more' : ''}`
+      ? `\n\n${result.errors.length} ошибок:\n${result.errors.slice(0, 5).join('\n')}${result.errors.length > 5 ? '\n... и еще' : ''}`
       : '';
     
     setTimeout(() => {
@@ -285,7 +285,7 @@ const handleCsvImport = async () => {
     }, 500);
   } catch (e) {
     console.error('Error importing CSV:', e);
-    setError(e.message || 'Error importing products. Please check your CSV format.');
+    setError(e.message || 'Ошибка импорта товаров. Проверьте формат CSV.');
   } finally {
     setImportLoading(false);
     setImportProgress(0);
@@ -314,16 +314,16 @@ const handleCsvImport = async () => {
     .join(', ');
 
   const template = `name,slug,description,price,currencyCode,stock,categorySlugs,mainImageUrl,images,minStock,featured,tags
-"Premium Coffee Beans","premium-coffee-beans","Freshly roasted arabica coffee beans",12.99,USD,50,"${exampleSlugs || 'example-category-1,example-category-2'}",https://example.com/coffee.jpg,"https://example.com/coffee-1.jpg,https://example.com/coffee-2.jpg",10,true,"coffee,arabica,organic"
-"Organic Green Tea","organic-green-tea","High-quality organic green tea leaves",8.50,USD,25,"${exampleSlugs || 'example-category-1'}",https://example.com/tea.jpg,,5,true,"tea,green,organic"
-"Artisanal Honey","artisanal-honey","Raw, unfiltered honey from local bees",15.75,USD,30,"",https://example.com/honey.jpg,,8,false,"honey,raw,local"
+"Премиальные кофейные зерна","premium-coffee-beans","Свежая обжарка арабики",12.99,USD,50,"${exampleSlugs || 'orehi,urbech'}",https://example.com/coffee.jpg,"https://example.com/coffee-1.jpg,https://example.com/coffee-2.jpg",10,true,"coffee,arabica,organic"
+"Органический зеленый чай","organic-green-tea","Качественные листья зеленого чая",8.50,USD,25,"${exampleSlugs || 'orehi'}",https://example.com/tea.jpg,,5,true,"tea,green,organic"
+"Ремесленный мед","artisanal-honey","Сырой нефильтрованный мед от местных пасек",15.75,USD,30,"",https://example.com/honey.jpg,,8,false,"honey,raw,local"
 
-# IMPORTANT:
-# 1. Required column: name
-# 2. categorySlugs: comma-separated slugs from existing categories
-# 3. Leave categorySlugs empty if no category needed
-# 4. Available categories (first 20): ${existingCategories.slice(0, 20).map(c => c.slug).join(', ')}${existingCategories.length > 20 ? '...' : ''}
-# 5. Create categories first in the admin panel if needed`;
+# ВАЖНО:
+# 1. Обязательная колонка: name
+# 2. categorySlugs: slugs существующих категорий через запятую
+# 3. Оставьте categorySlugs пустым, если категория не нужна
+# 4. Доступные категории (первые 20): ${existingCategories.slice(0, 20).map(c => c.slug).join(', ')}${existingCategories.length > 20 ? '...' : ''}
+# 5. При необходимости сначала создайте категории в админ-панели`;
 
   const blob = new Blob([template], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -349,14 +349,14 @@ const handleCsvImport = async () => {
     const stock = product.stock || 0;
     const minStock = product.minStock || 5;
     
-    if (stock === 0) return 'Out of Stock';
-    if (stock < minStock) return `Low Stock (${stock}/${minStock})`;
-    return 'In Stock';
+    if (stock === 0) return 'Нет в наличии';
+    if (stock < minStock) return `Мало на складе (${stock}/${minStock})`;
+    return 'В наличии';
   };
 
   const getFeaturedBadge = (product) => {
     return product.featured ? (
-      <span className={styles.featuredBadge} title="Featured Product">★</span>
+      <span className={styles.featuredBadge} title="Избранный товар">★</span>
     ) : null;
   };
 
@@ -436,31 +436,31 @@ const handleCsvImport = async () => {
       <div className={styles.header}>
         <div className={styles.headerMain}>
           <div className={styles.headerTitle}>
-            <h1>Product Management</h1>
-            <p>Manage your product inventory and listings</p>
+            <h1>Управление товарами</h1>
+            <p>Управляйте ассортиментом и карточками товаров</p>
           </div>
           <div className={styles.stats}>
             <div className={styles.stat}>
               <span className={styles.statNumber}>{products.length}</span>
-              <span className={styles.statLabel}>Total Products</span>
+              <span className={styles.statLabel}>Всего товаров</span>
             </div>
             <div className={styles.stat}>
               <span className={`${styles.statNumber} ${styles.statWarning}`}>
                 {products.filter(p => (p.stock || 0) < (p.minStock || 5) && (p.stock || 0) > 0).length}
               </span>
-              <span className={styles.statLabel}>Low Stock</span>
+              <span className={styles.statLabel}>Мало на складе</span>
             </div>
             <div className={styles.stat}>
               <span className={`${styles.statNumber} ${styles.statDanger}`}>
                 {products.filter(p => (p.stock || 0) === 0).length}
               </span>
-              <span className={styles.statLabel}>Out of Stock</span>
+              <span className={styles.statLabel}>Нет в наличии</span>
             </div>
             <div className={styles.stat}>
               <span className={`${styles.statNumber} ${styles.statSuccess}`}>
                 {products.filter(p => p.featured).length}
               </span>
-              <span className={styles.statLabel}>Featured</span>
+              <span className={styles.statLabel}>Избранные</span>
             </div>
           </div>
         </div>
@@ -469,7 +469,7 @@ const handleCsvImport = async () => {
           <div className={styles.searchBox}>
             <input
               type="text"
-              placeholder="Search products by name, description, slug, or category..."
+              placeholder="Поиск по названию, описанию, slug или категории..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={styles.searchInput}
@@ -478,7 +478,7 @@ const handleCsvImport = async () => {
               <button 
                 className={styles.clearSearch}
                 onClick={() => setSearchTerm('')}
-                title="Clear search"
+                title="Очистить поиск"
                 type="button"
               >
                 ×
@@ -492,7 +492,7 @@ const handleCsvImport = async () => {
               disabled={importLoading}
               type="button"
             >
-              📥 Import CSV
+              📥 Импорт CSV
             </button>
             <button 
               className={`${styles.btn} ${styles.btnPrimary}`}
@@ -502,7 +502,7 @@ const handleCsvImport = async () => {
               }}
               type="button"
             >
-              ➕ Add Product
+              ➕ Добавить товар
             </button>
           </div>
         </div>
@@ -510,9 +510,9 @@ const handleCsvImport = async () => {
 
       {error && !showCsvImport && (
         <div className={styles.error}>
-          <strong>Error:</strong> {error}
+          <strong>Ошибка:</strong> {error}
           <button onClick={() => fetchProducts(currentPage)} className={styles.retryBtn}>
-            Try Again
+            Повторить
           </button>
         </div>
       )}
@@ -521,7 +521,7 @@ const handleCsvImport = async () => {
       {loading && (
         <div className={styles.loading}>
           <div className={styles.spinner}></div>
-          <p>Loading products...</p>
+          <p>Загрузка товаров...</p>
         </div>
       )}
 
@@ -530,18 +530,18 @@ const handleCsvImport = async () => {
         <div className={styles.tableSection}>
           <div className={styles.tableHeader}>
             <div className={styles.tableInfo}>
-              Showing {filteredProducts.length} of {products.length} products
-              {searchTerm && ` matching "${searchTerm}"`}
-              {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
+              Показано {filteredProducts.length} из {products.length} товаров
+              {searchTerm && ` по запросу "${searchTerm}"`}
+              {totalPages > 1 && ` (Страница ${currentPage} из ${totalPages})`}
             </div>
             <div className={styles.tableControls}>
               <button 
                 className={styles.refreshBtn}
                 onClick={() => fetchProducts(currentPage)}
-                title="Refresh products"
+                title="Обновить товары"
                 type="button"
               >
-                🔄 Refresh
+                🔄 Обновить
               </button>
             </div>
           </div>
@@ -550,12 +550,12 @@ const handleCsvImport = async () => {
             <table className={styles.productsTable}>
               <thead>
                 <tr>
-                  <th className={`${styles.imageCol} ${styles.sortable}`}>Image</th>
+                  <th className={`${styles.imageCol} ${styles.sortable}`}>Изображение</th>
                   <th 
                     className={`${styles.nameCol} ${styles.sortable}`}
                     onClick={() => handleSort('name')}
                   >
-                    Product Name 
+                    Название 
                     {sortField === 'name' && (
                       <span className={styles.sortIndicator}>
                         {sortDirection === 'asc' ? '↑' : '↓'}
@@ -566,7 +566,7 @@ const handleCsvImport = async () => {
                     className={`${styles.priceCol} ${styles.sortable}`}
                     onClick={() => handleSort('price')}
                   >
-                    Price 
+                    Цена 
                     {sortField === 'price' && (
                       <span className={styles.sortIndicator}>
                         {sortDirection === 'asc' ? '↑' : '↓'}
@@ -577,15 +577,15 @@ const handleCsvImport = async () => {
                     className={`${styles.stockCol} ${styles.sortable}`}
                     onClick={() => handleSort('stock')}
                   >
-                    Stock 
+                    Остаток 
                     {sortField === 'stock' && (
                       <span className={styles.sortIndicator}>
                         {sortDirection === 'asc' ? '↑' : '↓'}
                       </span>
                     )}
                   </th>
-                  <th className={styles.statusCol}>Status</th>
-                  <th className={styles.actionsCol}>Actions</th>
+                  <th className={styles.statusCol}>Статус</th>
+                  <th className={styles.actionsCol}>Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -596,7 +596,7 @@ const handleCsvImport = async () => {
                         {product.mainImageUrl ? (
                           <Image
                             src={product.mainImageUrl}
-                            alt={product.name || 'Product image'}
+                            alt={product.name || 'Изображение товара'}
                             width={60}
                             height={60}
                             className={styles.image}
@@ -615,7 +615,7 @@ const handleCsvImport = async () => {
                       <div className={styles.productInfo}>
                         <div className={styles.productName}>
                           {getFeaturedBadge(product)}
-                          {product.name || 'Unnamed Product'}
+                          {product.name || 'Без названия'}
                           {product.categorySlugs?.length > 0 && (
                             <div className={styles.categoryTags}>
                               {product.categorySlugs.slice(0, 2).map((slug, idx) => (
@@ -630,7 +630,7 @@ const handleCsvImport = async () => {
                           )}
                         </div>
                         <div className={styles.productMeta}>
-                          <span className={styles.productSlug}>/{product.slug || 'no-slug'}</span>
+                          <span className={styles.productSlug}>/{product.slug || 'без-slug'}</span>
                           {product.description && (
                             <div className={styles.productDescription}>
                               {product.description.length > 60 
@@ -659,7 +659,7 @@ const handleCsvImport = async () => {
                           disabled={updatingProduct === product.id}
                         />
                         <span className={styles.stockLabel}>
-                          {updatingProduct === product.id ? 'Updating...' : 'units'}
+                          {updatingProduct === product.id ? 'Обновление...' : 'шт.'}
                         </span>
                       </div>
                     </td>
@@ -676,19 +676,19 @@ const handleCsvImport = async () => {
                             setEditingProduct(product);
                             setShowForm(true);
                           }}
-                          title="Edit product"
+                          title="Редактировать товар"
                           type="button"
                         >
-                          Edit
+                          Редактировать
                         </button>
                         <button 
                           className={`${styles.btn} ${styles.btnSmall} ${styles.btnDanger}`}
                           onClick={() => handleDelete(product.id)}
-                          title="Delete product"
+                          title="Удалить товар"
                           disabled={deletingProduct === product.id}
                           type="button"
                         >
-                          {deletingProduct === product.id ? 'Deleting...' : 'Delete'}
+                          {deletingProduct === product.id ? 'Удаление...' : 'Удалить'}
                         </button>
                       </div>
                     </td>
@@ -701,34 +701,34 @@ const handleCsvImport = async () => {
               <div className={styles.emptyState}>
                 {searchTerm ? (
                   <>
-                    <h3>No products found</h3>
-                    <p>No products match your search for "{searchTerm}"</p>
+                    <h3>Товары не найдены</h3>
+                    <p>Нет товаров по запросу "{searchTerm}"</p>
                     <button 
                       className={styles.clearSearchBtn}
                       onClick={() => setSearchTerm('')}
                       type="button"
                     >
-                      Clear Search
+                      Очистить поиск
                     </button>
                   </>
                 ) : (
                   <>
-                    <h3>No products yet</h3>
-                    <p>Get started by adding your first product or importing from CSV</p>
+                    <h3>Товаров пока нет</h3>
+                    <p>Начните с добавления первого товара или импорта из CSV</p>
                     <div className={styles.emptyStateActions}>
                       <button 
                         className={`${styles.btn} ${styles.btnPrimary}`}
                         onClick={() => setShowForm(true)}
                         type="button"
                       >
-                        ➕ Add First Product
+                        ➕ Добавить первый товар
                       </button>
                       <button 
                         className={`${styles.btn} ${styles.btnSecondary}`}
                         onClick={() => setShowCsvImport(true)}
                         type="button"
                       >
-                        📥 Import CSV
+                        📥 Импорт CSV
                       </button>
                     </div>
                   </>
@@ -745,7 +745,7 @@ const handleCsvImport = async () => {
                   className={styles.paginationButton}
                   type="button"
                 >
-                  ← Previous
+                  ← Назад
                 </button>
                 
                 <div className={styles.pageNumbers}>
@@ -758,7 +758,7 @@ const handleCsvImport = async () => {
                   className={styles.paginationButton}
                   type="button"
                 >
-                  Next →
+                  Вперед →
                 </button>
               </div>
             )}
@@ -771,7 +771,7 @@ const handleCsvImport = async () => {
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <h2>Import Products from CSV</h2>
+              <h2>Импорт товаров из CSV</h2>
               <button
                 className={styles.closeButton}
                 onClick={() => {
@@ -792,26 +792,26 @@ const handleCsvImport = async () => {
             <div className={styles.modalContent}>
               {error && (
                 <div className={styles.modalError}>
-                  <strong>Error:</strong> {error}
+                  <strong>Ошибка:</strong> {error}
                 </div>
               )}
               <div className={styles.csvInstructions}>
-  <h3>CSV Format Requirements:</h3>
+  <h3>Требования к формату CSV:</h3>
   <ul>
-    <li><strong>Required column:</strong> name</li>
-    <li><strong>categorySlugs:</strong> <span className={styles.important}>Use existing category SLUGS, comma-separated (e.g. "electronics,mobile-phones")</span></li>
-    <li><strong>Important:</strong> Categories must exist before importing. Use Category Management to create them.</li>
-    <li><strong>images:</strong> comma-separated URLs for additional images</li>
+    <li><strong>Обязательная колонка:</strong> name</li>
+    <li><strong>categorySlugs:</strong> <span className={styles.important}>используйте существующие slug категорий, через запятую (например "orehi,urbech")</span></li>
+    <li><strong>Важно:</strong> категории должны существовать до импорта. Создайте их в разделе управления категориями.</li>
+    <li><strong>images:</strong> URL дополнительных изображений через запятую</li>
     <li><strong>featured:</strong> true/false</li>
-    <li><strong>tags:</strong> comma-separated tags</li>
-    <li>First row must be the header row</li>
-    <li>Maximum file size: 10MB</li>
+    <li><strong>tags:</strong> теги через запятую</li>
+    <li>Первая строка — заголовки</li>
+    <li>Максимальный размер файла: 10 МБ</li>
   </ul>
 
   {/* Category validation warning */}
   <div className={styles.categoryWarning}>
-    ⚠️ <strong>Important:</strong> The "categorySlugs" column must contain slugs (not IDs) of existing categories.
-    Leave empty if no category is needed.
+    ⚠️ <strong>Важно:</strong> колонка "categorySlugs" должна содержать slugs (не ID) существующих категорий.
+    Оставьте пустым, если категория не нужна.
   </div>
 
   {/* Quick category check */}
@@ -819,28 +819,28 @@ const handleCsvImport = async () => {
     <button 
       type="button"
       onClick={async () => {
-        try {
-          const res = await fetch(`${API_BASE}/categories?limit=10`);
-          if (res.ok) {
-            const cats = await res.json();
-            const slugs = cats.map(c => c.slug).filter(Boolean);
-            if (slugs.length > 0) {
-              alert(`First 10 available category slugs:\n${slugs.join('\n')}`);
-            } else {
-              alert('No categories found. Please create categories first.');
+            try {
+              const res = await fetch(`${API_BASE}/categories?limit=10`);
+              if (res.ok) {
+                const cats = await res.json();
+                const slugs = cats.map(c => c.slug).filter(Boolean);
+                if (slugs.length > 0) {
+                  alert(`Первые 10 доступных slug категорий:\n${slugs.join('\n')}`);
+                } else {
+                  alert('Категории не найдены. Сначала создайте категории.');
+                }
+              }
+            } catch (error) {
+              console.error('Error fetching categories:', error);
+              alert('Не удалось загрузить категории');
             }
-          }
-        } catch (error) {
-          console.error('Error fetching categories:', error);
-          alert('Could not fetch categories');
-        }
-      }}
-      className={styles.checkCategoriesBtn}
-      disabled={importLoading}
-    >
-      🔍 Check Available Category Slugs
-    </button>
-  </div>
+          }}
+          className={styles.checkCategoriesBtn}
+          disabled={importLoading}
+        >
+          🔍 Проверить доступные slug категорий
+        </button>
+      </div>
 
   <button 
     className={styles.templateButton} 
@@ -848,12 +848,12 @@ const handleCsvImport = async () => {
     disabled={importLoading}
     type="button"
   >
-    📋 Download CSV Template
+    📋 Скачать шаблон CSV
   </button>
 </div>
               <div className={styles.fileUpload}>
                 <label className={styles.fileInputLabel}>
-                  <span>📁 Choose CSV File</span>
+                  <span>📁 Выбрать CSV файл</span>
                   <input
                     type="file"
                     accept=".csv,text/csv"
@@ -865,14 +865,14 @@ const handleCsvImport = async () => {
                 {csvFile && (
                   <div className={styles.fileInfo}>
                     <div className={styles.fileInfoRow}>
-                      <span className={styles.fileSuccess}>✅ Selected:</span>
+                      <span className={styles.fileSuccess}>✅ Выбрано:</span>
                       <strong>{csvFile.name}</strong>
                     </div>
                     <div className={styles.fileInfoRow}>
-                      <span>Size:</span> {(csvFile.size / 1024).toFixed(1)} KB
+                      <span>Размер:</span> {(csvFile.size / 1024).toFixed(1)} KB
                     </div>
                     <div className={styles.fileInfoRow}>
-                      <span>Type:</span> {csvFile.type || 'text/csv'}
+                      <span>Тип:</span> {csvFile.type || 'text/csv'}
                     </div>
                   </div>
                 )}
@@ -887,7 +887,7 @@ const handleCsvImport = async () => {
                     />
                   </div>
                   <span className={styles.progressText}>
-                    {importProgress < 100 ? `Importing... ${importProgress}%` : 'Processing...'}
+                    {importProgress < 100 ? `Импорт... ${importProgress}%` : 'Обработка...'}
                   </span>
                 </div>
               )}
@@ -904,7 +904,7 @@ const handleCsvImport = async () => {
                 disabled={importLoading}
                 type="button"
               >
-                Cancel
+                Отмена
               </button>
               <button
                 className={`${styles.btn} ${styles.btnPrimary}`}
@@ -912,7 +912,7 @@ const handleCsvImport = async () => {
                 disabled={!csvFile || importLoading}
                 type="button"
               >
-                {importLoading ? '🔄 Importing...' : '🚀 Import Products'}
+                {importLoading ? '🔄 Импорт...' : '🚀 Импортировать товары'}
               </button>
             </div>
           </div>

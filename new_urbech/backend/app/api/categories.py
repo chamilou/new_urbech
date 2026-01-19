@@ -1,10 +1,11 @@
 # app/routes/categories.py
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from pydantic import BaseModel, field_validator
 from typing import Optional, List
 from slugify import slugify
 
 from app.db.session import prisma  # Prisma() singleton
+from app.api.auth import require_admin
 
 router = APIRouter()
 
@@ -196,7 +197,7 @@ async def get_categories(
 
 
 @router.post("/")
-async def create_category(body: CategoryCreate):
+async def create_category(body: CategoryCreate, _admin=Depends(require_admin)):
     """Create a new category, auto-slugify, compute path, validate parent."""
     
     try:
@@ -230,7 +231,7 @@ async def create_category(body: CategoryCreate):
 
 
 @router.put("/{category_id}")
-async def update_category(category_id: str, body: CategoryUpdate):
+async def update_category(category_id: str, body: CategoryUpdate, _admin=Depends(require_admin)):
     """Update name/slug/parent. Recomputes path and descendants' paths."""
     try:
         current = await prisma.category.find_unique(where={"id": category_id})
@@ -300,7 +301,7 @@ async def update_category(category_id: str, body: CategoryUpdate):
 
 
 @router.delete("/{category_id}")
-async def delete_category(category_id: str):
+async def delete_category(category_id: str, _admin=Depends(require_admin)):
     """Delete a category only if it has no children and no products."""
     try:
         category = await prisma.category.find_unique(

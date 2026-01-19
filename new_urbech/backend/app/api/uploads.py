@@ -1,5 +1,5 @@
 # app/api/uploads.py
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import JSONResponse, FileResponse
 from pathlib import Path
 import secrets
@@ -11,6 +11,7 @@ import shutil
 #   MEDIA_ROOT = PROJECT_ROOT / "media"
 #   MEDIA_PRODUCTS_DIR = MEDIA_ROOT / "products"
 from app.core.config import PRODUCT_DIR, MEDIA_ROOT
+from app.api.auth import require_admin
 
 router = APIRouter()
 
@@ -22,7 +23,7 @@ EXT_BY_MIME = {
 }
 
 @router.post("/products")
-async def upload_product_image(file: UploadFile = File(...)):
+async def upload_product_image(file: UploadFile = File(...), _admin=Depends(require_admin)):
     # Validate type
     if file.content_type not in EXT_BY_MIME:
         raise HTTPException(status_code=400, detail="File must be an image (JPEG, PNG, WebP)")
