@@ -27,7 +27,8 @@ backend/.pytest_cache/
 backend/.mypy_cache/
 #--- venvFolder
 myshopVenv/
-
+new_urbech/deploy/Caddyfile
+.env
 # ===== Database =====
 *.db
 *.sqlite3

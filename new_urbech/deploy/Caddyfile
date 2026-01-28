@@ -1,34 +1,18 @@
-{
-    email info@onchip.ch
-    servers {
-        protocol {
-            experimental_http3
-        }
-    }
-}
+urbechov.ru www.urbechov.ru shop.urbechov.ru {
+    log
 
-:80 {
-    encode gzip
-    header {
-        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    handle /ws {
+        reverse_proxy signaling:8080
     }
-    handle_path /api/* {
+
+    handle /api/* {
         reverse_proxy backend:8000
     }
-    handle {
-        reverse_proxy frontend:3000
-    }
-}
 
-:443 {
-    tls internal
-    encode gzip
-    header {
-        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-    }
-    handle_path /api/* {
+    handle /media/* {
         reverse_proxy backend:8000
     }
+
     handle {
         reverse_proxy frontend:3000
     }
