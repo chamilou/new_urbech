@@ -8,7 +8,11 @@ from app.db.session import prisma
 from app.core.config import MEDIA_ROOT, ALLOWED_ORIGINS
 from app.api.endpoints import api_router
 from dotenv import load_dotenv
+
 load_dotenv()
+
+
+
 
 
 @asynccontextmanager

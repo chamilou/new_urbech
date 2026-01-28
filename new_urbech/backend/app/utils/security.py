@@ -4,7 +4,9 @@ from jose import jwt, JWTError
 import bcrypt
 from fastapi import HTTPException, status
 
-SECRET_KEY = os.getenv("SECRET_KEY", "CHANGE_ME_IN_PRODUCTION")
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY or SECRET_KEY == "CHANGE_ME_IN_PRODUCTION":
+    raise RuntimeError("SECRET_KEY must be set to a strong, unpredictable value")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 

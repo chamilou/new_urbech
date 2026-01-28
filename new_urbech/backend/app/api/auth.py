@@ -62,9 +62,8 @@ async def register(payload: RegisterRequest, background_tasks: BackgroundTasks):
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    # ✅ bootstrap admin (first user)
-    any_user = await prisma.user.find_first()
-    role = "ADMIN" if any_user is None else "USER"
+    # Always create standard users; do not auto-assign admin on first registration.
+    role = "USER"
 
     code = gen_code()
     user = await prisma.user.create(data={
@@ -105,9 +104,8 @@ async def verify_email(payload: VerifyRequest):
         raise HTTPException(status_code=400, detail="Invalid code or email")
 
     if user.isVerified:
-        token = create_access_token(user.email)
-        return {"message": "Already verified", "access_token": token, "token_type": "bearer",
-                "user": {"id": user.id, "name": user.name, "email": user.email, "role": user.role, "isVerified": True}}
+        # Do not issue tokens here; force login instead.
+        return {"message": "Already verified. Please log in."}
 
     if not user.verificationCode:
         raise HTTPException(status_code=400, detail="Invalid code or email")

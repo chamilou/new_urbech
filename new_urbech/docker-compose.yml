@@ -1,4 +1,22 @@
 services:
+  # --------------------
+  # WebSocket signaling
+  # --------------------
+  signaling:
+    image: node:20
+    container_name: signaling
+    working_dir: /app
+    volumes:
+      - /home/shamil/Node/AndroidBackendSignaling:/app
+    command: node server.js
+    environment:
+      PORT: 8080
+    networks: [appnet]
+    restart: unless-stopped
+
+  # --------------------
+  # Database
+  # --------------------
   postgres:
     image: postgres:16
     environment:
@@ -15,7 +33,9 @@ services:
       timeout: 5s
       retries: 10
 
-  # Runs prisma migrations (deploy) one time, then exits successfully
+  # --------------------
+  # Prisma migration
+  # --------------------
   migrate:
     build:
       context: ./backend
@@ -28,50 +48,39 @@ services:
     networks: [appnet]
     restart: "no"
 
+  # --------------------
+  # Backend (FastAPI)
+  # --------------------
   backend:
-    volumes:
-      - backend_media:/app/app/media
     build:
       context: ./backend
       dockerfile: Dockerfile
+    volumes:
+      - backend_media:/app/app/media
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-myshop_user}:${POSTGRES_PASSWORD:-myshop_password}@postgres:5432/${POSTGRES_DB:-myshop}
-
-      # Auth / JWT
       SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
-
-      # CORS (set this properly in .env, example: https://yourdomain.com)
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
-
-      # Email (if you use it)
-      SMTP_SERVER: ${SMTP_SERVER:-}
-      SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_USERNAME: ${SMTP_USERNAME:-}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
-      FROM_EMAIL: ${FROM_EMAIL:-}
-
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://urbechov.ru}
     depends_on:
       postgres:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+    command: >
+      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"
     networks: [appnet]
     restart: unless-stopped
 
-    # IMPORTANT: production run (no --reload)
-    command: >
-      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"
-
+  # --------------------
+  # Frontend (Next.js)
+  # --------------------
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     environment:
       NODE_ENV: production
-
-      # Browser should call your own domain through Caddy:
-      # your code should use `${NEXT_PUBLIC_API_BASE}/...`
       NEXT_PUBLIC_API_BASE: /api
     expose:
       - "3000"
@@ -80,6 +89,9 @@ services:
     networks: [appnet]
     restart: unless-stopped
 
+  # --------------------
+  # Caddy (reverse proxy)
+  # --------------------
   caddy:
     image: caddy:2-alpine
     ports:
@@ -92,6 +104,7 @@ services:
     depends_on:
       - frontend
       - backend
+      - signaling
     networks: [appnet]
     restart: unless-stopped
 
