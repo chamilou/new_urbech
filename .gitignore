@@ -29,6 +29,7 @@ backend/.mypy_cache/
 myshopVenv/
 new_urbech/deploy/Caddyfile
 .env
+new_urbech/backend/.env
 # ===== Database =====
 *.db
 *.sqlite3
