@@ -35,12 +35,12 @@
   gap: 0.9rem;
 }
 
-label {
+.label {
   font-weight: 600;
   color: #2d3655;
 }
 
-input {
+.input {
   padding: 0.85rem 1rem;
   border-radius: 10px;
   border: 2px solid rgba(83, 109, 254, 0.25);
@@ -49,14 +49,14 @@ input {
   transition: all 0.18s ease;
 }
 
-input:focus {
+.input:focus {
   outline: none;
   border-color: #536dfe;
   box-shadow: 0 0 0 4px rgba(83, 109, 254, 0.2);
   background: #ffffff;
 }
 
-button {
+.button {
   margin-top: 0.4rem;
   padding: 0.95rem 1.4rem;
   border-radius: 10px;
@@ -69,14 +69,14 @@ button {
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
-button:disabled {
+.button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-button:not(:disabled):hover {
+.button:not(:disabled):hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 20px rgba(83, 109, 254, 0.25);
 }
