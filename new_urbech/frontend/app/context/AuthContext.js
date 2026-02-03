@@ -224,6 +224,61 @@ export function AuthProvider({ children }) {
   }, []);
 
   /**
+   * FORGOT PASSWORD (expects backend JSON { email })
+   * Backend responds 200 with generic message.
+   */
+  const forgotPassword = useCallback(async (email) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const { text, json } = await readJsonSafe(res);
+      if (!res.ok) {
+        return {
+          success: false,
+          error: normalizeError(json || text || `Request failed (${res.status})`),
+          status: res.status,
+        };
+      }
+
+      return { success: true, data: json };
+    } catch (e) {
+      console.error('❌ Forgot password error:', e);
+      return { success: false, error: 'Network error' };
+    }
+  }, []);
+
+  /**
+   * RESET PASSWORD (expects backend JSON { token, password })
+   */
+  const resetPassword = useCallback(async (token, password) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ token, password }),
+      });
+
+      const { text, json } = await readJsonSafe(res);
+      if (!res.ok) {
+        return {
+          success: false,
+          error: normalizeError(json || text || `Reset failed (${res.status})`),
+          status: res.status,
+        };
+      }
+
+      return { success: true, data: json };
+    } catch (e) {
+      console.error('❌ Reset password error:', e);
+      return { success: false, error: 'Network error' };
+    }
+  }, []);
+
+  /**
    * RESEND VERIFICATION CODE (expects JSON { email })
    */
   const resendVerification = useCallback(async (email) => {
@@ -261,10 +316,12 @@ export function AuthProvider({ children }) {
       register,
       verifyEmail,
       resendVerification,
+      forgotPassword,
+      resetPassword,
       checkAuth,
       logout,
     }),
-    [user, loading, isAuthenticated, isVerified, login, register, verifyEmail, resendVerification, checkAuth, logout]
+    [user, loading, isAuthenticated, isVerified, login, register, verifyEmail, resendVerification, forgotPassword, resetPassword, checkAuth, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -87,6 +87,11 @@ export default function LoginClient() {
               Зарегистрируйтесь здесь
             </Link>
           </p>
+          <p style={{ marginTop: '0.4rem' }}>
+            <Link href="/forgot-password" className={styles.link}>
+              Забыли пароль?
+            </Link>
+          </p>
         </div>
       </div>
     </div>

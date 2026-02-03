@@ -68,6 +68,54 @@ def send_verification_email(email: str, name: str, code: str):
         logger.error(f"Failed to send verification email to {email}: {str(e)}")
         # DO NOT raise — registration must not fail because of email
 
+
+def send_password_reset_email(email: str, name: str, reset_link: str, expires_minutes: int = 30):
+    """
+    Send password reset email with link.
+    """
+    try:
+        subject = "Reset Your Password"
+
+        html_content = f"""
+        <html>
+        <body>
+            <h2>Hello {name or 'there'},</h2>
+            <p>We received a request to reset your password.</p>
+            <p>Click the link below to choose a new password (expires in {expires_minutes} minutes):</p>
+            <p><a href="{reset_link}">Reset Password</a></p>
+            <p>If you didn't request this, you can ignore this email.</p>
+            <br>
+            <p>Best regards,<br>Your App Team</p>
+        </body>
+        </html>
+        """
+
+        text_content = f"""
+        Hello {name or 'there'},
+
+        We received a request to reset your password.
+        Use the link below to choose a new password (expires in {expires_minutes} minutes):
+        {reset_link}
+
+        If you didn't request this, you can ignore this email.
+
+        Best regards,
+        Your App Team
+        """
+
+        send_email(
+            to_email=email,
+            subject=subject,
+            html_content=html_content,
+            text_content=text_content,
+        )
+
+        logger.info(f"Password reset email sent to {email}")
+
+    except Exception as e:
+        logger.error(f"Failed to send password reset email to {email}: {str(e)}")
+        # Do not raise; endpoint should remain silent
+
 def send_email(
     to_email: str,
     subject: str,

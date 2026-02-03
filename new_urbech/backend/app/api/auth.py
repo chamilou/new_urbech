@@ -4,10 +4,14 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 import random
 import hmac
+import os
+import secrets
+import hashlib
+from datetime import datetime, timedelta, timezone
 
 from app.db.session import prisma
 from app.utils.security import hash_password, verify_password, create_access_token, decode_token
-from app.utils.email import send_verification_email  # must accept code=...
+from app.utils.email import send_verification_email, send_password_reset_email  # must accept code=...
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -31,6 +35,15 @@ class VerifyRequest(BaseModel):
 
 class ResendRequest(BaseModel):
     email: EmailStr
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    password: str
 
 
 def gen_code() -> str:
@@ -156,6 +169,78 @@ async def resend_verification(payload: ResendRequest, background_tasks: Backgrou
     )
 
     return {"message": "If an account exists, a code has been sent."}
+
+
+@router.post("/forgot-password")
+async def forgot_password(payload: ForgotPasswordRequest, background_tasks: BackgroundTasks):
+    """Send password reset email if account exists. Always returns generic message."""
+    user = await prisma.user.find_unique(where={"email": payload.email})
+
+    # Always respond generically to avoid user enumeration
+    if not user:
+        return {"message": "If an account exists, a reset link has been sent."}
+
+    # Remove existing tokens for this user to avoid clutter/reuse
+    await prisma.passwordresettoken.delete_many(where={"userId": user.id})
+
+    raw_token = secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=30)
+
+    await prisma.passwordresettoken.create(
+        data={
+            "token": token_hash,
+            "expiresAt": expires_at,
+            "userId": user.id,
+        }
+    )
+
+    reset_base = os.getenv("FRONTEND_RESET_URL", "http://localhost:3000/reset-password")
+    separator = "&" if "?" in reset_base else "?"
+    reset_link = f"{reset_base}{separator}token={raw_token}"
+
+    background_tasks.add_task(
+        send_password_reset_email,
+        email=user.email,
+        name=user.name,
+        reset_link=reset_link,
+        expires_minutes=30,
+    )
+
+    return {"message": "If an account exists, a reset link has been sent."}
+
+
+@router.post("/reset-password")
+async def reset_password(payload: ResetPasswordRequest):
+    token_hash = hashlib.sha256(payload.token.encode()).hexdigest()
+    record = await prisma.passwordresettoken.find_unique(where={"token": token_hash})
+
+    if not record:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
+
+    if record.expiresAt < datetime.now(timezone.utc):
+        await prisma.passwordresettoken.delete(where={"id": record.id})
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
+
+    user = await prisma.user.find_unique(where={"id": record.userId})
+    if not user:
+        await prisma.passwordresettoken.delete(where={"id": record.id})
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token")
+
+    new_hash = hash_password(payload.password)
+
+    await prisma.user.update(
+        where={"id": user.id},
+        data={
+            "hashedPassword": new_hash,
+            "passwordChangedAt": datetime.now(timezone.utc),
+        },
+    )
+
+    # Invalidate all tokens for this user after a successful reset
+    await prisma.passwordresettoken.delete_many(where={"userId": user.id})
+
+    return {"message": "Password updated successfully"}
 
 
 @router.post("/login")

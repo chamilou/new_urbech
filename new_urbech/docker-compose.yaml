@@ -11,8 +11,15 @@ services:
     command: node server.js
     environment:
       PORT: 8080
+      NODE_ENV: production
     networks: [appnet]
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http = require('http'); const req = http.get('http://localhost:8080/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1));"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   # --------------------
   # Database
@@ -62,6 +69,7 @@ services:
       SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://urbechov.ru}
+      WEBSOCKET_URL: wss://urbechov.ru/ws
     depends_on:
       postgres:
         condition: service_healthy
@@ -71,6 +79,11 @@ services:
       sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"
     networks: [appnet]
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # --------------------
   # Frontend (Next.js)
@@ -82,12 +95,18 @@ services:
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_BASE: /api
+      NEXT_PUBLIC_WS_URL: wss://urbechov.ru/ws
     expose:
       - "3000"
     depends_on:
       - backend
     networks: [appnet]
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # --------------------
   # Caddy (reverse proxy)
@@ -102,9 +121,12 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - frontend
-      - backend
-      - signaling
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+      signaling:
+        condition: service_healthy
     networks: [appnet]
     restart: unless-stopped
 
