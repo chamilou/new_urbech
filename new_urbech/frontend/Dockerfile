@@ -13,7 +13,13 @@ FROM node:20-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
+# 👇 add curl ONLY here
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl \
+ && rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /app ./
 
 EXPOSE 3000
 CMD ["npm", "run", "start"]
+
