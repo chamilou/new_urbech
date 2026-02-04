@@ -1,10 +1,18 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import styles from './Toast.module.css';
 
 export default function Toast({ message, type = 'success', onClose, duration = 3000 }) {
   const [isVisible, setIsVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+
+  const handleClose = useCallback(() => {
+    setIsExiting(true);
+    setTimeout(() => {
+      setIsVisible(false);
+      onClose();
+    }, 300); // Match CSS transition duration
+  }, [onClose]);
 
   useEffect(() => {
     // Animate in
@@ -16,15 +24,7 @@ export default function Toast({ message, type = 'success', onClose, duration = 3
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [duration]);
-
-  const handleClose = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      setIsVisible(false);
-      onClose();
-    }, 300); // Match CSS transition duration
-  };
+  }, [duration, handleClose]);
 
   const getIcon = () => {
     switch (type) {

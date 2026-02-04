@@ -702,7 +702,7 @@ const handleCsvImport = async () => {
                 {searchTerm ? (
                   <>
                     <h3>Товары не найдены</h3>
-                    <p>Нет товаров по запросу "{searchTerm}"</p>
+                    <p>Нет товаров по запросу &quot;{searchTerm}&quot;</p>
                     <button 
                       className={styles.clearSearchBtn}
                       onClick={() => setSearchTerm('')}
@@ -799,7 +799,7 @@ const handleCsvImport = async () => {
   <h3>Требования к формату CSV:</h3>
   <ul>
     <li><strong>Обязательная колонка:</strong> name</li>
-    <li><strong>categorySlugs:</strong> <span className={styles.important}>используйте существующие slug категорий, через запятую (например "orehi,urbech")</span></li>
+    <li><strong>categorySlugs:</strong> <span className={styles.important}>используйте существующие slug категорий, через запятую (например &quot;orehi,urbech&quot;)</span></li>
     <li><strong>Важно:</strong> категории должны существовать до импорта. Создайте их в разделе управления категориями.</li>
     <li><strong>images:</strong> URL дополнительных изображений через запятую</li>
     <li><strong>featured:</strong> true/false</li>
@@ -810,7 +810,7 @@ const handleCsvImport = async () => {
 
   {/* Category validation warning */}
   <div className={styles.categoryWarning}>
-    ⚠️ <strong>Важно:</strong> колонка "categorySlugs" должна содержать slugs (не ID) существующих категорий.
+    ⚠️ <strong>Важно:</strong> колонка &quot;categorySlugs&quot; должна содержать slugs (не ID) существующих категорий.
     Оставьте пустым, если категория не нужна.
   </div>
 

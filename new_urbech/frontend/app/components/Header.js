@@ -30,7 +30,7 @@ export default function Header() {
   useEffect(() => {
     setIsClient(true);
     setCartCount(getTotalItems());
-  }, []);
+  }, [getTotalItems]);
 
   // Update cart count when it changes
   useEffect(() => {

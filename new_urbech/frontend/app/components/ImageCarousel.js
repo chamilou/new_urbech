@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import styles from './ImageCarousel.module.css';
 
@@ -36,31 +36,29 @@ export default function ImageCarousel({ slides = defaultSlides, autoPlay = true,
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setIsTransitioning(true);
     setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
+  }, [slides.length]);
 
-  const prevSlide = () => {
+  const prevSlide = useCallback(() => {
     setIsTransitioning(true);
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
+  }, [slides.length]);
 
-  const goToSlide = (index) => {
+  const goToSlide = useCallback((index) => {
     setIsTransitioning(true);
     setCurrentSlide(index);
-  };
+  }, []);
 
   // Auto-play functionality
   useEffect(() => {
     if (!autoPlay) return;
 
-    const timer = setInterval(() => {
-      nextSlide();
-    }, interval);
+    const timer = setInterval(nextSlide, interval);
 
     return () => clearInterval(timer);
-  }, [autoPlay, interval]);
+  }, [autoPlay, interval, nextSlide]);
 
   // Reset transitioning state after animation
   useEffect(() => {
