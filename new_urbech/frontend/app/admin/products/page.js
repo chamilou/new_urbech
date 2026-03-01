@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import styles from './page.module.css';
 import ProductForm from '../components/ProductForm';
+import { withAuth } from '../../lib/authFetch';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api';
 
@@ -106,9 +107,12 @@ export default function AdminProducts() {
     
     setDeletingProduct(productId);
     try {
-      const res = await fetch(`${API_BASE}/products/${productId}`, { 
-        method: 'DELETE' 
-      });
+      const res = await fetch(
+        `${API_BASE}/products/${productId}`,
+        withAuth({
+          method: 'DELETE'
+        })
+      );
       
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.detail || 'Не удалось удалить товар');
@@ -141,13 +145,16 @@ export default function AdminProducts() {
             stock: stockValue
           };
           
-          const res = await fetch(`${API_BASE}/products/${productId}`, {
-            method: 'PUT',
-            headers: { 
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updateData)
-          });
+          const res = await fetch(
+            `${API_BASE}/products/${productId}`,
+            withAuth({
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(updateData)
+            })
+          );
           
           const data = await res.json().catch(() => ({}));
           
@@ -236,10 +243,13 @@ const handleCsvImport = async () => {
 
     setImportProgress(20);
 
-    const res = await fetch(`${API_BASE}/products/import`, {
-      method: 'POST',
-      body: formData,
-    });
+    const res = await fetch(
+      `${API_BASE}/products/import`,
+      withAuth({
+        method: 'POST',
+        body: formData,
+      })
+    );
 
     setImportProgress(90);
 

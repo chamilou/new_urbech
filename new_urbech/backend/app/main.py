@@ -60,7 +60,6 @@ async def health_check():
     return {
         "status": "healthy", 
         "message": "API is running",
-        "cors_origins": ALLOWED_ORIGINS
     }
 
 # Add a CORS test endpoint
@@ -69,5 +68,4 @@ async def cors_test():
     return {
         "success": True,
         "message": "CORS is working!",
-        "allowed_origins": ALLOWED_ORIGINS
     }

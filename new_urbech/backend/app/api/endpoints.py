@@ -10,6 +10,8 @@ from app.api.categories import router as categories_router
 from app.api.stats import router as stats_router
 from app.api.uploads import router as uploads_router
 from app.api.settings import router as settings_router
+from app.api.customers import router as customers_router
+from app.api.blog import router as blog_router
 
 api_router = APIRouter()
 
@@ -22,3 +24,5 @@ api_router.include_router(categories_router, prefix="/categories", tags=["catego
 api_router.include_router(stats_router, prefix="/stats", tags=["stats"])
 api_router.include_router(uploads_router, prefix="/uploads", tags=["uploads"])
 api_router.include_router(settings_router, prefix="/settings", tags=["settings"])
+api_router.include_router(customers_router, prefix="/customers", tags=["customers"])
+api_router.include_router(blog_router, prefix="/blog", tags=["blog"])

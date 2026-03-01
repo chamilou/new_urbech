@@ -19,21 +19,29 @@ def hash_password(password: str) -> str:
 
 def verify_password(password: str, hashed: str) -> bool:
     try:
-        return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
+        pw = password.encode("utf-8")
+        if len(pw) > 72:
+            pw = pw[:72]  # bcrypt limit
+        return bcrypt.checkpw(pw, hashed.encode("utf-8"))
     except Exception:
         return False
 
 def create_access_token(email: str) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    payload = {"sub": email, "exp": expire}
+    issued_at = datetime.now(timezone.utc)
+    expire = issued_at + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    payload = {
+        "sub": email,
+        "iat": int(issued_at.timestamp()),
+        "exp": int(expire.timestamp()),
+    }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
-def decode_token(token: str) -> str:
+def decode_token(token: str) -> dict:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email = payload.get("sub")
         if not email:
             raise HTTPException(status_code=401, detail="Invalid token")
-        return email
+        return payload
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")

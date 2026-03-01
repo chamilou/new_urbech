@@ -10,11 +10,13 @@ BASE_DIR = Path(__file__).parent.parent
 MEDIA_ROOT = BASE_DIR / "media"
 PRODUCT_DIR = MEDIA_ROOT / "products"
 USER_DIR = MEDIA_ROOT / "users"
+BLOG_DIR = MEDIA_ROOT / "blog"
 
 # Create directories if they don't exist
 MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 PRODUCT_DIR.mkdir(parents=True, exist_ok=True)
 USER_DIR.mkdir(parents=True, exist_ok=True)
+BLOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # CORS settings - FIXED (remove the incorrect 'and')
 ALLOWED_ORIGINS = os.getenv(

@@ -1,7 +1,11 @@
 # app/schemas/order.py
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import List, Optional
 from datetime import datetime
+
+ORDER_STATUSES = {"DRAFT", "PENDING", "PAYMENT_FAILED", "PAID", "FULFILLING", "SHIPPED", "DELIVERED", "CANCELED", "REFUNDED"}
+PAYMENT_STATUSES = {"PENDING", "PAID", "FAILED", "REFUNDED", "PARTIALLY_REFUNDED"}
+FULFILLMENT_STATUSES = {"UNFULFILLED", "PARTIAL", "FULFILLED"}
 
 # -------- Checkout DTOs --------
 
@@ -142,3 +146,83 @@ class OrderOut(BaseModel):
     updatedAt: datetime
 
     items: List[OrderItemOut] = []
+
+
+class AdminOrderItemInput(BaseModel):
+    name: str = Field(min_length=1)
+    sku: Optional[str] = None
+    unitPrice: float = Field(ge=0)
+    quantity: int = Field(ge=1)
+    taxRate: float = Field(default=0, ge=0)
+    discount: float = Field(default=0, ge=0)
+
+
+class AdminOrderUpsert(BaseModel):
+    orderNumber: Optional[str] = None
+    customerId: Optional[str] = None
+    customerEmail: Optional[str] = None
+    customerName: Optional[str] = None
+    currencyCode: str = Field(min_length=3, max_length=3)
+    status: str
+    paymentStatus: str
+    fulfillment: str
+    paymentMode: Optional[str] = None
+    sendingAgent: Optional[str] = None
+    city: Optional[str] = None
+    location: Optional[str] = None
+    shippingTotal: float = Field(default=0, ge=0)
+    items: List[AdminOrderItemInput] = Field(default_factory=list)
+
+    @field_validator("currencyCode")
+    @classmethod
+    def normalize_currency(cls, value: str) -> str:
+        return value.strip().upper()
+
+    @field_validator("status")
+    @classmethod
+    def validate_status(cls, value: str) -> str:
+        normalized = value.strip().upper()
+        if normalized not in ORDER_STATUSES:
+            raise ValueError("Invalid order status")
+        return normalized
+
+    @field_validator("paymentStatus")
+    @classmethod
+    def validate_payment_status(cls, value: str) -> str:
+        normalized = value.strip().upper()
+        if normalized not in PAYMENT_STATUSES:
+            raise ValueError("Invalid payment status")
+        return normalized
+
+    @field_validator("fulfillment")
+    @classmethod
+    def validate_fulfillment(cls, value: str) -> str:
+        normalized = value.strip().upper()
+        if normalized not in FULFILLMENT_STATUSES:
+            raise ValueError("Invalid fulfillment status")
+        return normalized
+
+
+class AdminOrderResponse(BaseModel):
+    id: str
+    orderNumber: str
+    customerId: Optional[str] = None
+    customerName: Optional[str] = None
+    customerEmail: Optional[str] = None
+    currencyCode: str
+    subtotal: float
+    discountTotal: float
+    shippingTotal: float
+    taxTotal: float
+    total: float
+    status: str
+    paymentStatus: str
+    fulfillment: str
+    paymentMode: Optional[str] = None
+    sendingAgent: Optional[str] = None
+    city: Optional[str] = None
+    location: Optional[str] = None
+    createdAt: datetime
+    updatedAt: datetime
+    itemCount: int
+    items: List[OrderItemOut] = Field(default_factory=list)

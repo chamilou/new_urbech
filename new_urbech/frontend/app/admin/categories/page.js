@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './page.module.css';
 import CategoryForm from '../components/CategoryForm';
+import { withAuth } from '../../lib/authFetch';
 
 export default function AdminCategoriesTable() {
   const [categories, setCategories] = useState([]);
@@ -64,9 +65,12 @@ export default function AdminCategoriesTable() {
     }
 
     try {
-      const res = await fetch(`/api/categories/${category.id}`, {
-        method: 'DELETE',
-      });
+      const res = await fetch(
+        `/api/categories/${category.id}`,
+        withAuth({
+          method: 'DELETE',
+        })
+      );
 
       if (!res.ok) {
         const data = await res.json();

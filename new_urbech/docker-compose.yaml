@@ -29,7 +29,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-myshop}
       POSTGRES_USER: ${POSTGRES_USER:-myshop_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-myshop_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks: [appnet]
@@ -48,7 +48,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile.migrate
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-myshop_user}:${POSTGRES_PASSWORD:-myshop_password}@postgres:5432/${POSTGRES_DB:-myshop}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-myshop_user}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-myshop}
     depends_on:
       postgres:
         condition: service_healthy
@@ -65,7 +65,7 @@ services:
     volumes:
       - backend_media:/app/app/media
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-myshop_user}:${POSTGRES_PASSWORD:-myshop_password}@postgres:5432/${POSTGRES_DB:-myshop}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-myshop_user}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-myshop}
       SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://urbechov.ru}

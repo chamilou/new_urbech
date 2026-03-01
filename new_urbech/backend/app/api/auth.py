@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
-import random
 import hmac
 import os
 import secrets
@@ -14,7 +13,19 @@ from app.utils.security import hash_password, verify_password, create_access_tok
 from app.utils.email import send_verification_email, send_password_reset_email  # must accept code=...
 
 router = APIRouter()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+
+
+def validate_password_strength(password: str) -> str:
+    if len(password) < 8:
+        raise ValueError("Password must be at least 8 characters long")
+    if len(password) > 128:
+        raise ValueError("Password must be at most 128 characters long")
+    if not any(ch.isalpha() for ch in password):
+        raise ValueError("Password must include at least one letter")
+    if not any(ch.isdigit() for ch in password):
+        raise ValueError("Password must include at least one number")
+    return password
 
 
 # --------------------
@@ -24,6 +35,8 @@ class RegisterRequest(BaseModel):
     name: str
     email: EmailStr
     password: str
+
+    _validate_password = field_validator("password")(validate_password_strength)
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -45,19 +58,31 @@ class ResetPasswordRequest(BaseModel):
     token: str
     password: str
 
+    _validate_password = field_validator("password")(validate_password_strength)
+
 
 def gen_code() -> str:
-    return f"{random.randint(100000, 999999)}"
+    return f"{secrets.randbelow(900000) + 100000}"
 
 
 # --------------------
 # Auth helpers
 # --------------------
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    email = decode_token(token)
+    payload = decode_token(token)
+    email = payload["sub"]
     user = await prisma.user.find_unique(where={"email": email})
     if not user:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+    token_issued_at = payload.get("iat")
+    password_changed_at = getattr(user, "passwordChangedAt", None)
+    if token_issued_at is not None and password_changed_at is not None:
+        if password_changed_at.tzinfo is None:
+            password_changed_at = password_changed_at.replace(tzinfo=timezone.utc)
+        if int(token_issued_at) <= int(password_changed_at.timestamp()):
+            raise HTTPException(status_code=401, detail="Token no longer valid")
+
     return user
 
 def require_admin(current_user=Depends(get_current_user)):
@@ -156,7 +181,7 @@ async def resend_verification(payload: ResendRequest, background_tasks: Backgrou
         return {"message": "If an account exists, a code has been sent."}
 
     if user.isVerified:
-        return {"message": "Already verified"}
+        return {"message": "If an account exists, a code has been sent."}
 
     code = gen_code()
     await prisma.user.update(where={"id": user.id}, data={"verificationCode": code})

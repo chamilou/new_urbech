@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
+import { withAuth } from "../../../lib/authFetch";
 
 const DEFAULT_EXCLUDES = {
   admin: true,
@@ -32,11 +33,14 @@ export default function SeoSettings() {
   setStatus(null);
 
   try {
-    const res = await fetch("/api/settings/seo", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ excludes }),
-    });
+    const res = await fetch(
+      "/api/settings/seo",
+      withAuth({
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ excludes }),
+      })
+    );
 
     const text = await res.text(); // read error body too
     console.log("SEO save:", res.status, text);

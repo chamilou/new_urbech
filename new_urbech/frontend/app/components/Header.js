@@ -207,6 +207,7 @@ export default function Header() {
           <nav className={styles.topNav}>
             <Link href="/about" className={styles.topNavLink}>О нас</Link>
             <Link href="/contacts" className={styles.topNavLink}>Контакты</Link>
+            <Link href="/blog" className={styles.topNavLink}>Блог</Link>
             
             {/* SIMPLIFIED FIX: Only render auth links after client mount */}
             {isClient ? (
@@ -282,6 +283,13 @@ export default function Header() {
             {/* Desktop Navigation - Hidden on mobile */}
             <nav className={styles.desktopNav}>
               <Link href="/products" className={styles.navLink}>Все товары</Link>
+              <Link
+                href="/blog"
+                className={`${styles.navLink} ${pathname.startsWith('/blog') ? styles.active : ''}`}
+              >
+                <span className={styles.navIcon}>📝</span>
+                Блог
+              </Link>
               {!isClient || categoriesLoading ? (
                 <div className={styles.navLoading}>
                   <span>Загрузка категорий...</span>
@@ -455,6 +463,9 @@ export default function Header() {
                 </Link>
                 <Link href="/contacts" className={styles.mobileLink} onClick={closeMobileMenu}>
                   Контакты
+                </Link>
+                <Link href="/blog" className={styles.mobileLink} onClick={closeMobileMenu}>
+                  Блог
                 </Link>
                 
                 {/* SIMPLIFIED: Only render auth links after client mount */}

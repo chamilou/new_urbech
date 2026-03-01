@@ -13,6 +13,7 @@ export default function AdminLayout({ children }) {
   <li><Link href="/admin/categories">Categories</Link></li>
   <li><Link href="/admin/orders">Orders</Link></li>
   <li><Link href="/admin/customers">Customers</Link></li>
+  <li><Link href="/admin/blog">Blog</Link></li>
   <li><Link href="/admin/settings/seo">SiteMap</Link></li>
 </ul>
         </nav>

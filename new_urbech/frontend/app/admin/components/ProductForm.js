@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import CategoryForm from './CategoryForm';
 import styles from './ProductForm.module.css';
+import { withAuth } from '../../lib/authFetch';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api';
 
@@ -253,10 +254,13 @@ export default function ProductForm({ product, onClose, onSave }) {
     const uploadFormData = new FormData();
     uploadFormData.append('file', file);
 
-    const response = await fetch('/api/uploads/products', {
-      method: 'POST',
-      body: uploadFormData,
-    });
+    const response = await fetch(
+      '/api/uploads/products',
+      withAuth({
+        method: 'POST',
+        body: uploadFormData,
+      })
+    );
 
     // Read as text first so we can handle both JSON and non-JSON error bodies
     const responseText = await response.text();
@@ -431,11 +435,14 @@ export default function ProductForm({ product, onClose, onSave }) {
         mainImageUrl: formData.mainImageUrl?.trim() || null
       };
 
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submitData)
-      });
+      const response = await fetch(
+        url,
+        withAuth({
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(submitData)
+        })
+      );
 
       if (!response.ok) {
         let errorMessage = `Ошибка ${response.status}: Не удалось сохранить товар`;

@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
 import styles from './CategoryForm.module.css';
+import { withAuth } from '../../lib/authFetch';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api';
 
@@ -225,11 +226,14 @@ export default function CategoryForm({ category, onClose, onSave }) {
         defaultSortOrder: formData.defaultSortOrder || 0
       };
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        url,
+        withAuth({
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+      );
 
       const responseText = await res.text();
 
