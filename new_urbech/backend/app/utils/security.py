@@ -3,6 +3,9 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 import bcrypt
 from fastapi import HTTPException, status
+from app.core.env import load_project_env
+
+load_project_env()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY or SECRET_KEY == "CHANGE_ME_IN_PRODUCTION":

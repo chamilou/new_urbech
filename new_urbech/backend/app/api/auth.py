@@ -16,6 +16,10 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
+def is_email_verification_disabled() -> bool:
+    return os.getenv("DISABLE_EMAIL_VERIFICATION", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 def validate_password_strength(password: str) -> str:
     if len(password) < 8:
         raise ValueError("Password must be at least 8 characters long")
@@ -100,18 +104,36 @@ async def register(payload: RegisterRequest, background_tasks: BackgroundTasks):
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    # Always create standard users; do not auto-assign admin on first registration.
-    role = "USER"
-
-    code = gen_code()
+    user_count = await prisma.user.count()
+    is_first_user = user_count == 0
+    verification_disabled = is_email_verification_disabled()
+    auto_verify = is_first_user or verification_disabled
+    role = "ADMIN" if is_first_user else "USER"
+    code = None if auto_verify else gen_code()
     user = await prisma.user.create(data={
         "name": payload.name,
         "email": payload.email,
         "hashedPassword": hash_password(payload.password),
         "role": role,
-        "isVerified": False,
+        "isVerified": auto_verify,
         "verificationCode": code,
     })
+
+    if auto_verify:
+        token = create_access_token(user.email)
+        return {
+            "message": "User created and signed in without email verification.",
+            "requiresVerification": False,
+            "access_token": token,
+            "token_type": "bearer",
+            "user": {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "role": user.role,
+                "isVerified": user.isVerified
+            }
+        }
 
     # send code (do not crash registration if email fails)
     background_tasks.add_task(
@@ -174,6 +196,9 @@ async def verify_email(payload: VerifyRequest):
 
 @router.post("/resend-verification")
 async def resend_verification(payload: ResendRequest, background_tasks: BackgroundTasks):
+    if is_email_verification_disabled():
+        return {"message": "Email verification is disabled in this environment."}
+
     user = await prisma.user.find_unique(where={"email": payload.email})
 
     # security: do not reveal if user exists
@@ -273,6 +298,13 @@ async def login(payload: LoginRequest):
     user = await prisma.user.find_unique(where={"email": payload.email})
     if not user or not verify_password(payload.password, user.hashedPassword):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
+
+    verification_disabled = is_email_verification_disabled()
+    if verification_disabled and not user.isVerified:
+        user = await prisma.user.update(
+            where={"id": user.id},
+            data={"isVerified": True, "verificationCode": None},
+        )
 
     if not user.isVerified:
         raise HTTPException(

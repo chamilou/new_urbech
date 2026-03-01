@@ -1,9 +1,7 @@
 from prisma import Prisma
-import os
-from dotenv import load_dotenv
-from prisma.engine import QueryEngine
+from app.core.env import load_project_env
 
-load_dotenv()
+load_project_env()
 
 prisma = Prisma()
 async def connect_db():

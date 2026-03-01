@@ -4,6 +4,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import logging
 import os
+from app.core.env import load_project_env
+
+load_project_env()
 
 logger = logging.getLogger(__name__)
 

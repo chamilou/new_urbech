@@ -2,6 +2,9 @@
 # app/core/config.py
 import os
 from pathlib import Path
+from app.core.env import load_project_env
+
+load_project_env()
 
 # Base directory of the project
 BASE_DIR = Path(__file__).parent.parent
