@@ -11,6 +11,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 PRODUCT_DIR = MEDIA_ROOT / "products"
 USER_DIR = MEDIA_ROOT / "users"
 BLOG_DIR = MEDIA_ROOT / "blog"
+BLOG_DATA_FILE = BLOG_DIR / "articles.json"
 
 # Create directories if they don't exist
 MEDIA_ROOT.mkdir(parents=True, exist_ok=True)

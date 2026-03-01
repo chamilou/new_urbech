@@ -1,11 +1,11 @@
 import json
 from datetime import datetime, timezone
-from pathlib import Path
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.api.auth import require_admin
+from app.core.config import BLOG_DATA_FILE
 from app.schemas.blog import (
     BlogArticleCreate,
     BlogArticleListItem,
@@ -16,17 +16,31 @@ from app.utils.slug import make_slug
 
 router = APIRouter()
 
-BLOG_PATH = Path(__file__).resolve().parents[1] / "core" / "blog_articles.json"
+DEFAULT_ARTICLES = [
+    {
+        "id": "seed-almond-mill",
+        "slug": "almond-paste-mill",
+        "title": "Почему хорошая мельница меняет вкус миндальной пасты",
+        "excerpt": "Для пасты из миндаля важны не только орехи, но и сам способ помола. Скорость, температура и работа жерновов напрямую меняют аромат, сладость и гладкость готовой пасты.",
+        "body": "Для миндальной пасты важны три вещи: сырье, температура и сама мельница. Если ядро перегревается слишком рано, масло выходит резко, аромат теряет глубину, а вкус становится плоским.\n\nМедленный помол дает другой результат. Миндаль раскрывает естественную сладость постепенно, а структура пасты получается более плотной и шелковистой. Именно поэтому для урбеча и ореховых паст так ценят спокойную работу жерновов.\n\nСначала орех подсушивают, чтобы убрать лишнюю влагу. Затем его дробят в несколько этапов, не пытаясь сразу превратить ядро в крем. На каждой стадии мельница должна держать мягкий ритм: не рвать массу, а раскрывать масло постепенно.\n\nТак рождается паста, которую приятно намазывать на хлеб, добавлять в кашу или есть ложкой. В ней не нужен сахар, чтобы спрятать вкус, и не нужны ароматизаторы, чтобы сделать ее ярче. Достаточно хорошего миндаля и правильно настроенного помола.",
+        "coverImageUrl": "",
+        "galleryImageUrls": [],
+        "published": True,
+        "createdAt": "2026-03-01T12:00:00Z",
+        "updatedAt": "2026-03-01T12:00:00Z",
+    }
+]
 
 
 def read_articles() -> list[dict]:
-    if not BLOG_PATH.exists():
-        return []
-    return json.loads(BLOG_PATH.read_text(encoding="utf-8"))
+    if not BLOG_DATA_FILE.exists():
+        write_articles(DEFAULT_ARTICLES)
+        return list(DEFAULT_ARTICLES)
+    return json.loads(BLOG_DATA_FILE.read_text(encoding="utf-8"))
 
 
 def write_articles(articles: list[dict]) -> None:
-    BLOG_PATH.write_text(json.dumps(articles, indent=2, ensure_ascii=False), encoding="utf-8")
+    BLOG_DATA_FILE.write_text(json.dumps(articles, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 def compute_reading_time(text: str) -> str:

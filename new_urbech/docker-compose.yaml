@@ -12,8 +12,18 @@ services:
     environment:
       PORT: 8080
       NODE_ENV: production
-    networks: [appnet]
+    expose:
+      - "8080"
+    networks:
+      - app_net
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "node", "-e", "const http = require('http'); const req = http.get('http://localhost:8080/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1));"]
       interval: 30s
@@ -32,8 +42,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks: [appnet]
+    networks:
+      - db_net
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-myshop_user} -d ${POSTGRES_DB:-myshop}"]
       interval: 10s
@@ -52,8 +65,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    networks: [appnet]
+    networks:
+      - db_net
     restart: "no"
+    security_opt:
+      - no-new-privileges:true
 
   # --------------------
   # Backend (FastAPI)
@@ -70,15 +86,26 @@ services:
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://urbechov.ru}
       WEBSOCKET_URL: wss://urbechov.ru/ws
+    expose:
+      - "8000"
     depends_on:
       postgres:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
     command: >
-      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"
-    networks: [appnet]
+      sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${UVICORN_WORKERS:-2}"
+    networks:
+      - app_net
+      - db_net
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
       interval: 30s
@@ -100,8 +127,16 @@ services:
       - "3000"
     depends_on:
       - backend
-    networks: [appnet]
+    networks:
+      - app_net
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
       interval: 30s
@@ -127,14 +162,26 @@ services:
         condition: service_healthy
       signaling:
         condition: service_healthy
-    networks: [appnet]
+    networks:
+      - public_net
+      - app_net
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    security_opt:
+      - no-new-privileges:true
 
 networks:
-  appnet:
+  public_net:
+  app_net:
+    internal: true
+  db_net:
+    internal: true
 
 volumes:
   postgres_data:
+  backend_media:
   caddy_data:
   caddy_config:
-  backend_media:
