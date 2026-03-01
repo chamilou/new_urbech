@@ -284,7 +284,7 @@ async def get_order(order_id: str):
     return order
 
 
-@router.get("/", response_model=list[AdminOrderResponse])
+@router.get("", response_model=list[AdminOrderResponse])
 async def list_orders(
     search: str | None = Query(None),
     _admin=Depends(require_admin),
@@ -310,7 +310,7 @@ async def list_orders(
     return [order_to_response(order) for order in orders]
 
 
-@router.post("/", response_model=AdminOrderResponse)
+@router.post("", response_model=AdminOrderResponse)
 async def create_order(payload: AdminOrderUpsert, _admin=Depends(require_admin)):
     customer = None
     if payload.customerId:

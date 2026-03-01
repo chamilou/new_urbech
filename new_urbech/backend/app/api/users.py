@@ -8,7 +8,7 @@ from app.api.auth import get_current_user, require_admin
 
 router = APIRouter()
 
-@router.post("/", response_model=UserResponse)  # Using the schema as response model
+@router.post("", response_model=UserResponse)  # Using the schema as response model
 async def create_user(user: UserCreate, _admin=Depends(require_admin)):  # Using the schema as request body
     # Check if user exists
     existing_user = await prisma.user.find_unique(where={"email": user.email})

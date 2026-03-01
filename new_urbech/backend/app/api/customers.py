@@ -22,7 +22,7 @@ def serialize_customer(customer) -> CustomerResponse:
     )
 
 
-@router.get("/", response_model=list[CustomerResponse])
+@router.get("", response_model=list[CustomerResponse])
 async def list_customers(
     search: str | None = Query(None),
     _admin=Depends(require_admin),
@@ -59,7 +59,7 @@ async def get_customer(customer_id: str, _admin=Depends(require_admin)):
     return serialize_customer(customer)
 
 
-@router.post("/", response_model=CustomerResponse)
+@router.post("", response_model=CustomerResponse)
 async def create_customer(payload: CustomerCreate, _admin=Depends(require_admin)):
     existing = await prisma.customer.find_unique(where={"email": payload.email})
     if existing:

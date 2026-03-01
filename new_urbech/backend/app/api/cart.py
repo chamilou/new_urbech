@@ -10,7 +10,7 @@ router = APIRouter()
 # First, let's create the cart schema (app/schemas/cart.py)
 # We need to add this since we're referencing it
 
-@router.get("/", response_model=List[CartItem])
+@router.get("", response_model=List[CartItem])
 async def get_cart_items(current_user=Depends(get_current_user)):
     user_id = current_user.id
 
@@ -20,7 +20,7 @@ async def get_cart_items(current_user=Depends(get_current_user)):
     )
     return cart_items
 
-@router.post("/", response_model=CartItem)
+@router.post("", response_model=CartItem)
 async def add_to_cart(cart_item: CartItemCreate, current_user=Depends(get_current_user)):
     user_id = current_user.id
 
@@ -121,7 +121,7 @@ async def remove_from_cart(item_id: str, current_user=Depends(get_current_user))
     
     return {"message": "Item removed from cart successfully"}
 
-@router.delete("/")
+@router.delete("")
 async def clear_cart(current_user=Depends(get_current_user)):
     user_id = current_user.id
 

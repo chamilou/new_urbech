@@ -89,7 +89,7 @@ def serialize_article(article: dict) -> BlogArticleResponse:
     return BlogArticleResponse(**normalized)
 
 
-@router.get("/", response_model=list[BlogArticleListItem])
+@router.get("", response_model=list[BlogArticleListItem])
 async def list_blog_articles():
     articles = [article for article in read_articles() if article.get("published")]
     articles.sort(key=lambda item: item.get("updatedAt", ""), reverse=True)
@@ -111,7 +111,7 @@ async def get_blog_article(slug: str):
     raise HTTPException(status_code=404, detail="Article not found")
 
 
-@router.post("/", response_model=BlogArticleResponse)
+@router.post("", response_model=BlogArticleResponse)
 async def create_blog_article(payload: BlogArticleCreate, _admin=Depends(require_admin)):
     articles = read_articles()
     now = datetime.now(timezone.utc).isoformat()

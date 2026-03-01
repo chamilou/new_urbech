@@ -80,7 +80,7 @@ async def update_subtree_paths(root_id: str):
 
 # --------- Endpoints ---------
 
-@router.get("/")
+@router.get("")
 async def get_categories(
     skip: int = 0,
     limit: int = 100,
@@ -196,7 +196,7 @@ async def get_categories(
         raise HTTPException(status_code=500, detail=f"Error fetching categories: {str(e)}")
 
 
-@router.post("/")
+@router.post("")
 async def create_category(body: CategoryCreate, _admin=Depends(require_admin)):
     """Create a new category, auto-slugify, compute path, validate parent."""
     

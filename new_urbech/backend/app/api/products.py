@@ -112,7 +112,7 @@ async def get_category_ids_including_children_by_slug(category_slug: str) -> Lis
     return [r["id"] for r in rows]
 
 
-@router.get("/", response_model=PaginatedProductResponse)
+@router.get("", response_model=PaginatedProductResponse)
 async def get_products(
     skip: int = 0,
     limit: int = 100,
@@ -322,7 +322,7 @@ async def get_bestsellers(limit: int = Query(8, ge=1, le=20)):
     )
     return [ProductResponse.from_prisma(product) for product in products]
 
-@router.post("/", response_model=ProductResponse)
+@router.post("", response_model=ProductResponse)
 async def create_product(body: ProductCreate, _admin=Depends(require_admin)):
     try:
         slug = body.slug or slugify(body.name)

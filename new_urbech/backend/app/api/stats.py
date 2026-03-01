@@ -3,7 +3,7 @@ from app.db.session import prisma
 
 router = APIRouter()
 
-@router.get("/")
+@router.get("")
 async def get_stats():
     """Get dashboard statistics"""
     try:
