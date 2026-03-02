@@ -6,15 +6,15 @@ export default function AdminLayout({ children }) {
     <div className={styles.adminLayout}>
       <aside className={styles.sidebar}>
         <nav className={styles.nav}>
-          <h2>Admin Panel</h2>
+          <h2>Админ-панель</h2>
           <ul>
-  <li><Link href="/admin">Dashboard</Link></li>
-  <li><Link href="/admin/products">Products</Link></li>
-  <li><Link href="/admin/categories">Categories</Link></li>
-  <li><Link href="/admin/orders">Orders</Link></li>
-  <li><Link href="/admin/customers">Customers</Link></li>
-  <li><Link href="/admin/blog">Blog</Link></li>
-  <li><Link href="/admin/settings/seo">SiteMap</Link></li>
+  <li><Link href="/admin">Главная</Link></li>
+  <li><Link href="/admin/products">Товары</Link></li>
+  <li><Link href="/admin/categories">Категории</Link></li>
+  <li><Link href="/admin/orders">Заказы</Link></li>
+  <li><Link href="/admin/customers">Клиенты</Link></li>
+  <li><Link href="/admin/blog">Блог</Link></li>
+  <li><Link href="/admin/settings/seo">Карта сайта</Link></li>
 </ul>
         </nav>
       </aside>

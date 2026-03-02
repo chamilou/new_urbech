@@ -45,10 +45,10 @@ export default function SeoSettings() {
     const text = await res.text(); // read error body too
     console.log("SEO save:", res.status, text);
 
-    setStatus(res.ok ? "Saved successfully" : `Save failed (${res.status})`);
+    setStatus(res.ok ? "Сохранено" : `Ошибка сохранения (${res.status})`);
   } catch (e) {
     console.log("SEO save network error:", e);
-    setStatus("Save failed (network error)");
+    setStatus("Ошибка сохранения (сеть)");
   } finally {
     setSaving(false);
   }
@@ -56,9 +56,9 @@ export default function SeoSettings() {
 
   return (
     <div className={styles.page}>
-      <h1>SEO & Sitemap Settings</h1>
+      <h1>SEO и карта сайта</h1>
       <p className={styles.description}>
-        Choose which pages should be excluded from the sitemap and search engines.
+        Выберите страницы, которые нужно исключить из карты сайта и поисковой индексации.
       </p>
 
       <div className={styles.list}>
@@ -69,13 +69,13 @@ export default function SeoSettings() {
               checked={value}
               onChange={() => toggle(key)}
             />
-            <span>Exclude <code>/{key}</code> from sitemap</span>
+            <span>Исключить <code>/{key}</code> из карты сайта</span>
           </label>
         ))}
       </div>
 
       <button onClick={save} disabled={saving} className={styles.saveBtn}>
-        {saving ? "Saving…" : "Save Settings"}
+        {saving ? "Сохраняем…" : "Сохранить настройки"}
       </button>
 
       {status && <p className={styles.status}>{status}</p>}

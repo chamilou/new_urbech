@@ -56,7 +56,7 @@ export default function ProductForm({ product, onClose, onSave }) {
     slug: '',
     articleNumber: '',
     price: '',
-    currencyCode: 'USD',
+    currencyCode: 'RUB',
     description: '',
     stock: '',
     minStock: '5',
@@ -87,7 +87,7 @@ export default function ProductForm({ product, onClose, onSave }) {
         slug: product.slug || '',
         articleNumber: product.articleNumber || '',
         price: product.price ?? '',
-        currencyCode: (product.currencyCode || 'USD').toString().trim().toUpperCase(),
+        currencyCode: (product.currencyCode || 'RUB').toString().trim().toUpperCase(),
         description: product.description || '',
         stock: product.stock?.toString() || '',
         minStock: product.minStock?.toString() || '5',
@@ -105,7 +105,7 @@ export default function ProductForm({ product, onClose, onSave }) {
         slug: '',
         articleNumber: '',
         price: '',
-        currencyCode: 'USD',
+        currencyCode: 'RUB',
         description: '',
         stock: '',
         minStock: '5',
@@ -420,7 +420,7 @@ export default function ProductForm({ product, onClose, onSave }) {
       let finalSlug = formData.slug?.trim();
       if (!finalSlug) finalSlug = advancedSlugify(formData.name);
 
-      const currencyCode = (formData.currencyCode || 'USD').toString().trim().toUpperCase();
+      const currencyCode = (formData.currencyCode || 'RUB').toString().trim().toUpperCase();
 
       const submitData = {
         name: formData.name.trim(),
@@ -587,7 +587,7 @@ export default function ProductForm({ product, onClose, onSave }) {
                   {errors.currencyCode}
                 </div>
               )}
-              <small className={styles.helpText}>ISO код из 3 букв (USD, EUR, CHF...)</small>
+      <small className={styles.helpText}>Трёхбуквенный код валюты (RUB, USD, EUR, CHF...)</small>
             </div>
 
             {/* Price */}

@@ -31,7 +31,7 @@ export default function Profile() {
   if (loading && !displayUser) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>Loading your profile...</div>
+        <div className={styles.loading}>Загрузка профиля...</div>
       </div>
     );
   }
@@ -39,7 +39,7 @@ export default function Profile() {
   if (!displayUser) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>Redirecting to login...</div>
+        <div className={styles.loading}>Перенаправление на страницу входа...</div>
       </div>
     );
   }
@@ -47,10 +47,10 @@ export default function Profile() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h1>Your Profile</h1>
+        <h1>Ваш профиль</h1>
         <div className={styles.profileInfo}>
           <div className={styles.infoRow}>
-            <label>Name:</label>
+            <label>Имя:</label>
             <span>{displayUser.name}</span>
           </div>
           <div className={styles.infoRow}>
@@ -58,11 +58,11 @@ export default function Profile() {
             <span>{displayUser.email}</span>
           </div>
           <div className={styles.infoRow}>
-            <label>Role:</label>
+            <label>Роль:</label>
             <span>{displayUser.role}</span>
           </div>
           <div className={styles.note}>
-            <small>Using {user ? 'context' : 'cached'} user data</small>
+            <small>Используются {user ? 'актуальные' : 'сохранённые'} данные пользователя</small>
           </div>
         </div>
       </div>

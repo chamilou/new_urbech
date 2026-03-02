@@ -25,13 +25,13 @@ export default function AdminDashboard() {
       const response = await fetch('/api/stats');
       
       if (!response.ok) {
-        throw new Error('Failed to fetch stats');
+        throw new Error('Не удалось загрузить статистику');
       }
       
       const data = await response.json();
       setStats(data);
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error('Ошибка загрузки статистики:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -41,8 +41,8 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className={styles.dashboard}>
-        <h1>Admin Dashboard</h1>
-        <div className={styles.loading}>Loading statistics...</div>
+        <h1>Панель администратора</h1>
+        <div className={styles.loading}>Загрузка статистики...</div>
       </div>
     );
   }
@@ -50,11 +50,11 @@ export default function AdminDashboard() {
   if (error) {
     return (
       <div className={styles.dashboard}>
-        <h1>Admin Dashboard</h1>
+        <h1>Панель администратора</h1>
         <div className={styles.error}>
-          Error loading stats: {error}
+          Ошибка загрузки статистики: {error}
           <button onClick={fetchStats} className={styles.retryBtn}>
-            Try Again
+            Повторить
           </button>
         </div>
       </div>
@@ -63,56 +63,56 @@ export default function AdminDashboard() {
 
   return (
     <div className={styles.dashboard}>
-      <h1>Admin Dashboard</h1>
+      <h1>Панель администратора</h1>
       
       <div className={styles.stats}>
         <div className={styles.statCard}>
-          <h3>Total Products</h3>
+          <h3>Всего товаров</h3>
           <p className={styles.number}>{stats.total_products}</p>
         </div>
         
         <div className={styles.statCard}>
-          <h3>Total Orders</h3>
+          <h3>Всего заказов</h3>
           <p className={styles.number}>{stats.total_orders}</p>
         </div>
         
         <div className={styles.statCard}>
-          <h3>Total Customers</h3>
+          <h3>Всего клиентов</h3>
           <p className={styles.number}>{stats.total_customers}</p>
         </div>
         
         <div className={styles.statCard}>
-          <h3>Low Stock Products</h3>
+          <h3>Мало на складе</h3>
           <p className={styles.number}>{stats.low_stock_products}</p>
         </div>
         
         <div className={styles.statCard}>
-          <h3>Orders (Last 7 Days)</h3>
+          <h3>Заказы за 7 дней</h3>
           <p className={styles.number}>{stats.recent_orders}</p>
         </div>
       </div>
 
       {/* Quick Actions */}
       <div className={styles.quickActions}>
-        <h2>Quick Actions</h2>
+        <h2>Быстрые действия</h2>
         <div className={styles.actionButtons}>
           <Link href="/admin/products" className={styles.actionBtn}>
-            Manage Products
+            Управление товарами
           </Link>
           <Link href="/admin/orders" className={styles.actionBtn}>
-            View Orders
+            Заказы
           </Link>
           <Link href="/admin/customers" className={styles.actionBtn}>
-            Manage Customers
+            Управление клиентами
           </Link>
           <Link href="/admin/blog" className={styles.actionBtn}>
-            Manage Blog
+            Управление блогом
           </Link>
           <Link href="/admin/categories" className={styles.actionBtn}>
-            Manage Categories
+            Управление категориями
           </Link>
           <Link href="/admin/settings/seo" className={styles.actionBtn}>
-            Sitemap Settings
+            Настройки карты сайта
           </Link>
         </div>
       </div>

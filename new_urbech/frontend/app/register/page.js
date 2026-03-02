@@ -135,7 +135,7 @@ export default function Register() {
     <div className={styles.container}>
       <div className={styles.card}>
         <h1 className={styles.title}>Создать аккаунт</h1>
-        <p className={styles.subtitle}>Присоединяйтесь к MyShop сегодня и начинайте покупки</p>
+        <p className={styles.subtitle}>Создайте аккаунт, чтобы оформлять заказы и управлять покупками</p>
 
         {error && (
           <div className={styles.error}>
@@ -145,7 +145,7 @@ export default function Register() {
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
           <div className={styles.formGroup}>
-            <label htmlFor="name">Полное имя</label>
+            <label htmlFor="name">Имя и фамилия</label>
             <input
               type="text"
               id="name"
@@ -154,7 +154,7 @@ export default function Register() {
               onChange={handleChange}
               required
               disabled={loading}
-              placeholder="Введите ваше полное имя"
+              placeholder="Введите имя и фамилию"
               className={getFieldError('name') ? styles.inputError : ''}
             />
             {getFieldError('name') && (
@@ -163,7 +163,7 @@ export default function Register() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="email">Email адрес</label>
+            <label htmlFor="email">Адрес электронной почты</label>
             <input
               type="email"
               id="email"
@@ -172,7 +172,7 @@ export default function Register() {
               onChange={handleChange}
               required
               disabled={loading}
-              placeholder="Введите ваш email"
+              placeholder="Введите email"
               className={getFieldError('email') ? styles.inputError : ''}
             />
             {getFieldError('email') && (

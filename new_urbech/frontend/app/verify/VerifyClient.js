@@ -33,11 +33,11 @@ export default function VerifyPage() {
     setStatusMsg('');
 
     if (!email.trim()) {
-      setError('Email is required');
+      setError('Укажите email');
       return;
     }
     if (!code.trim()) {
-      setError('Verification code is required');
+      setError('Введите код подтверждения');
       return;
     }
 
@@ -46,11 +46,11 @@ export default function VerifyPage() {
     setLoadingVerify(false);
 
     if (result.success) {
-      setStatusMsg(result.data?.message || 'Verified successfully!');
+      setStatusMsg(result.data?.message || 'Email успешно подтвержден');
       // After verification backend returns token+user, AuthContext stores it.
       router.push('/');
     } else {
-      setError(result.error || 'Verification failed');
+      setError(result.error || 'Не удалось подтвердить email');
     }
   };
 
@@ -59,7 +59,7 @@ export default function VerifyPage() {
     setStatusMsg('');
 
     if (!email.trim()) {
-      setError('Email is required');
+      setError('Укажите email');
       return;
     }
 
@@ -68,18 +68,18 @@ export default function VerifyPage() {
     setLoadingResend(false);
 
     if (result.success) {
-      setStatusMsg(result.data?.message || 'Verification code sent.');
+      setStatusMsg(result.data?.message || 'Код подтверждения отправлен.');
     } else {
-      setError(result.error || 'Failed to resend verification code');
+      setError(result.error || 'Не удалось отправить код повторно');
     }
   };
 
   return (
   <div className={styles.container}>
     <div className={styles.card}>
-      <h1 className={styles.title}>Verify your email</h1>
+      <h1 className={styles.title}>Подтвердите email</h1>
       <p className={styles.subtitle}>
-        Enter the 6-digit code we sent to your email.
+        Введите шестизначный код, который мы отправили на вашу почту.
       </p>
 
       {error && <div className={styles.alertError}>{error}</div>}
@@ -98,7 +98,7 @@ export default function VerifyPage() {
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label}>Verification code</label>
+          <label className={styles.label}>Код подтверждения</label>
           <input
             className={`${styles.input} ${styles.codeInput}`}
             value={code}
@@ -114,7 +114,7 @@ export default function VerifyPage() {
           disabled={loadingVerify}
           className={styles.primaryButton}
         >
-          {loadingVerify ? 'Verifying…' : 'Verify'}
+          {loadingVerify ? 'Проверяем…' : 'Подтвердить'}
         </button>
       </form>
 
@@ -125,7 +125,7 @@ export default function VerifyPage() {
           disabled={loadingResend}
           className={styles.secondaryButton}
         >
-          {loadingResend ? 'Sending…' : 'Resend code'}
+          {loadingResend ? 'Отправляем…' : 'Отправить код ещё раз'}
         </button>
 
         <button
@@ -133,7 +133,7 @@ export default function VerifyPage() {
           onClick={() => router.push('/login')}
           className={styles.secondaryButton}
         >
-          Back to login
+          Вернуться ко входу
         </button>
       </div>
     </div>

@@ -10,7 +10,7 @@ const AuthContext = createContext(null);
 const API_BASE = '/api';
 
 const normalizeError = (err) => {
-  if (!err) return 'Unknown error';
+  if (!err) return 'Неизвестная ошибка';
 
   if (typeof err === 'string') return err;
 
@@ -135,14 +135,14 @@ export function AuthProvider({ children }) {
       if (!res.ok) {
         return {
           success: false,
-          error: normalizeError(json || text || `Login failed (${res.status})`),
+          error: normalizeError(json || text || `Ошибка входа (${res.status})`),
           status: res.status,
           verificationRequired: res.status === 403 && res.headers.get('X-Verification-Required') === 'true',
         };
       }
 
       if (!json?.access_token || !json?.user) {
-        return { success: false, error: 'Invalid response from server' };
+        return { success: false, error: 'Некорректный ответ от сервера' };
       }
 
       localStorage.setItem('token', json.access_token);
@@ -152,7 +152,7 @@ export function AuthProvider({ children }) {
       return { success: true, data: json };
     } catch (e) {
       console.error('❌ Login error:', e);
-      return { success: false, error: 'Network error' };
+      return { success: false, error: 'Ошибка сети' };
     }
   }, []);
 
@@ -174,7 +174,7 @@ export function AuthProvider({ children }) {
       if (!res.ok) {
         return {
           success: false,
-          error: normalizeError(json || text || `Registration failed (${res.status})`),
+          error: normalizeError(json || text || `Ошибка регистрации (${res.status})`),
           status: res.status,
         };
       }
@@ -183,7 +183,7 @@ export function AuthProvider({ children }) {
       return { success: true, data: json };
     } catch (e) {
       console.error('❌ Register error:', e);
-      return { success: false, error: 'Network error' };
+      return { success: false, error: 'Ошибка сети' };
     }
   }, []);
 
@@ -204,7 +204,7 @@ export function AuthProvider({ children }) {
       if (!res.ok) {
         return {
           success: false,
-          error: normalizeError(json || text || `Verification failed (${res.status})`),
+          error: normalizeError(json || text || `Ошибка подтверждения (${res.status})`),
           status: res.status,
         };
       }
@@ -219,7 +219,7 @@ export function AuthProvider({ children }) {
       return { success: true, data: json };
     } catch (e) {
       console.error('❌ Verify error:', e);
-      return { success: false, error: 'Network error' };
+      return { success: false, error: 'Ошибка сети' };
     }
   }, []);
 
@@ -239,7 +239,7 @@ export function AuthProvider({ children }) {
       if (!res.ok) {
         return {
           success: false,
-          error: normalizeError(json || text || `Request failed (${res.status})`),
+          error: normalizeError(json || text || `Ошибка запроса (${res.status})`),
           status: res.status,
         };
       }
@@ -247,7 +247,7 @@ export function AuthProvider({ children }) {
       return { success: true, data: json };
     } catch (e) {
       console.error('❌ Forgot password error:', e);
-      return { success: false, error: 'Network error' };
+      return { success: false, error: 'Ошибка сети' };
     }
   }, []);
 
@@ -266,7 +266,7 @@ export function AuthProvider({ children }) {
       if (!res.ok) {
         return {
           success: false,
-          error: normalizeError(json || text || `Reset failed (${res.status})`),
+          error: normalizeError(json || text || `Ошибка сброса пароля (${res.status})`),
           status: res.status,
         };
       }
@@ -274,7 +274,7 @@ export function AuthProvider({ children }) {
       return { success: true, data: json };
     } catch (e) {
       console.error('❌ Reset password error:', e);
-      return { success: false, error: 'Network error' };
+      return { success: false, error: 'Ошибка сети' };
     }
   }, []);
 
@@ -294,7 +294,7 @@ export function AuthProvider({ children }) {
       if (!res.ok) {
         return {
           success: false,
-          error: normalizeError(json || text || `Resend failed (${res.status})`),
+          error: normalizeError(json || text || `Ошибка повторной отправки (${res.status})`),
           status: res.status,
         };
       }
@@ -302,7 +302,7 @@ export function AuthProvider({ children }) {
       return { success: true, data: json };
     } catch (e) {
       console.error('❌ Resend error:', e);
-      return { success: false, error: 'Network error' };
+      return { success: false, error: 'Ошибка сети' };
     }
   }, []);
 

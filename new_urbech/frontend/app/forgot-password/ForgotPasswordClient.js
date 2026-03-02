@@ -45,7 +45,7 @@ export default function ForgotPasswordClient() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            placeholder="you@example.com"
+            placeholder="example@mail.ru"
           />
 
           <button type="submit" disabled={loading}>

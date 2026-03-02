@@ -51,7 +51,7 @@ export default function Toast({ message, type = 'success', onClose, duration = 3
         <button 
           className={styles.closeButton}
           onClick={handleClose}
-          aria-label="Close notification"
+          aria-label="Закрыть уведомление"
         >
           ×
         </button>

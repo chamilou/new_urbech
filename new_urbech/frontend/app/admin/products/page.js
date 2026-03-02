@@ -52,7 +52,7 @@ export default function AdminProducts() {
         throw new Error('Неожиданный формат ответа от API');
       }
     } catch (e) {
-      console.error('Error fetching products:', e);
+      console.error('Ошибка загрузки товаров:', e);
       setProducts([]);
       setError(e.message || 'Не удалось загрузить товары');
     } finally {
@@ -120,7 +120,7 @@ export default function AdminProducts() {
       // Remove from local state immediately
       setProducts(prev => prev.filter(p => p.id !== productId));
     } catch (e) {
-      alert(e.message || 'Ошибка при удалении товара');
+          alert(e.message || 'Ошибка при удалении товара');
     } finally {
       setDeletingProduct(null);
     }
@@ -167,7 +167,7 @@ export default function AdminProducts() {
             p.id === productId ? { ...p, stock: stockValue } : p
           ));
         } catch (e) {
-          console.error('Stock update error:', e);
+          console.error('Ошибка обновления остатка:', e);
           alert(e.message || 'Ошибка при обновлении остатка');
           fetchProducts(currentPage);
         } finally {
@@ -175,7 +175,7 @@ export default function AdminProducts() {
         }
       }, 500);
     } catch (e) {
-      console.error('Stock update error:', e);
+      console.error('Ошибка обновления остатка:', e);
       setUpdatingProduct(null);
     }
   };
@@ -230,7 +230,7 @@ const handleCsvImport = async () => {
         existingCategories = await categoriesRes.json();
       }
     } catch (e) {
-      console.warn('Could not fetch categories for validation:', e);
+      console.warn('Не удалось загрузить категории для проверки:', e);
     }
 
     // Create a map of slug to ID for validation
@@ -294,7 +294,7 @@ const handleCsvImport = async () => {
       fetchProducts(currentPage);
     }, 500);
   } catch (e) {
-    console.error('Error importing CSV:', e);
+    console.error('Ошибка импорта CSV:', e);
     setError(e.message || 'Ошибка импорта товаров. Проверьте формат CSV.');
   } finally {
     setImportLoading(false);
@@ -313,7 +313,7 @@ const handleCsvImport = async () => {
       existingCategories = await res.json();
     }
   } catch (error) {
-    console.warn('Could not fetch categories:', error);
+    console.warn('Не удалось загрузить категории:', error);
   }
 
   // Get first 5 category slugs as example
@@ -324,9 +324,9 @@ const handleCsvImport = async () => {
     .join(', ');
 
   const template = `name,slug,description,price,currencyCode,stock,categorySlugs,mainImageUrl,images,minStock,featured,tags
-"Премиальные кофейные зерна","premium-coffee-beans","Свежая обжарка арабики",12.99,USD,50,"${exampleSlugs || 'orehi,urbech'}",https://example.com/coffee.jpg,"https://example.com/coffee-1.jpg,https://example.com/coffee-2.jpg",10,true,"coffee,arabica,organic"
-"Органический зеленый чай","organic-green-tea","Качественные листья зеленого чая",8.50,USD,25,"${exampleSlugs || 'orehi'}",https://example.com/tea.jpg,,5,true,"tea,green,organic"
-"Ремесленный мед","artisanal-honey","Сырой нефильтрованный мед от местных пасек",15.75,USD,30,"",https://example.com/honey.jpg,,8,false,"honey,raw,local"
+"Премиальный миндальный урбеч","premium-almond-urbech","Нежная паста из отборного миндаля",1290,RUB,50,"${exampleSlugs || 'orehi,urbech'}",https://example.com/almond.jpg,"https://example.com/almond-1.jpg,https://example.com/almond-2.jpg",10,true,"миндаль,урбеч,натуральный"
+"Органический кунжутный урбеч","organic-sesame-urbech","Классическая паста из светлого кунжута",850,RUB,25,"${exampleSlugs || 'orehi'}",https://example.com/sesame.jpg,,5,true,"кунжут,урбеч,органик"
+"Горный цветочный мед","mountain-flower-honey","Натуральный мед с высокогорных пасек",1575,RUB,30,"",https://example.com/honey.jpg,,8,false,"мед,натуральный,дагестан"
 
 # ВАЖНО:
 # 1. Обязательная колонка: name

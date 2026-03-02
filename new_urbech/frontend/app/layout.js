@@ -8,7 +8,7 @@ import ToastContainer from './components/ToastContainer';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="ru">
       <body>
           <AuthProvider>
         <CartProvider>

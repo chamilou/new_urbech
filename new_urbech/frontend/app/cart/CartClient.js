@@ -32,7 +32,7 @@ export default function CartClient() {
     city: '',
     postalCode: '',
     region: '',
-    country: 'Switzerland',
+    country: 'Россия',
   });
 
   // --- Helpers ---
@@ -67,7 +67,7 @@ export default function CartClient() {
   // Currency display
   const displayCurrency = useMemo(() => {
     if (cart.length > 0 && cart[0].currencyCode) return cart[0].currencyCode;
-    return 'USD';
+    return 'RUB';
   }, [cart]);
 
   const subtotal = getTotal();
@@ -116,7 +116,7 @@ export default function CartClient() {
           city: prev.city || (addr?.city || ''),
           postalCode: prev.postalCode || (addr?.postalCode || addr?.zip || ''),
           region: prev.region || (addr?.region || addr?.state || ''),
-          country: prev.country || (addr?.country || 'Switzerland'),
+          country: prev.country || (addr?.country || 'Россия'),
         }));
       } catch {
         if (!ignore) setUser(null);
@@ -150,29 +150,29 @@ export default function CartClient() {
     const name = (guestName || shipping.fullName || '').trim();
 
     if (!email || !email.includes('@')) {
-      setCheckoutError('Please enter a valid email for checkout.');
+      setCheckoutError('Введите корректный email для оформления заказа.');
       return false;
     }
     if (!name) {
-      setCheckoutError('Please enter your name for checkout.');
+      setCheckoutError('Введите имя для оформления заказа.');
       return false;
     }
 
     // Address required
     if (!shipping.address1.trim()) {
-      setCheckoutError('Please enter your street address.');
+      setCheckoutError('Введите адрес доставки.');
       return false;
     }
     if (!shipping.city.trim()) {
-      setCheckoutError('Please enter your city.');
+      setCheckoutError('Введите город.');
       return false;
     }
     if (!shipping.postalCode.trim()) {
-      setCheckoutError('Please enter your postal code.');
+      setCheckoutError('Введите почтовый индекс.');
       return false;
     }
     if (!shipping.country.trim()) {
-      setCheckoutError('Please enter your country.');
+      setCheckoutError('Введите страну.');
       return false;
     }
 
@@ -183,7 +183,7 @@ export default function CartClient() {
     setCheckoutError('');
 
     if (cart.length === 0) {
-      setCheckoutError('Your cart is empty');
+      setCheckoutError('Корзина пуста');
       return;
     }
 
@@ -228,7 +228,7 @@ export default function CartClient() {
       const responseData = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(responseData.detail || `Checkout failed: ${response.status}`);
+        throw new Error(responseData.detail || `Не удалось оформить заказ: ${response.status}`);
       }
 
       clearCart();
@@ -240,7 +240,7 @@ export default function CartClient() {
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      setCheckoutError(error.message || 'Checkout failed. Please try again.');
+      setCheckoutError(error.message || 'Не удалось оформить заказ. Попробуйте ещё раз.');
     } finally {
       setCheckoutLoading(false);
     }
@@ -248,7 +248,7 @@ export default function CartClient() {
 
   return (
     <div className={styles.container}>
-      <h1>Shopping Cart</h1>
+      <h1>Корзина</h1>
 
       {checkoutError && (
         <div className={styles.errorBanner}>
@@ -261,10 +261,10 @@ export default function CartClient() {
 
       {cart.length === 0 ? (
         <div className={styles.emptyCart}>
-          <h2>Your cart is empty</h2>
-          <p>Add some products to get started!</p>
+          <h2>Ваша корзина пуста</h2>
+          <p>Добавьте товары, чтобы оформить заказ.</p>
           <Link href="/products" className={styles.continueShopping}>
-            Continue Shopping
+            Перейти к покупкам
           </Link>
         </div>
       ) : (
@@ -277,7 +277,7 @@ export default function CartClient() {
                 <div key={item.product_id} className={styles.cartItem}>
                   <div className={styles.imageWrapper}>
                     <Image
-                      alt={item.name || 'Product image'}
+                      alt={item.name || 'Изображение товара'}
                       src={imageUrl}
                       width={80}
                       height={80}
@@ -287,7 +287,7 @@ export default function CartClient() {
                   </div>
 
                   <div className={styles.itemDetails}>
-                    <h2>{item.name || 'Unnamed Product'}</h2>
+                    <h2>{item.name || 'Товар без названия'}</h2>
 
                     {item.description && (
                       <p className={styles.itemDescription}>
@@ -321,12 +321,12 @@ export default function CartClient() {
                     </div>
 
                     <p className={styles.itemTotal}>
-                      Total: {(item.currencyCode || displayCurrency)} {calculateItemTotal(item.price, item.quantity)}
+                      Итого: {(item.currencyCode || displayCurrency)} {calculateItemTotal(item.price, item.quantity)}
                     </p>
                   </div>
 
                   <button onClick={() => removeFromCart(item.product_id)} className={styles.removeBtn} type="button">
-                    Remove
+                    Удалить
                   </button>
                 </div>
               );
@@ -335,32 +335,32 @@ export default function CartClient() {
 
           <div className={styles.cartSummary}>
             <div className={styles.summaryCard}>
-              <h2>Order Summary</h2>
+              <h2>Сводка заказа</h2>
 
               <div className={styles.summaryRow}>
-                <span>Items ({cart.reduce((sum, item) => sum + item.quantity, 0)})</span>
+                <span>Товары ({cart.reduce((sum, item) => sum + item.quantity, 0)})</span>
                 <span>{displayCurrency} {formatPrice(subtotal)}</span>
               </div>
 
               <div className={styles.summaryRow}>
-                <span>Shipping:</span>
-                <span className={styles.freeShipping}>FREE</span>
+                <span>Доставка:</span>
+                <span className={styles.freeShipping}>БЕСПЛАТНО</span>
               </div>
 
               <div className={styles.summaryRow}>
-                <span>Tax (10%):</span>
+                <span>Налог (10%):</span>
                 <span>{displayCurrency} {tax}</span>
               </div>
 
               <div className={`${styles.summaryRow} ${styles.total}`}>
-                <span>Total:</span>
+                <span>Итого:</span>
                 <span>{displayCurrency} {total}</span>
               </div>
 
               {/* Guest details */}
               <div className={styles.guestCard}>
                 <h3 className={styles.guestTitle}>
-                  {userLoading ? 'Checking account…' : user ? 'Your details (from account)' : 'Guest details'}
+                  {userLoading ? 'Проверяем аккаунт…' : user ? 'Ваши данные из аккаунта' : 'Данные покупателя'}
                 </h3>
 
                 <label className={styles.fieldLabel}>Email</label>
@@ -369,26 +369,26 @@ export default function CartClient() {
                   type="email"
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  placeholder="example@mail.ru"
                   autoComplete="email"
                 />
 
-                <label className={styles.fieldLabel}>Name</label>
+                <label className={styles.fieldLabel}>Имя</label>
                 <input
                   className={styles.input}
                   type="text"
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
-                  placeholder="Your name"
+                  placeholder="Ваше имя"
                   autoComplete="name"
                 />
               </div>
 
               {/* Shipping address */}
               <div className={styles.guestCard}>
-                <h3 className={styles.guestTitle}>Shipping address</h3>
+                <h3 className={styles.guestTitle}>Адрес доставки</h3>
 
-                <label className={styles.fieldLabel}>Phone (optional)</label>
+                <label className={styles.fieldLabel}>Телефон (необязательно)</label>
                 <input
                   className={styles.input}
                   type="tel"
@@ -399,69 +399,69 @@ export default function CartClient() {
                   autoComplete="tel"
                 />
 
-                <label className={styles.fieldLabel}>Address line 1 *</label>
+                <label className={styles.fieldLabel}>Адрес, строка 1 *</label>
                 <input
                   className={styles.input}
                   type="text"
                   name="address1"
                   value={shipping.address1}
                   onChange={handleShippingChange}
-                  placeholder="Street and house number"
+                  placeholder="Улица и номер дома"
                   autoComplete="address-line1"
                 />
 
-                <label className={styles.fieldLabel}>Address line 2 (optional)</label>
+                <label className={styles.fieldLabel}>Адрес, строка 2 (необязательно)</label>
                 <input
                   className={styles.input}
                   type="text"
                   name="address2"
                   value={shipping.address2}
                   onChange={handleShippingChange}
-                  placeholder="Apartment, floor, etc."
+                  placeholder="Квартира, этаж и т.д."
                   autoComplete="address-line2"
                 />
 
-                <label className={styles.fieldLabel}>City *</label>
+                <label className={styles.fieldLabel}>Город *</label>
                 <input
                   className={styles.input}
                   type="text"
                   name="city"
                   value={shipping.city}
                   onChange={handleShippingChange}
-                  placeholder="City"
+                  placeholder="Город"
                   autoComplete="address-level2"
                 />
 
-                <label className={styles.fieldLabel}>Postal code *</label>
+                <label className={styles.fieldLabel}>Почтовый индекс *</label>
                 <input
                   className={styles.input}
                   type="text"
                   name="postalCode"
                   value={shipping.postalCode}
                   onChange={handleShippingChange}
-                  placeholder="ZIP / Postal code"
+                  placeholder="Индекс"
                   autoComplete="postal-code"
                 />
 
-                <label className={styles.fieldLabel}>Region/State (optional)</label>
+                <label className={styles.fieldLabel}>Регион / область (необязательно)</label>
                 <input
                   className={styles.input}
                   type="text"
                   name="region"
                   value={shipping.region}
                   onChange={handleShippingChange}
-                  placeholder="Region / State"
+                  placeholder="Регион / область"
                   autoComplete="address-level1"
                 />
 
-                <label className={styles.fieldLabel}>Country *</label>
+                <label className={styles.fieldLabel}>Страна *</label>
                 <input
                   className={styles.input}
                   type="text"
                   name="country"
                   value={shipping.country}
                   onChange={handleShippingChange}
-                  placeholder="Country"
+                  placeholder="Страна"
                   autoComplete="country-name"
                 />
               </div>
@@ -472,19 +472,19 @@ export default function CartClient() {
                 disabled={checkoutLoading || cart.length === 0}
                 type="button"
               >
-                {checkoutLoading ? 'Processing...' : 'Proceed to Checkout'}
+                {checkoutLoading ? 'Оформляем...' : 'Оформить заказ'}
               </button>
 
               <button onClick={clearCart} className={styles.clearCartBtn} type="button">
-                Clear Cart
+                Очистить корзину
               </button>
 
               <Link href="/products" className={styles.continueShopping}>
-                Continue Shopping
+                Продолжить покупки
               </Link>
 
               <div className={styles.paymentMethods}>
-                <span>We accept:</span>
+                <span>Принимаем:</span>
                 <div className={styles.paymentIcons}>
                   <span>💳</span>
                   <span>💰</span>

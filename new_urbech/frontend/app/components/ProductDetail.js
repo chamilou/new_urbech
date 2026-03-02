@@ -80,7 +80,7 @@ export default function ProductDetail({ product, onClose }) {
       price: product.price,
       mainImageUrl: product.mainImageUrl,
       description: product.description,
-      currencyCode: product.currencyCode || 'USD',
+      currencyCode: product.currencyCode || 'RUB',
       stock: product.stock || 0,
       articleNumber: product.articleNumber,
     };
@@ -116,7 +116,7 @@ export default function ProductDetail({ product, onClose }) {
             <div className={styles.mainImage}>
               <Image
                 src={displaySrc}
-                alt={product?.name || 'Product'}
+                alt={product?.name || 'Товар'}
                 width={400}
                 height={400}
                 className={styles.productImage}
@@ -138,7 +138,7 @@ export default function ProductDetail({ product, onClose }) {
                     >
                       <Image
                         src={thumbSrc}
-                        alt={`${product?.name || 'Product'} ${index + 1}`}
+                        alt={`${product?.name || 'Товар'} ${index + 1}`}
                         width={60}
                         height={60}
                         className={styles.thumbnailImage}
