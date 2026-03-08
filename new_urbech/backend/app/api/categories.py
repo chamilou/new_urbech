@@ -6,8 +6,10 @@ from slugify import slugify
 
 from app.db.session import prisma  # Prisma() singleton
 from app.api.auth import require_admin
+import logging
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 # --------- Pydantic DTOs ---------
@@ -191,9 +193,9 @@ async def get_categories(
 
         return result
 
-    except Exception as e:
-        print(f"Error in get_categories: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error fetching categories: {str(e)}")
+    except Exception:
+        logger.exception("Error fetching categories")
+        raise HTTPException(status_code=500, detail="Failed to fetch categories")
 
 
 @router.post("")
@@ -226,8 +228,9 @@ async def create_category(body: CategoryCreate, _admin=Depends(require_admin)):
         return created
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error creating category: {e}")
+    except Exception:
+        logger.exception("Error creating category")
+        raise HTTPException(status_code=500, detail="Failed to create category")
 
 
 @router.put("/{category_id}")
@@ -296,8 +299,9 @@ async def update_category(category_id: str, body: CategoryUpdate, _admin=Depends
         return updated
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error updating category: {e}")
+    except Exception:
+        logger.exception("Error updating category")
+        raise HTTPException(status_code=500, detail="Failed to update category")
 
 
 @router.delete("/{category_id}")
@@ -334,5 +338,6 @@ async def delete_category(category_id: str, _admin=Depends(require_admin)):
         return {"message": "Category deleted successfully"}
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error deleting category: {e}")
+    except Exception:
+        logger.exception("Error deleting category")
+        raise HTTPException(status_code=500, detail="Failed to delete category")

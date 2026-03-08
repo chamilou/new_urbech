@@ -17,6 +17,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
 def is_email_verification_disabled() -> bool:
+    if os.getenv("ENVIRONMENT", "").strip().lower() in {"production", "prod"}:
+        return False
     return os.getenv("DISABLE_EMAIL_VERIFICATION", "").strip().lower() in {"1", "true", "yes", "on"}
 
 

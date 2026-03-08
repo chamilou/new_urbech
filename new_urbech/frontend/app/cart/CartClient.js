@@ -217,8 +217,6 @@ export default function CartClient() {
         },
       };
 
-      console.log('Sending checkout data:', checkoutData);
-
       const response = await fetch(`${API_BASE}/orders/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

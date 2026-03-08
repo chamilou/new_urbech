@@ -11,8 +11,10 @@ from datetime import datetime, timedelta
 from app.db.session import prisma
 from app.schemas.product import ProductCreate, ProductUpdate, ProductResponse
 from app.api.auth import require_admin
+import logging
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # ---------- helpers ----------
 def slugify(value: str) -> str:
@@ -355,8 +357,9 @@ async def create_product(body: ProductCreate, _admin=Depends(require_admin)):
         return ProductResponse.from_prisma(created)
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error creating product: {e}")
+    except Exception:
+        logger.exception("Error creating product")
+        raise HTTPException(status_code=500, detail="Failed to create product")
 
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(product_id: str):
@@ -423,8 +426,9 @@ async def update_product(product_id: str, body: ProductUpdate, _admin=Depends(re
         return ProductResponse.from_prisma(updated)
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error updating product: {e}")
+    except Exception:
+        logger.exception("Error updating product")
+        raise HTTPException(status_code=500, detail="Failed to update product")
 
 @router.delete("/{product_id}")
 async def delete_product(product_id: str, _admin=Depends(require_admin)):

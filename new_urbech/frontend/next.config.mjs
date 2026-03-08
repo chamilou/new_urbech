@@ -9,6 +9,24 @@ const backendOrigin =
     ? "http://localhost:8000"
     : "http://backend:8000");
 
+const mediaHosts =
+  process.env.NODE_ENV === "development"
+    ? ["localhost", "127.0.0.1"]
+    : ["urbechov.ru", "www.urbechov.ru", "shop.urbechov.ru"];
+
+const remoteMediaPatterns = mediaHosts.flatMap((hostname) => {
+  const protocols =
+    hostname === "localhost" || hostname === "127.0.0.1"
+      ? ["http"]
+      : ["https"];
+
+  return protocols.map((protocol) => ({
+    protocol,
+    hostname,
+    pathname: "/media/**",
+  }));
+});
+
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -29,22 +47,9 @@ const nextConfig = {
   },
 
   images: {
-    // If you use <Image src="/media/...">, no remotePatterns are required.
-    // But keeping this safe in case you ever use absolute URLs:
-    remotePatterns: [
-      // Same-origin through Caddy (recommended): no hostname needed
-      // Absolute through public host (replace with your IP/domain if you use it):
-      {
-        protocol: "http",
-        hostname: "**",
-        pathname: "/media/**",
-      },
-      {
-        protocol: "https",
-        hostname: "**",
-        pathname: "/media/**",
-      },
-    ],
+    // Same-origin /media/** does not need remotePatterns.
+    // These patterns only allow absolute media URLs from our own hosts.
+    remotePatterns: remoteMediaPatterns,
   },
 };
 

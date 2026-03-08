@@ -42,12 +42,9 @@ export default function SeoSettings() {
       })
     );
 
-    const text = await res.text(); // read error body too
-    console.log("SEO save:", res.status, text);
-
+    await res.text();
     setStatus(res.ok ? "Сохранено" : `Ошибка сохранения (${res.status})`);
   } catch (e) {
-    console.log("SEO save network error:", e);
     setStatus("Ошибка сохранения (сеть)");
   } finally {
     setSaving(false);

@@ -273,7 +273,7 @@ export default function AdminBlogPage() {
       <div className={styles.header}>
         <div className={styles.headerMain}>
           <div className={styles.headerTitle}>
-            <h1>Blog</h1>
+            <h1>Блог</h1>
             <p>Создавайте статьи, добавляйте фотографии и публикуйте материалы о пастах и урбече.</p>
           </div>
 
@@ -345,7 +345,7 @@ export default function AdminBlogPage() {
                     <td className={styles.mono}>{article.slug}</td>
                     <td>
                       <span className={`${styles.badge} ${article.published ? styles.badgeGreen : styles.badgeGray}`}>
-                        {article.published ? 'Published' : 'Draft'}
+                        {article.published ? 'Опубликовано' : 'Черновик'}
                       </span>
                     </td>
                     <td>
@@ -365,10 +365,10 @@ export default function AdminBlogPage() {
                             setShowModal(true);
                           }}
                         >
-                          Edit
+                          Редактировать
                         </button>
                         <button type="button" className={styles.smallDangerButton} onClick={() => handleDelete(article.id)}>
-                          Delete
+                          Удалить
                         </button>
                       </div>
                     </td>

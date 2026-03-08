@@ -9,10 +9,10 @@ export default async function OrderPage({ params }) {
   if (!res.ok) {
     return (
       <div className={styles.container}>
-        <h1 className={styles.title}>Order not found</h1>
+        <h1 className={styles.title}>Заказ не найден</h1>
         <div className={styles.card}>
-          <div>We couldn’t load order <code>{id}</code>.</div>
-          <div>Status: {res.status}</div>
+          <div>Не удалось загрузить заказ <code>{id}</code>.</div>
+          <div>Статус ответа: {res.status}</div>
         </div>
       </div>
     );
@@ -23,47 +23,47 @@ export default async function OrderPage({ params }) {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Order confirmed</h1>
+        <h1 className={styles.title}>Заказ подтвержден</h1>
       </div>
 
       <div className={styles.card}>
         <div className={styles.meta}>
-          <div className={styles.label}>Order #</div><div>{order.orderNumber}</div>
-          <div className={styles.label}>Status</div><div>{order.status}</div>
-          <div className={styles.label}>Payment</div><div>{order.paymentStatus}</div>
-          <div className={styles.label}>Currency</div><div>{order.currencyCode}</div>
+          <div className={styles.label}>Номер заказа</div><div>{order.orderNumber}</div>
+          <div className={styles.label}>Статус</div><div>{order.status}</div>
+          <div className={styles.label}>Оплата</div><div>{order.paymentStatus}</div>
+          <div className={styles.label}>Валюта</div><div>{order.currencyCode}</div>
         </div>
 
         <hr className={styles.hr} />
 
-        <h2>Items</h2>
+        <h2>Товары</h2>
         <div className={styles.items}>
           {order.items?.map((it) => (
             <div key={it.id} className={styles.item}>
               <div className={styles.itemName}>{it.name}</div>
-              <div>Qty: {it.quantity}</div>
-              <div>Unit: {Number(it.unitPrice).toFixed(2)}</div>
-              <div>Line: {Number(it.total).toFixed(2)}</div>
-              {it.sku ? <div>SKU: {it.sku}</div> : null}
+              <div>Кол-во: {it.quantity}</div>
+              <div>Цена за шт.: {Number(it.unitPrice).toFixed(2)}</div>
+              <div>Сумма: {Number(it.total).toFixed(2)}</div>
+              {it.sku ? <div>Артикул: {it.sku}</div> : null}
             </div>
           ))}
         </div>
 
         <hr className={styles.hr} />
 
-        <h2>Totals</h2>
+        <h2>Итоги</h2>
         <div className={styles.totals}>
           <div className={styles.totalRow}>
-            <span>Subtotal</span><span>{Number(order.subtotal).toFixed(2)}</span>
+            <span>Подытог</span><span>{Number(order.subtotal).toFixed(2)}</span>
           </div>
           <div className={styles.totalRow}>
-            <span>Tax</span><span>{Number(order.taxTotal).toFixed(2)}</span>
+            <span>Налог</span><span>{Number(order.taxTotal).toFixed(2)}</span>
           </div>
           <div className={styles.totalRow}>
-            <span>Shipping</span><span>{Number(order.shippingTotal).toFixed(2)}</span>
+            <span>Доставка</span><span>{Number(order.shippingTotal).toFixed(2)}</span>
           </div>
           <div className={`${styles.totalRow} ${styles.totalStrong}`}>
-            <span>Total</span><span>{Number(order.total).toFixed(2)}</span>
+            <span>Итого</span><span>{Number(order.total).toFixed(2)}</span>
           </div>
         </div>
       </div>

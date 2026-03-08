@@ -5,7 +5,7 @@ import ForgotPasswordClient from "./ForgotPasswordClient";
 
 export default function ForgotPasswordPage() {
   return (
-    <Suspense fallback={<div style={{ padding: 16 }}>Loading…</div>}>
+    <Suspense fallback={<div style={{ padding: 16 }}>Загрузка…</div>}>
       <ForgotPasswordClient />
     </Suspense>
   );

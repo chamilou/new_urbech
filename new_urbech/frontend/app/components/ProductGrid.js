@@ -37,15 +37,15 @@ export default function ProductGrid({ products, onProductClick, onQuickAdd }) {
                 (product.description.length > 100 
                   ? `${product.description.substring(0, 100)}...` 
                   : product.description)
-                : 'No description available'
+                : 'Описание отсутствует'
               }
             </p>
             <div className={styles.priceSection}>
               <span className={styles.price}>
-                {product.price ? `$${product.price}` : 'Price not set'}
+                {product.price ? `${product.currencyCode || 'RUB'} ${product.price}` : 'Цена не указана'}
               </span>
               <span className={`${styles.stock} ${product.stock === 0 ? styles.outOfStock : styles.inStock}`}>
-                {product.stock === 0 ? 'Out of stock' : `In stock: ${product.stock}`}
+                {product.stock === 0 ? 'Нет в наличии' : `В наличии: ${product.stock}`}
               </span>
             </div>
           </div>

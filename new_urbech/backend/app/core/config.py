@@ -2,6 +2,7 @@
 # app/core/config.py
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 from app.core.env import load_project_env
 
 load_project_env()
@@ -31,10 +32,25 @@ ALLOWED_ORIGINS = os.getenv(
 # Clean up any whitespace
 ALLOWED_ORIGINS = [origin.strip() for origin in ALLOWED_ORIGINS if origin.strip()]
 
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development").strip().lower()
+
+allowed_hosts_env = os.getenv("ALLOWED_HOSTS", "").strip()
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(",") if host.strip()]
+else:
+    derived_hosts = {"localhost", "127.0.0.1"}
+    for origin in ALLOWED_ORIGINS:
+        parsed = urlparse(origin)
+        if parsed.hostname:
+            derived_hosts.add(parsed.hostname)
+    ALLOWED_HOSTS = sorted(derived_hosts)
+
 # Add more configuration as needed
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+SECRET_KEY = os.getenv("SECRET_KEY", "")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
 # Database
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/mydb")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL must be set")

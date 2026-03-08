@@ -87,8 +87,6 @@ export default function Register() {
         formData.password
       );
       
-      console.log('Результат регистрации:', result);
-      
       if (result.success) {
         // Успешная регистрация - перенаправляем на главную
          router.push(`/verify?email=${encodeURIComponent(formData.email)}`);
@@ -97,7 +95,6 @@ export default function Register() {
         setError(result.error || 'Ошибка регистрации. Пожалуйста, попробуйте снова.');
       }
     } catch (err) {
-      console.error('Ошибка регистрации:', err);
       setError(err.message || 'Ошибка регистрации. Пожалуйста, попробуйте снова.');
     } finally {
       setLoading(false);

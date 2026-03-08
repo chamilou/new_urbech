@@ -70,11 +70,7 @@ export default function HomePage() {
   ];
 
   // Add to Cart handler for ProductDetail
-  const handleAddToCart = (product, quantity) => {
-    console.log(`Добавлено ${quantity} шт. ${product.name} в корзину`);
-    // Здесь можно интегрировать с контекстом корзины
-    // addToCart(product, quantity);
-  };
+  const handleAddToCart = () => {};
 
   // Open ProductDetail modal
   const handleProductClick = (product) => {

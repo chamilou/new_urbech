@@ -23,7 +23,6 @@ export default function Profile() {
   // Only redirect if definitely not authenticated after loading
   useEffect(() => {
     if (!loading && !displayIsAuthenticated) {
-      console.log('❌ No auth found, redirecting to login');
       router.push('/login');
     }
   }, [loading, displayIsAuthenticated, router]);

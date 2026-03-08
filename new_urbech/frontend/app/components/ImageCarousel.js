@@ -9,25 +9,25 @@ const defaultSlides = [
   {
     id: 1,
     image: '/hero-1.jpg',
-    title: 'Welcome to MyShop',
-    description: 'Discover amazing products at great prices',
-    buttonText: 'Shop Now',
+    title: 'Добро пожаловать в магазин урбеча',
+    description: 'Откройте для себя натуральные пасты и продукты по честным ценам',
+    buttonText: 'К покупкам',
     buttonLink: '/products'
   },
   {
     id: 2,
     image: '/hero-2.jpg',
-    title: 'New Arrivals',
-    description: 'Check out our latest products',
-    buttonText: 'View New',
+    title: 'Новые поступления',
+    description: 'Посмотрите последние новинки в каталоге',
+    buttonText: 'Смотреть новинки',
     buttonLink: '/products?new=true'
   },
   {
     id: 3,
     image: '/hero-3.jpg',
-    title: 'Featured Products',
-    description: 'Special selections just for you',
-    buttonText: 'Explore',
+    title: 'Рекомендуемые товары',
+    description: 'Подборка лучших позиций для вас',
+    buttonText: 'Смотреть подборку',
     buttonLink: '/products?featured=true'
   }
 ];
@@ -114,14 +114,14 @@ export default function ImageCarousel({ slides = defaultSlides, autoPlay = true,
       <button 
         className={`${styles.arrow} ${styles.prev}`} 
         onClick={prevSlide}
-        aria-label="Previous slide"
+        aria-label="Предыдущий слайд"
       >
         ‹
       </button>
       <button 
         className={`${styles.arrow} ${styles.next}`} 
         onClick={nextSlide}
-        aria-label="Next slide"
+        aria-label="Следующий слайд"
       >
         ›
       </button>
@@ -135,7 +135,7 @@ export default function ImageCarousel({ slides = defaultSlides, autoPlay = true,
               index === currentSlide ? styles.active : ''
             }`}
             onClick={() => goToSlide(index)}
-            aria-label={`Go to slide ${index + 1}`}
+            aria-label={`Перейти к слайду ${index + 1}`}
           />
         ))}
       </div>

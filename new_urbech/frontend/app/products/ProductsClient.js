@@ -84,7 +84,6 @@ export default function ProductsClient({ initialCategory = '', initialScope = 'e
       if (featured) params.append('featured', 'true');
 
       const url = `${API_BASE}/products?${params.toString()}`;
-      console.log('Загрузка с:', url);
 
       const response = await fetch(url);
       const responseData = await response.json();
@@ -247,9 +246,7 @@ export default function ProductsClient({ initialCategory = '', initialScope = 'e
   };
 
   // Обработчик добавления в корзину
-  const handleAddToCart = (product, quantity) => {
-    console.log(`Добавлено ${quantity} шт. ${product.name} в корзину`);
-  };
+  const handleAddToCart = () => {};
 
   // Открытие модального окна с деталями товара
   const handleProductClick = (product) => {

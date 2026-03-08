@@ -70,11 +70,11 @@ function CustomerModal({ customer, onClose, onSaved }) {
       );
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(data?.detail || 'Failed to save customer');
+        throw new Error(data?.detail || 'Не удалось сохранить клиента');
       }
       onSaved();
     } catch (error) {
-      setSubmitError(error.message || 'Failed to save customer');
+      setSubmitError(error.message || 'Не удалось сохранить клиента');
     } finally {
       setSaving(false);
     }
@@ -84,7 +84,7 @@ function CustomerModal({ customer, onClose, onSaved }) {
     <div className={styles.modalOverlay} role="dialog" aria-modal="true">
       <div className={styles.modal}>
         <div className={styles.modalHeader}>
-          <h2>{customer ? 'Edit Customer' : 'Create Customer'}</h2>
+          <h2>{customer ? 'Редактировать клиента' : 'Новый клиент'}</h2>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.modalBody}>
@@ -92,7 +92,7 @@ function CustomerModal({ customer, onClose, onSaved }) {
 
           <div className={styles.formGrid}>
             <div className={styles.field}>
-              <label htmlFor="name">Name</label>
+              <label htmlFor="name">Имя</label>
               <input id="name" name="name" value={formData.name} onChange={handleChange} required />
             </div>
             <div className={styles.field}>
@@ -100,29 +100,29 @@ function CustomerModal({ customer, onClose, onSaved }) {
               <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
             </div>
             <div className={styles.field}>
-              <label htmlFor="phone">Phone</label>
+              <label htmlFor="phone">Телефон</label>
               <input id="phone" name="phone" value={formData.phone} onChange={handleChange} />
             </div>
             <div className={styles.field}>
-              <label htmlFor="group">Group</label>
-              <input id="group" name="group" value={formData.group} onChange={handleChange} placeholder="Retail, VIP, Wholesale..." />
+              <label htmlFor="group">Группа</label>
+              <input id="group" name="group" value={formData.group} onChange={handleChange} placeholder="Розница, VIP, опт..." />
             </div>
             <div className={styles.field}>
-              <label htmlFor="city">City</label>
+              <label htmlFor="city">Город</label>
               <input id="city" name="city" value={formData.city} onChange={handleChange} />
             </div>
             <div className={styles.field}>
-              <label htmlFor="country">Country</label>
+              <label htmlFor="country">Страна</label>
               <input id="country" name="country" value={formData.country} onChange={handleChange} />
             </div>
           </div>
 
           <div className={styles.modalActions}>
             <button type="button" className={styles.secondaryButton} onClick={onClose} disabled={saving}>
-              Cancel
+              Отмена
             </button>
             <button type="submit" className={styles.button} disabled={saving}>
-              {saving ? 'Saving...' : customer ? 'Update Customer' : 'Create Customer'}
+              {saving ? 'Сохранение...' : customer ? 'Обновить клиента' : 'Создать клиента'}
             </button>
           </div>
         </form>
@@ -149,7 +149,7 @@ export default function AdminCustomersPage() {
     );
     const data = await response.json().catch(() => []);
     if (!response.ok) {
-      throw new Error(data?.detail || 'Failed to load customers');
+      throw new Error(data?.detail || 'Не удалось загрузить клиентов');
     }
     setCustomers(Array.isArray(data) ? data : []);
   };
@@ -160,7 +160,7 @@ export default function AdminCustomersPage() {
       setError('');
       await loadCustomers(searchValue);
     } catch (loadError) {
-      setError(loadError.message || 'Failed to load customers');
+      setError(loadError.message || 'Не удалось загрузить клиентов');
     } finally {
       setLoading(false);
     }
@@ -172,7 +172,7 @@ export default function AdminCustomersPage() {
   }, []);
 
   const handleDelete = async (customerId) => {
-    if (!confirm('Delete this customer? This only works if they have no linked orders.')) return;
+    if (!confirm('Удалить этого клиента? Это возможно только если у него нет связанных заказов.')) return;
 
     try {
       const response = await fetch(
@@ -181,11 +181,11 @@ export default function AdminCustomersPage() {
       );
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(data?.detail || 'Failed to delete customer');
+        throw new Error(data?.detail || 'Не удалось удалить клиента');
       }
       await refresh(search);
     } catch (deleteError) {
-      setError(deleteError.message || 'Failed to delete customer');
+      setError(deleteError.message || 'Не удалось удалить клиента');
     }
   };
 
@@ -196,22 +196,22 @@ export default function AdminCustomersPage() {
       <div className={styles.header}>
         <div className={styles.headerMain}>
           <div className={styles.headerTitle}>
-            <h1>Customers</h1>
-            <p>Maintain customer records, contact details, and linked order counts.</p>
+            <h1>Клиенты</h1>
+            <p>Управляйте карточками клиентов, контактами и количеством связанных заказов.</p>
           </div>
 
           <div className={styles.stats}>
             <div className={styles.stat}>
               <span className={styles.statNumber}>{customers.length}</span>
-              <span className={styles.statLabel}>Customers</span>
+              <span className={styles.statLabel}>Клиентов</span>
             </div>
             <div className={styles.stat}>
               <span className={`${styles.statNumber} ${styles.statAccent}`}>{customersWithOrders}</span>
-              <span className={styles.statLabel}>With Orders</span>
+              <span className={styles.statLabel}>С заказами</span>
             </div>
             <div className={styles.stat}>
               <span className={styles.statNumber}>{customers.length - customersWithOrders}</span>
-              <span className={styles.statLabel}>Prospects</span>
+              <span className={styles.statLabel}>Без заказов</span>
             </div>
           </div>
         </div>
@@ -223,7 +223,7 @@ export default function AdminCustomersPage() {
               type="text"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by name, email, phone, city, or country"
+              placeholder="Поиск по имени, email, телефону, городу или стране"
             />
             {search ? (
               <button
@@ -241,10 +241,10 @@ export default function AdminCustomersPage() {
 
           <div className={styles.actionGroup}>
             <button type="button" className={styles.secondaryButton} onClick={() => refresh(search)}>
-              Search
+              Найти
             </button>
             <button type="button" className={styles.secondaryButton} onClick={() => refresh(search)}>
-              Refresh
+              Обновить
             </button>
             <button
               type="button"
@@ -254,7 +254,7 @@ export default function AdminCustomersPage() {
                 setShowModal(true);
               }}
             >
-              New Customer
+              Новый клиент
             </button>
           </div>
         </div>
@@ -263,24 +263,24 @@ export default function AdminCustomersPage() {
       {error ? <div className={styles.error}>{error}</div> : null}
 
       {loading ? (
-        <div className={styles.loading}>Loading customers...</div>
+        <div className={styles.loading}>Загрузка клиентов...</div>
       ) : (
         <div className={styles.tableSection}>
           <div className={styles.tableHeader}>
-            <div className={styles.tableInfo}>{customers.length} customer(s) loaded</div>
+            <div className={styles.tableInfo}>Загружено клиентов: {customers.length}</div>
           </div>
 
           <div className={styles.tableContainer}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Customer</th>
-                  <th>Contact</th>
-                  <th>Segment</th>
-                  <th>Location</th>
-                  <th>Orders</th>
-                  <th>Created</th>
-                  <th>Actions</th>
+                  <th>Клиент</th>
+                  <th>Контакты</th>
+                  <th>Сегмент</th>
+                  <th>Локация</th>
+                  <th>Заказы</th>
+                  <th>Создан</th>
+                  <th>Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -295,7 +295,7 @@ export default function AdminCustomersPage() {
                     <td>
                       <div className={styles.cellStack}>
                         <span>{customer.email}</span>
-                        <span className={styles.muted}>{customer.phone || 'No phone'}</span>
+                        <span className={styles.muted}>{customer.phone || 'Телефон не указан'}</span>
                       </div>
                     </td>
                     <td>
@@ -309,7 +309,7 @@ export default function AdminCustomersPage() {
                     </td>
                     <td>
                       <span className={`${styles.badge} ${customer.orderCount > 0 ? styles.badgeBlue : styles.badgeGray}`}>
-                        {customer.orderCount} order(s)
+                        {customer.orderCount} заказ(ов)
                       </span>
                     </td>
                     <td>{formatDate(customer.createdAt)}</td>
@@ -323,10 +323,10 @@ export default function AdminCustomersPage() {
                             setShowModal(true);
                           }}
                         >
-                          Edit
+                          Редактировать
                         </button>
                         <button type="button" className={styles.smallDangerButton} onClick={() => handleDelete(customer.id)}>
-                          Delete
+                          Удалить
                         </button>
                       </div>
                     </td>
@@ -335,7 +335,7 @@ export default function AdminCustomersPage() {
                 {!customers.length ? (
                   <tr>
                     <td colSpan={7} className={styles.empty}>
-                      No customers found.
+                      Клиенты не найдены.
                     </td>
                   </tr>
                 ) : null}

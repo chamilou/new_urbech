@@ -28,7 +28,7 @@ function createEmptyOrder() {
     customerId: '',
     customerName: '',
     customerEmail: '',
-    currencyCode: 'CHF',
+    currencyCode: 'RUB',
     status: 'PENDING',
     paymentStatus: 'PENDING',
     fulfillment: 'UNFULFILLED',
@@ -47,7 +47,7 @@ function orderToFormData(order) {
     customerId: order.customerId || '',
     customerName: order.customerName || '',
     customerEmail: order.customerEmail || '',
-    currencyCode: order.currencyCode || 'CHF',
+    currencyCode: order.currencyCode || 'RUB',
     status: order.status || 'PENDING',
     paymentStatus: order.paymentStatus || 'PENDING',
     fulfillment: order.fulfillment || 'UNFULFILLED',
@@ -100,7 +100,7 @@ function computeSummary(items, shippingTotal) {
 }
 
 function formatCurrency(value, currencyCode) {
-  return `${currencyCode || 'CHF'} ${Number(value || 0).toFixed(2)}`;
+  return `${currencyCode || 'RUB'} ${Number(value || 0).toFixed(2)}`;
 }
 
 function formatDate(value) {
@@ -215,12 +215,12 @@ function OrderModal({ order, customers, onClose, onSaved }) {
 
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(data?.detail || 'Failed to save order');
+        throw new Error(data?.detail || 'Не удалось сохранить заказ');
       }
 
       onSaved();
     } catch (error) {
-      setSubmitError(error.message || 'Failed to save order');
+      setSubmitError(error.message || 'Не удалось сохранить заказ');
     } finally {
       setSaving(false);
     }
@@ -230,28 +230,28 @@ function OrderModal({ order, customers, onClose, onSaved }) {
     <div className={styles.modalOverlay} role="dialog" aria-modal="true">
       <div className={`${styles.modal} ${styles.modalWide}`}>
         <div className={styles.modalHeader}>
-          <h2>{order ? 'Edit Order' : 'Create Order'}</h2>
+          <h2>{order ? 'Редактировать заказ' : 'Новый заказ'}</h2>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.modalBody}>
           {submitError ? <div className={styles.error}>{submitError}</div> : null}
 
-          <h3 className={styles.sectionTitle}>Order Details</h3>
+          <h3 className={styles.sectionTitle}>Детали заказа</h3>
           <div className={styles.formGrid}>
             <div className={styles.field}>
-              <label htmlFor="orderNumber">Order Number</label>
-              <input id="orderNumber" name="orderNumber" value={formData.orderNumber} onChange={handleFieldChange} placeholder="Auto-generated if empty" />
+              <label htmlFor="orderNumber">Номер заказа</label>
+              <input id="orderNumber" name="orderNumber" value={formData.orderNumber} onChange={handleFieldChange} placeholder="Будет создан автоматически, если оставить пустым" />
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="currencyCode">Currency</label>
+              <label htmlFor="currencyCode">Валюта</label>
               <input id="currencyCode" name="currencyCode" value={formData.currencyCode} onChange={handleFieldChange} maxLength={3} required />
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="customerId">Linked Customer</label>
+              <label htmlFor="customerId">Связанный клиент</label>
               <select id="customerId" name="customerId" value={formData.customerId} onChange={handleFieldChange}>
-                <option value="">Guest / none</option>
+                <option value="">Гость / без клиента</option>
                 {customers.map((customer) => (
                   <option key={customer.id} value={customer.id}>
                     {customer.name} ({customer.email})
@@ -261,22 +261,22 @@ function OrderModal({ order, customers, onClose, onSaved }) {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="customerName">Customer Name</label>
+              <label htmlFor="customerName">Имя клиента</label>
               <input id="customerName" name="customerName" value={formData.customerName} onChange={handleFieldChange} />
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="customerEmail">Customer Email</label>
+              <label htmlFor="customerEmail">Email клиента</label>
               <input id="customerEmail" type="email" name="customerEmail" value={formData.customerEmail} onChange={handleFieldChange} />
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="shippingTotal">Shipping Total</label>
+              <label htmlFor="shippingTotal">Стоимость доставки</label>
               <input id="shippingTotal" name="shippingTotal" type="number" min="0" step="0.01" value={formData.shippingTotal} onChange={handleFieldChange} />
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="status">Order Status</label>
+              <label htmlFor="status">Статус заказа</label>
               <select id="status" name="status" value={formData.status} onChange={handleFieldChange}>
                 {ORDER_STATUSES.map((status) => (
                   <option key={status} value={status}>
@@ -287,7 +287,7 @@ function OrderModal({ order, customers, onClose, onSaved }) {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="paymentStatus">Payment Status</label>
+              <label htmlFor="paymentStatus">Статус оплаты</label>
               <select id="paymentStatus" name="paymentStatus" value={formData.paymentStatus} onChange={handleFieldChange}>
                 {PAYMENT_STATUSES.map((status) => (
                   <option key={status} value={status}>
@@ -298,7 +298,7 @@ function OrderModal({ order, customers, onClose, onSaved }) {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="fulfillment">Fulfillment</label>
+              <label htmlFor="fulfillment">Исполнение</label>
               <select id="fulfillment" name="fulfillment" value={formData.fulfillment} onChange={handleFieldChange}>
                 {FULFILLMENT_STATUSES.map((status) => (
                   <option key={status} value={status}>
@@ -309,46 +309,46 @@ function OrderModal({ order, customers, onClose, onSaved }) {
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="paymentMode">Payment Mode</label>
-              <input id="paymentMode" name="paymentMode" value={formData.paymentMode} onChange={handleFieldChange} placeholder="Card, Cash, Bank transfer..." />
+              <label htmlFor="paymentMode">Способ оплаты</label>
+              <input id="paymentMode" name="paymentMode" value={formData.paymentMode} onChange={handleFieldChange} placeholder="Карта, наличные, перевод..." />
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="sendingAgent">Sending Agent</label>
-              <input id="sendingAgent" name="sendingAgent" value={formData.sendingAgent} onChange={handleFieldChange} placeholder="Courier or dispatch operator" />
+              <label htmlFor="sendingAgent">Служба отправки</label>
+              <input id="sendingAgent" name="sendingAgent" value={formData.sendingAgent} onChange={handleFieldChange} placeholder="Курьер, СДЭК, оператор..." />
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="city">City</label>
+              <label htmlFor="city">Город</label>
               <input id="city" name="city" value={formData.city} onChange={handleFieldChange} />
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="location">Location</label>
+              <label htmlFor="location">Адрес / точка выдачи</label>
               <input id="location" name="location" value={formData.location} onChange={handleFieldChange} />
             </div>
           </div>
 
           <div className={styles.itemsSection}>
             <div className={styles.itemsHeader}>
-              <h3 className={styles.sectionTitle}>Items</h3>
+              <h3 className={styles.sectionTitle}>Товары</h3>
               <button type="button" className={styles.secondaryButton} onClick={addItem}>
-                Add Item
+                Добавить товар
               </button>
             </div>
 
             {formData.items.map((item, index) => (
               <div key={`${index}-${item.name}`} className={styles.itemCard}>
                 <div className={styles.itemHeader}>
-                  <strong>Item {index + 1}</strong>
+                  <strong>Товар {index + 1}</strong>
                   <button type="button" className={styles.smallDangerButton} onClick={() => removeItem(index)}>
-                    Remove
+                    Удалить
                   </button>
                 </div>
 
                 <div className={styles.itemGrid}>
                   <div className={styles.field}>
-                    <label>Name</label>
+                    <label>Название</label>
                     <input value={item.name} onChange={(event) => handleItemChange(index, 'name', event.target.value)} required={index === 0} />
                   </div>
                   <div className={styles.field}>
@@ -356,19 +356,19 @@ function OrderModal({ order, customers, onClose, onSaved }) {
                     <input value={item.sku} onChange={(event) => handleItemChange(index, 'sku', event.target.value)} />
                   </div>
                   <div className={styles.field}>
-                    <label>Unit Price</label>
+                    <label>Цена за шт.</label>
                     <input type="number" min="0" step="0.01" value={item.unitPrice} onChange={(event) => handleItemChange(index, 'unitPrice', event.target.value)} />
                   </div>
                   <div className={styles.field}>
-                    <label>Qty</label>
+                    <label>Кол-во</label>
                     <input type="number" min="1" step="1" value={item.quantity} onChange={(event) => handleItemChange(index, 'quantity', event.target.value)} />
                   </div>
                   <div className={styles.field}>
-                    <label>Tax %</label>
+                    <label>Налог %</label>
                     <input type="number" min="0" step="0.01" value={item.taxRate} onChange={(event) => handleItemChange(index, 'taxRate', event.target.value)} />
                   </div>
                   <div className={styles.field}>
-                    <label>Discount</label>
+                    <label>Скидка</label>
                     <input type="number" min="0" step="0.01" value={item.discount} onChange={(event) => handleItemChange(index, 'discount', event.target.value)} />
                   </div>
                 </div>
@@ -378,33 +378,33 @@ function OrderModal({ order, customers, onClose, onSaved }) {
 
           <div className={styles.summaryPanel}>
             <div className={styles.summaryRow}>
-              <span>Subtotal</span>
+              <span>Подытог</span>
               <span>{formatCurrency(summary.subtotal, formData.currencyCode)}</span>
             </div>
             <div className={styles.summaryRow}>
-              <span>Discount</span>
+              <span>Скидка</span>
               <span>{formatCurrency(summary.discountTotal, formData.currencyCode)}</span>
             </div>
             <div className={styles.summaryRow}>
-              <span>Tax</span>
+              <span>Налог</span>
               <span>{formatCurrency(summary.taxTotal, formData.currencyCode)}</span>
             </div>
             <div className={styles.summaryRow}>
-              <span>Shipping</span>
+              <span>Доставка</span>
               <span>{formatCurrency(summary.shipping, formData.currencyCode)}</span>
             </div>
             <div className={`${styles.summaryRow} ${styles.summaryStrong}`}>
-              <span>Total</span>
+              <span>Итого</span>
               <span>{formatCurrency(summary.total, formData.currencyCode)}</span>
             </div>
           </div>
 
           <div className={styles.modalActions}>
             <button type="button" className={styles.secondaryButton} onClick={onClose} disabled={saving}>
-              Cancel
+              Отмена
             </button>
             <button type="submit" className={styles.button} disabled={saving}>
-              {saving ? 'Saving...' : order ? 'Update Order' : 'Create Order'}
+              {saving ? 'Сохранение...' : order ? 'Обновить заказ' : 'Создать заказ'}
             </button>
           </div>
         </form>
@@ -432,7 +432,7 @@ export default function AdminOrdersPage() {
     );
     const data = await response.json().catch(() => []);
     if (!response.ok) {
-      throw new Error(data?.detail || 'Failed to load orders');
+      throw new Error(data?.detail || 'Не удалось загрузить заказы');
     }
     setOrders(Array.isArray(data) ? data : []);
   };
@@ -441,7 +441,7 @@ export default function AdminOrdersPage() {
     const response = await fetch(`${API_BASE}/customers`, withAuth({ cache: 'no-store' }));
     const data = await response.json().catch(() => []);
     if (!response.ok) {
-      throw new Error(data?.detail || 'Failed to load customers');
+      throw new Error(data?.detail || 'Не удалось загрузить клиентов');
     }
     setCustomers(Array.isArray(data) ? data : []);
   };
@@ -452,7 +452,7 @@ export default function AdminOrdersPage() {
       setError('');
       await Promise.all([loadOrders(searchValue), loadCustomers()]);
     } catch (loadError) {
-      setError(loadError.message || 'Failed to load orders');
+      setError(loadError.message || 'Не удалось загрузить заказы');
     } finally {
       setLoading(false);
     }
@@ -464,7 +464,7 @@ export default function AdminOrdersPage() {
   }, []);
 
   const handleDelete = async (orderId) => {
-    if (!confirm('Delete this order? This action cannot be undone.')) return;
+    if (!confirm('Удалить этот заказ? Действие нельзя отменить.')) return;
 
     try {
       const response = await fetch(
@@ -473,11 +473,11 @@ export default function AdminOrdersPage() {
       );
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(data?.detail || 'Failed to delete order');
+        throw new Error(data?.detail || 'Не удалось удалить заказ');
       }
       await loadOrders(search);
     } catch (deleteError) {
-      setError(deleteError.message || 'Failed to delete order');
+      setError(deleteError.message || 'Не удалось удалить заказ');
     }
   };
 
@@ -490,26 +490,26 @@ export default function AdminOrdersPage() {
       <div className={styles.header}>
         <div className={styles.headerMain}>
           <div className={styles.headerTitle}>
-            <h1>Orders</h1>
-            <p>Manage customer orders, statuses, line items, and totals from one admin list.</p>
+            <h1>Заказы</h1>
+            <p>Управляйте заказами клиентов, статусами, позициями и суммами в одном списке.</p>
           </div>
 
           <div className={styles.stats}>
             <div className={styles.stat}>
               <span className={styles.statNumber}>{orders.length}</span>
-              <span className={styles.statLabel}>Orders</span>
+              <span className={styles.statLabel}>Заказов</span>
             </div>
             <div className={styles.stat}>
               <span className={`${styles.statNumber} ${styles.statAccent}`}>{paidOrders}</span>
-              <span className={styles.statLabel}>Paid</span>
+              <span className={styles.statLabel}>Оплачено</span>
             </div>
             <div className={styles.stat}>
               <span className={`${styles.statNumber} ${styles.statDanger}`}>{pendingOrders}</span>
-              <span className={styles.statLabel}>Pending</span>
+              <span className={styles.statLabel}>В ожидании</span>
             </div>
             <div className={styles.stat}>
               <span className={styles.statNumber}>{totalRevenue.toFixed(2)}</span>
-              <span className={styles.statLabel}>Revenue</span>
+              <span className={styles.statLabel}>Выручка</span>
             </div>
           </div>
         </div>
@@ -521,7 +521,7 @@ export default function AdminOrdersPage() {
               type="text"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by order number, customer, or status"
+              placeholder="Поиск по номеру заказа, клиенту или статусу"
             />
             {search ? (
               <button
@@ -539,10 +539,10 @@ export default function AdminOrdersPage() {
 
           <div className={styles.actionGroup}>
             <button type="button" className={styles.secondaryButton} onClick={() => loadData(search)}>
-              Search
+              Найти
             </button>
             <button type="button" className={styles.secondaryButton} onClick={() => loadData(search)}>
-              Refresh
+              Обновить
             </button>
             <button
               type="button"
@@ -552,7 +552,7 @@ export default function AdminOrdersPage() {
                 setShowModal(true);
               }}
             >
-              New Order
+              Новый заказ
             </button>
           </div>
         </div>
@@ -561,24 +561,24 @@ export default function AdminOrdersPage() {
       {error ? <div className={styles.error}>{error}</div> : null}
 
       {loading ? (
-        <div className={styles.loading}>Loading orders...</div>
+        <div className={styles.loading}>Загрузка заказов...</div>
       ) : (
         <div className={styles.tableSection}>
           <div className={styles.tableHeader}>
-            <div className={styles.tableInfo}>{orders.length} order(s) loaded</div>
+            <div className={styles.tableInfo}>Загружено заказов: {orders.length}</div>
           </div>
 
           <div className={styles.tableContainer}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Order</th>
-                  <th>Customer</th>
-                  <th>Items</th>
-                  <th>Statuses</th>
-                  <th>Total</th>
-                  <th>Updated</th>
-                  <th>Actions</th>
+                  <th>Заказ</th>
+                  <th>Клиент</th>
+                  <th>Товары</th>
+                  <th>Статусы</th>
+                  <th>Сумма</th>
+                  <th>Обновлено</th>
+                  <th>Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -592,20 +592,20 @@ export default function AdminOrdersPage() {
                     </td>
                     <td>
                       <div className={styles.cellStack}>
-                        <span>{order.customerName || 'Guest customer'}</span>
-                        <span className={styles.muted}>{order.customerEmail || 'No email'}</span>
+                        <span>{order.customerName || 'Гостевой клиент'}</span>
+                        <span className={styles.muted}>{order.customerEmail || 'Без email'}</span>
                       </div>
                     </td>
                     <td>
                       <div className={styles.cellStack}>
-                        <span>{order.itemCount} item(s)</span>
+                        <span>{order.itemCount} поз.</span>
                         <div className={styles.itemPreview}>
                           {order.items.slice(0, 2).map((item) => (
                             <span key={item.id} className={styles.pill}>
                               {item.name}
                             </span>
                           ))}
-                          {order.items.length > 2 ? <span className={styles.pill}>+{order.items.length - 2} more</span> : null}
+                          {order.items.length > 2 ? <span className={styles.pill}>+ещё {order.items.length - 2}</span> : null}
                         </div>
                       </div>
                     </td>
@@ -619,13 +619,13 @@ export default function AdminOrdersPage() {
                     <td>
                       <div className={styles.cellStack}>
                         <span className={styles.strong}>{formatCurrency(order.total, order.currencyCode)}</span>
-                        <span className={styles.muted}>Shipping {formatCurrency(order.shippingTotal, order.currencyCode)}</span>
+                        <span className={styles.muted}>Доставка {formatCurrency(order.shippingTotal, order.currencyCode)}</span>
                       </div>
                     </td>
                     <td>
                       <div className={styles.cellStack}>
                         <span>{formatDate(order.updatedAt)}</span>
-                        <span className={styles.muted}>Created {formatDate(order.createdAt)}</span>
+                        <span className={styles.muted}>Создан {formatDate(order.createdAt)}</span>
                       </div>
                     </td>
                     <td>
@@ -638,10 +638,10 @@ export default function AdminOrdersPage() {
                             setShowModal(true);
                           }}
                         >
-                          Edit
+                          Редактировать
                         </button>
                         <button type="button" className={styles.smallDangerButton} onClick={() => handleDelete(order.id)}>
-                          Delete
+                          Удалить
                         </button>
                       </div>
                     </td>
@@ -650,7 +650,7 @@ export default function AdminOrdersPage() {
                 {!orders.length ? (
                   <tr>
                     <td colSpan={7} className={styles.empty}>
-                      No orders found.
+                      Заказы не найдены.
                     </td>
                   </tr>
                 ) : null}

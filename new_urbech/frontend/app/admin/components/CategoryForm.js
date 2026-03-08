@@ -276,27 +276,6 @@ export default function CategoryForm({ category, onClose, onSave }) {
     }
   };
 
-  // Test function to verify Cyrillic transliteration
-  const testCyrillicSlug = () => {
-    const testCases = [
-      'Шоколад',
-      'Кондитерские изделия', 
-      'Электроника',
-      'Одежда',
-      'Тест Русский Текст'
-    ];
-    
-    console.log('🧪 Testing Cyrillic transliteration:');
-    testCases.forEach(test => {
-      console.log(`"${test}" → "${advancedSlugify(test)}"`);
-    });
-  };
-
-  // Uncomment to test on component mount
-  // useEffect(() => {
-  //   testCyrillicSlug();
-  // }, []);
-
   return (
     <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-label="Форма категории">
       <div className={styles.modal}>

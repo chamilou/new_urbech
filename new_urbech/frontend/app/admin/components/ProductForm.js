@@ -203,8 +203,8 @@ export default function ProductForm({ product, onClose, onSave }) {
     const cc = (formData.currencyCode || '').toString().trim().toUpperCase();
     if (!cc) {
       newErrors.currencyCode = 'Валюта обязательна';
-    } else if (!/^[A-Z]{3}$/.test(cc)) {
-      newErrors.currencyCode = 'Валюта должна быть 3 буквы (например USD, EUR, CHF)';
+    } else if (cc !== 'RUB') {
+      newErrors.currencyCode = 'Доступна только валюта RUB';
     }
 
     // Price
@@ -577,17 +577,13 @@ export default function ProductForm({ product, onClose, onSave }) {
                 aria-describedby={errors.currencyCode ? 'currency-error' : undefined}
               >
                 <option value="RUB">RUB</option>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="CHF">CHF</option>
-                <option value="GBP">GBP</option>
               </select>
               {errors.currencyCode && (
                 <div id="currency-error" className={styles.fieldError}>
                   {errors.currencyCode}
                 </div>
               )}
-      <small className={styles.helpText}>Трёхбуквенный код валюты (RUB, USD, EUR, CHF...)</small>
+      <small className={styles.helpText}>Доступна только валюта RUB</small>
             </div>
 
             {/* Price */}

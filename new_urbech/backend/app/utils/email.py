@@ -18,6 +18,7 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 SMTP_USERNAME = os.getenv("SMTP_USERNAME", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 FROM_EMAIL = os.getenv("FROM_EMAIL", SMTP_USERNAME)
+EMAIL_ENABLED = bool(SMTP_SERVER and SMTP_USERNAME and SMTP_PASSWORD and FROM_EMAIL)
 
 
 def send_verification_email(email: str, name: str, code: str):
@@ -125,6 +126,9 @@ def send_email(
     html_content: str,
     text_content: Optional[str] = None,
 ):
+    if not EMAIL_ENABLED:
+        raise RuntimeError("SMTP is not fully configured")
+
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = FROM_EMAIL
@@ -135,12 +139,6 @@ def send_email(
     msg.attach(MIMEText(html_content, "html"))
 
     try:
-        logger.info(
-            f"SMTP connect: server={SMTP_SERVER} port={SMTP_PORT} "
-            f"user={'SET' if SMTP_USERNAME else 'EMPTY'} pass={'SET' if SMTP_PASSWORD else 'EMPTY'} from={FROM_EMAIL}"
-        )
-
-        # ✅ Use SSL for 465, STARTTLS for 587
         if SMTP_PORT == 465:
             with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=20) as server:
                 server.login(SMTP_USERNAME, SMTP_PASSWORD)
@@ -153,7 +151,7 @@ def send_email(
                 server.login(SMTP_USERNAME, SMTP_PASSWORD)
                 server.send_message(msg)
 
-        logger.info(f"Email sent to {to_email}")
+        logger.info("Email sent")
 
     except Exception as e:
         logger.error(f"SMTP error sending email to {to_email}: {str(e)}")

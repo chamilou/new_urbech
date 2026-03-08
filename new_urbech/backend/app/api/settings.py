@@ -21,7 +21,7 @@ def write_settings(data: dict):
     SETTINGS_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 @router.get("/seo")
-async def get_seo_settings():
+async def get_seo_settings(_admin=Depends(require_admin)):
     return read_settings()
 
 @router.put("/seo")
